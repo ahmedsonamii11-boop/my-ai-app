@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+from datetime import datetime
 
 # ==========================================
 # 1. إعدادات الصفحة والتهيئة الأساسية
@@ -14,30 +15,42 @@ st.set_page_config(
 # قراءة المفتاح من الـ Secrets
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
+# تهيئة السجل والمفضلة في session_state لو مش موجودين
+if "history" not in st.session_state:
+    st.session_state["history"] = []
+
+if "favorites" not in st.session_state:
+    st.session_state["favorites"] = []
+
 # ==========================================
-# 2. دالة الاتصال المحدثة (REST API 2026)
+# 2. دالة الاتصال والتسجيل التلقائي
 # ==========================================
-def generate_ai_response(prompt_text):
+def generate_ai_response(prompt_text, category_name="عام"):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    # مسار الموديل المحدث والمستقر gemini-3.6-flash
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
-    
     headers = {'Content-Type': 'application/json'}
-    payload = {
-        "contents": [{
-            "parts": [{"text": prompt_text}]
-        }]
-    }
+    payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
 
     try:
         response = requests.post(url, json=payload, headers=headers)
         res_data = response.json()
         
         if response.status_code == 200:
-            return res_data['candidates'][0]['content']['parts'][0]['text']
+            output_text = res_data['candidates'][0]['content']['parts'][0]['text']
+            
+            # 💾 حفظ النتيجة تلقائياً في السجل
+            history_item = {
+                "id": len(st.session_state["history"]) + 1,
+                "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "category": category_name,
+                "prompt": prompt_text,
+                "result": output_text
+            }
+            st.session_state["history"].insert(0, history_item) # إضافة في البداية لتظهر الأحدث أولاً
+            return output_text
         else:
             error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
             st.error(f"❌ خطأ من API ({response.status_code}): {error_msg}")
@@ -47,7 +60,7 @@ def generate_ai_response(prompt_text):
         return None
 
 # ==========================================
-# 3. القائمة الجانبية (Sidebar)
+# 3. القائمة الجانبية (Sidebar) وحفظ السجل
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
@@ -56,15 +69,25 @@ with st.sidebar:
     is_ar = (lang == "العربية")
     
     st.divider()
-    st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
-    st.divider()
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
     
-    st.subheader("⭐ المفضلة (Favorites)")
-    st.caption("لا توجد عناصر مضافة للمفضلة" if is_ar else "No favorites added yet")
-    
+    # 📜 عرض السجل الكامل والتفاعلي
     st.subheader("📜 السجل الكامل (History)")
-    st.caption("السجل فارغ حتى الآن" if is_ar else "History is currently empty")
+    
+    if not st.session_state["history"]:
+        st.caption("السجل فارغ حتى الآن. أي نتيجة تولدها ستظهر هنا أوتوماتيكياً!" if is_ar else "History is empty. Generated results will appear here automatically!")
+    else:
+        # تصفية السجل بناءً على البحث
+        filtered_history = [
+            item for item in st.session_state["history"]
+            if search_query.lower() in item["category"].lower() or search_query.lower() in item["prompt"].lower()
+        ] if search_query else st.session_state["history"]
+
+        for idx, item in enumerate(filtered_history):
+            with st.expander(f"📌 [{item['category']}] - {item['timestamp']}"):
+                st.markdown(f"**الطلب:** {item['prompt'][:60]}...")
+                st.markdown("---")
+                st.markdown(item["result"])
 
 # ==========================================
 # 4. الواجهة الرئيسية والتبويبات الـ 5 الشاملة
@@ -122,9 +145,9 @@ Provide:
 2. Ready-to-use Suno AI Style Prompt.
 3. Rhyme Dictionary / Key Vocabulary used.
 """
-                result = generate_ai_response(prompt)
+                result = generate_ai_response(prompt, category_name="أغاني Suno")
                 if result:
-                    st.success("🎉 تم توليد مشروع الأغنية بنجاح!")
+                    st.success("🎉 تم توليد مشروع الأغنية وحفظه في السجل!")
                     st.markdown(result)
 
 # ----------------------------------------------------
@@ -154,9 +177,9 @@ Provide:
 3. High-performing Hashtags.
 4. Call to Action (CTA).
 """
-                result = generate_ai_response(prompt)
+                result = generate_ai_response(prompt, category_name="تسويق وتريند")
                 if result:
-                    st.success("🎉 تم توليد الخطة التسويقية!")
+                    st.success("🎉 تم توليد الخطة التسويقية وحفظها في السجل!")
                     st.markdown(result)
 
 # ----------------------------------------------------
@@ -186,9 +209,9 @@ Format output in a structured table or detailed list:
 - Audio / Voiceover
 - Camera Angle & Movement
 """
-                result = generate_ai_response(prompt)
+                result = generate_ai_response(prompt, category_name="سكريبت فيديو")
                 if result:
-                    st.success("🎉 تم كتابة السكريبت والـ Storyboard!")
+                    st.success("🎉 تم كتابة السكريبت وحفظه في السجل!")
                     st.markdown(result)
 
 # ----------------------------------------------------
@@ -216,9 +239,9 @@ Provide:
 2. Voiceover Delivery Guide.
 3. Recommended background music mood.
 """
-                result = generate_ai_response(prompt)
+                result = generate_ai_response(prompt, category_name="تحريك فيديو")
                 if result:
-                    st.success("🎉 تم جاهزية أوامر التحريك!")
+                    st.success("🎉 تم تجهيز أوامر التحريك وحفظها في السجل!")
                     st.markdown(result)
 
 # ----------------------------------------------------
@@ -243,7 +266,7 @@ Generate 3 distinct, hyper-detailed image prompts for {img_engine} based on:
 
 Include details on lighting, camera lens, resolution, and style.
 """
-                result = generate_ai_response(prompt)
+                result = generate_ai_response(prompt, category_name="برومبت صور")
                 if result:
-                    st.success("🎉 تم توليد برومبتات الصور بنجاح!")
+                    st.success("🎉 تم توليد برومبتات الصور وحفظها في السجل!")
                     st.markdown(result)
