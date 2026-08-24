@@ -15,15 +15,15 @@ st.set_page_config(
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. دالة الاتصال المباشر والآمنة (REST API)
+# 2. دالة الاتصال المحدثة (REST API 2026 Direct)
 # ==========================================
 def generate_ai_response(prompt_text):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    # استخدام الـ Endpoint المباشر والمستقر
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    # المسار المباشر والمستقر لـ gemini-2.5-flash
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
     
     headers = {'Content-Type': 'application/json'}
     payload = {
@@ -34,19 +34,13 @@ def generate_ai_response(prompt_text):
 
     try:
         response = requests.post(url, json=payload, headers=headers)
+        res_data = response.json()
         
-        # التأكد من وصول رد صحيح قبل قراءة الـ JSON
         if response.status_code == 200:
-            res_data = response.json()
             return res_data['candidates'][0]['content']['parts'][0]['text']
         else:
-            # محاولة احتياطية بموديل gemini-2.0-flash في حال وجود تحديث في الحساب
-            backup_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
-            backup_res = requests.post(backup_url, json=payload, headers=headers)
-            if backup_res.status_code == 200:
-                return backup_res.json()['candidates'][0]['content']['parts'][0]['text']
-            
-            st.error(f"❌ خطأ من API ({response.status_code}): يرجى التأكد من صحة API Key الخاص بك في Streamlit Secrets.")
+            error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
+            st.error(f"❌ خطأ من API ({response.status_code}): {error_msg}")
             return None
     except Exception as e:
         st.error(f"❌ حدث خطأ في الاتصال: {str(e)}")
