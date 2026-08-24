@@ -1,25 +1,23 @@
 import streamlit as st
 import google.generativeai as genai
-import os
 
 # ==========================================
 # 1. إعدادات الصفحة والتهيئة الأساسية
 # ==========================================
 st.set_page_config(
     page_title="استوديو المحتوى الذكي الشامل (50 ميزة)",
-    page_icon="🤖",
+    page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# تهيئة المفتاح السري من Streamlit Secrets تلقائياً
+# تهيئة المفتاح السري تلقائياً من Streamlit Secrets (بدون ظهور أي خانة)
 api_key = st.secrets.get("GEMINI_API_KEY")
-
 if api_key:
     genai.configure(api_key=api_key)
 
 # ==========================================
-# 2. القائمة الجانبية (اللغة، المفضلة، السجل)
+# 2. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
@@ -29,12 +27,10 @@ with st.sidebar:
     
     st.divider()
     
-    # وضع التركيز (Zen Mode)
     st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
     
     st.divider()
     
-    # البحث في السجل
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
     
     st.subheader("⭐ المفضلة (Favorites)")
@@ -44,7 +40,7 @@ with st.sidebar:
     st.caption("السجل فارغ حتى الآن" if is_ar else "History is currently empty")
 
 # ==========================================
-# 3. الواجهة الرئيسية واستوديو الأغاني (Suno Studio)
+# 3. الواجهة الرئيسية والتبويبات الـ 5
 # ==========================================
 st.title("🎬 استوديو المحتوى الذكي الشامل (50 ميزة)")
 st.caption("منظومة احترافية متكاملة لصناعة الأغاني، الصور، الفيديوهات، والـ Storyboards")
@@ -57,12 +53,13 @@ tabs = st.tabs([
     "🎨 استوديو الصور والمؤثرات"
 ])
 
-# ------------ 1. Suno استوديو الأغاني ------------
+# ----------------------------------------------------
+# 1️⃣ Suno استوديو الأغاني
+# ----------------------------------------------------
 with tabs[0]:
     st.markdown("### 🎵 صناعة الأغاني، الهندسة الصوتية، والقوافي (Suno Pro Studio)")
     
     col1, col2 = st.columns([2, 1])
-    
     with col1:
         song_idea = st.text_area("💡 فكرة الأغنية أو موضوعها:", placeholder="مثال: أغنية حماسية عن التحدي والمثابرة...", height=100)
         song_structure = st.multiselect(
@@ -81,23 +78,20 @@ with tabs[0]:
     if st.button("✨ توليد الأغنية، البرومبت، وقاموس القوافي", type="primary", key="btn_song"):
         if not song_idea:
             st.warning("⚠️ يرجى إدخال فكرة الأغنية أولاً!")
+        elif not api_key:
+            st.error("❌ لم يتم العثور على API Key في Secrets!")
         else:
-            if not api_key:
-                st.error("❌ لم يتم العثور على API Key في Secrets. يرجى إضافته في إعدادات Streamlit Cloud!")
-            else:
-                with st.spinner("...جارٍ صياغة الكلمات، حساب الـ BPM وتنظيم الهندسة الصوتية"):
-                    try:
-                        genai.configure(api_key=api_key)
-                        model = genai.GenerativeModel('gemini-1.5-flash')
-                        
-                        prompt = f"""You are an elite Music Producer and Songwriter.
+            with st.spinner("...جارٍ صياغة الكلمات وهندسة البرومبت"):
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"""You are an elite Music Producer and Songwriter.
 Create a complete song package based on:
 - Idea: '{song_idea}'
 - Structure: {', '.join(song_structure)}
-- Dialect/Language: {lyrics_dialect}
+- Dialect: {lyrics_dialect}
 - Style: {song_style}
-- Vocal Style: {vocal_type}
-- Mixing: {', '.join(audio_mixing)}
+- Vocalist: {vocal_type}
+- Audio Effects: {', '.join(audio_mixing)}
 - Mood: {song_mood}
 
 Provide:
@@ -105,10 +99,149 @@ Provide:
 2. Ready-to-use Suno AI Style Prompt.
 3. Rhyme Dictionary / Key Vocabulary used.
 """
-                        response = model.generate_content(prompt)
-                        
-                        st.success("🎉 تم توليد مشروع الأغنية بنجاح!")
-                        st.markdown(response.text)
-                        
-                    except Exception as e:
-                        st.error(f"❌ حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: {str(e)}")
+                    response = model.generate_content(prompt)
+                    st.success("🎉 تم توليد مشروع الأغنية بنجاح!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"❌ حدث خطأ: {str(e)}")
+
+# ----------------------------------------------------
+# 2️⃣ تسويق المحتوى والتريند
+# ----------------------------------------------------
+with tabs[1]:
+    st.markdown("### 📊 استوديو التسويق، الهاشتاجات، والتريندات")
+    
+    m_topic = st.text_input("🎯 موضوع المحتوى أو المنتج:")
+    m_platform = st.selectbox("📱 المنصة المستهدفة:", ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "X (Twitter)"])
+    m_goal = st.selectbox("📌 الهدف من المحتوى:", ["زيادة التفاعل (Engagement)", "زيادة المبيعات (Sales)", "زيادة المتابعين (Awareness)"])
+    
+    if st.button("🚀 توليد الخطة التسويقية والتريند", type="primary", key="btn_mkt"):
+        if not m_topic:
+            st.warning("⚠️ يرجى إدخال موضوع المحتوى!")
+        elif not api_key:
+            st.error("❌ لم يتم العثور على API Key!")
+        else:
+            with st.spinner("...جارٍ تحليل التريندات وكتابة الاستراتيجية"):
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"""You are a Digital Marketing & Growth Hacking Expert.
+Create a marketing plan for:
+- Topic: {m_topic}
+- Platform: {m_platform}
+- Goal: {m_goal}
+
+Provide:
+1. 3 Catchy Hooks (العناوين الجاذبة).
+2. Content Strategy & Post Description.
+3. High-performing Hashtags (تريندات وهاشتاجات قوية).
+4. Call to Action (CTA) optimized for the platform.
+"""
+                    response = model.generate_content(prompt)
+                    st.success("🎉 تم توليد الخطة التسويقية!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"❌ حدث خطأ: {str(e)}")
+
+# ----------------------------------------------------
+# 3️⃣ سكريبت الفيديو والـ Storyboard
+# ----------------------------------------------------
+with tabs[2]:
+    st.markdown("### 🎬 صانع السكريبت التفصيلي والـ Storyboard السينمائي")
+    
+    v_title = st.text_input("📽️ عنوان أو فكرة الفيديو:")
+    v_duration = st.select_slider("⏱️ مدة الفيديو التقديرية:", options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق"])
+    v_style = st.selectbox("🎨 النمط البصري (Visual Style):", ["سينمائي واقعي (Cinematic)", "3D Animation", "Dark Fantasy", "Cyberpunk", "Documentary"])
+    
+    if st.button("🎬 توليد السكريبت والـ Storyboard", type="primary", key="btn_script"):
+        if not v_title:
+            st.warning("⚠️ يرجى إدخال عنوان الفيديو!")
+        elif not api_key:
+            st.error("❌ لم يتم العثور على API Key!")
+        else:
+            with st.spinner("...جارٍ رسم المشاهد وكتابة السكريبت"):
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"""You are a Professional Film Director and Scriptwriter.
+Create a scene-by-scene Storyboard & Script for:
+- Title/Idea: {v_title}
+- Duration: {v_duration}
+- Visual Style: {v_style}
+
+Format output in a structured table or detailed list:
+- Scene Number
+- Visual Prompt (For Midjourney/Runway)
+- Audio / Voiceover (التعليق الصوتي)
+- Camera Angle & Movement
+"""
+                    response = model.generate_content(prompt)
+                    st.success("🎉 تم كتابة السكريبت والـ Storyboard!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"❌ حدث خطأ: {str(e)}")
+
+# ----------------------------------------------------
+# 4️⃣ تحريك الفيديو والمنصات
+# ----------------------------------------------------
+with tabs[3]:
+    st.markdown("### 🗣️ محرك الفيديو، الأفاتار، وتحويل النصوص لأصوات")
+    
+    a_script = st.text_area("📜 النص المراد تحويله لصوت أو أفاتار:", height=100)
+    a_voice = st.selectbox("🎙️ نبرة الصوت المفضل:", ["صوتي وثائقي فخم", "سريع وحماسي (Shorts/TikTok)", "ودود وإخباري", "درامي عميق"])
+    a_ai_tool = st.selectbox("🤖 أداة التحريك المستهدفة:", ["Runway Gen-2 / Gen-3", "Luma Dream Machine", "HeyGen / D-ID", "Pika Labs"])
+    
+    if st.button("⚡ توليد برومبتات التحريك والصوت", type="primary", key="btn_anim"):
+        if not a_script:
+            st.warning("⚠️ يرجى إدخال النص أولاً!")
+        elif not api_key:
+            st.error("❌ لم يتم العثور على API Key!")
+        else:
+            with st.spinner("...جارٍ إعداد أوامر التحريك والصوت"):
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"""You are an AI Video & Avatar Animation Prompt Engineer.
+Process this text for video animation using {a_ai_tool}:
+Text: '{a_script}'
+Desired Voice Tone: {a_voice}
+
+Provide:
+1. Exact Motion/Camera Prompts for {a_ai_tool}.
+2. Voiceover Delivery Guide (إرشادات نبرة الصوت والتلوين الصوتي).
+3. Recommended background music mood.
+"""
+                    response = model.generate_content(prompt)
+                    st.success("🎉 تم جاهزية أوامر التحريك!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"❌ حدث خطأ: {str(e)}")
+
+# ----------------------------------------------------
+# 5️⃣ استوديو الصور والمؤثرات
+# ----------------------------------------------------
+with tabs[4]:
+    st.markdown("### 🎨 مهندس برومبتات الصور الاحترافية (Midjourney & Flux)")
+    
+    img_desc = st.text_input("🖼️ وصف الصورة التي تتخيلها:")
+    img_engine = st.selectbox("🎯 محرك الصور:", ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
+    img_aspect = st.selectbox("أبعاد الصورة (Aspect Ratio):", ["16:9 (فيديو/يوتيوب)", "9:16 (ستوري/ريلز)", "1:1 (مربع)", "4:5 (إنستجرام)"])
+    
+    if st.button("🎨 توليد البرومبتات الاحترافية", type="primary", key="btn_img"):
+        if not img_desc:
+            st.warning("⚠️ يرجى إدخال وصف الصورة!")
+        elif not api_key:
+            st.error("❌ لم يتم العثور على API Key!")
+        else:
+            with st.spinner("...جارٍ كتابة برومبت الهندسة البصرية"):
+                try:
+                    model = genai.GenerativeModel('gemini-1.5-flash')
+                    prompt = f"""You are a Master AI Image Prompt Engineer.
+Generate 3 distinct, hyper-detailed image prompts for {img_engine} based on:
+- Concept: {img_desc}
+- Aspect Ratio: {img_aspect}
+
+Include details on lighting, camera lens, resolution, style, and negative prompts if necessary.
+"""
+                    response = model.generate_content(prompt)
+                    st.success("🎉 تم توليد برومبتات الصور بنجاح!")
+                    st.markdown(response.text)
+                except Exception as e:
+                    st.error(f"❌ حدث خطأ: {str(e)}")
