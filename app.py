@@ -76,11 +76,11 @@ with st.sidebar:
     
     st.divider()
     
-   # قراءة المفتاح تلقائياً من Secrets بدون إظهار أي خانة للمستخدم
-api_key = st.secrets.get("GEMINI_API_KEY") or st.session_state.get("saved_api_key")
+    # قراءة المفتاح تلقائياً من Secrets بدون إظهار أي خانة للمستخدم
+    api_key = st.secrets.get("GEMINI_API_KEY") or st.session_state.get("saved_api_key")
 
-if api_key:
-    genai.configure(api_key=api_key)
+    if api_key:
+        genai.configure(api_key=api_key)
     
     # وضع التركيز (Zen Mode)
     st.session_state["zen_mode"] = st.checkbox("🧘 وضع التركيز (Zen Mode)" if is_ar else "🧘 Zen Mode")
@@ -92,7 +92,7 @@ if api_key:
     
     # قسم المفضلة
     st.subheader("⭐ المفضلة (Favorites)" if is_ar else "⭐ Favorites")
-    if st.session_state["favorites"]:
+    if st.session_state.get("favorites"):
         for idx, fav in enumerate(st.session_state["favorites"]):
             if st.button(f"⭐ {fav['title']}", key=f"fav_{idx}", use_container_width=True):
                 st.session_state["selected_item"] = fav
@@ -103,7 +103,7 @@ if api_key:
     
     # قسم السجل الكامل
     st.subheader("📜 السجل الكامل (History)" if is_ar else "📜 Full History")
-    if st.session_state["history"]:
+    if st.session_state.get("history"):
         if st.button("🗑️ مسح السجل بالكامل" if is_ar else "🗑️ Clear All History", use_container_width=True):
             st.session_state["history"] = []
             st.session_state["selected_item"] = None
@@ -119,7 +119,6 @@ if api_key:
                 st.session_state["selected_item"] = item
     else:
         st.caption("السجل فارغ حتى الآن" if is_ar else "History is empty")
-
 # ==================== 3. محرك الذكاء الاصطناعي والدوال المساعدة ====================
 def call_gemini(prompt_text):
     api_key = st.session_state.get("saved_api_key", "")
