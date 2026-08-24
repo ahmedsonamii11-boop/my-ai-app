@@ -18,53 +18,56 @@ if API_KEY:
     genai.configure(api_key=API_KEY)
 
 # ==========================================
-# 2. دالة الاتصال الموحدة والآمنة (الحل الجذر)
+# 2. دالة الاتصال الموحدة والآمنة لجميع التابّات
 # ==========================================
 def generate_ai_response(prompt_text):
     """
-    دالة مركزية لتوليد النصوص مع تجربة الموديلات المتاحة تلقائياً لتفادي أخطاء 404
+    دالة مركزية لتوليد النصوص بجميع التابات مع معالجة الأخطاء
     """
     if not API_KEY:
-        st.error("❌ لم يتم العثور على GEMINI_API_KEY في الـ Secrets الخاصة بـ Streamlit!")
+        st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets! يرجى إضافته أولاً.")
         return None
 
-    # قائمة الموديلات مرتبة بالأفضلية
-    models_to_try = [
-        'gemini-1.5-flash-latest',
-        'gemini-1.5-flash',
-        'gemini-1.5-pro',
-        'gemini-pro'
-    ]
-
-    for model_name in models_to_try:
+    try:
+        # استخدام اسم الموديل الرسمي السريع
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(prompt_text)
+        return response.text
+    except Exception as e:
+        # إذا حدث خطأ مع الموديل الأول، نجرب الموديل المستقر الثانوى
         try:
-            model = genai.GenerativeModel(model_name)
+            model = genai.GenerativeModel('gemini-1.5-pro')
             response = model.generate_content(prompt_text)
             return response.text
-        except Exception:
-            continue  # الانتقال للموديل التالي إذا فشل الموديل الحالي
-            
-    st.error("❌ تعذر الاتصال بجميع موديلات Gemini المتاحة. يرجى التأكد من صحة الـ API Key.")
-    return None
+        except Exception as err:
+            st.error(f"❌ حدث خطأ أثناء الاتصال بـ Gemini API: {str(err)}")
+            return None
 
 # ==========================================
 # 3. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
+    
     lang = st.radio("🌐 لغة الواجهة:", ["العربية", "English"])
     is_ar = (lang == "العربية")
+    
     st.divider()
+    
     st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
+    
     st.divider()
+    
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
+    
     st.subheader("⭐ المفضلة (Favorites)")
     st.caption("لا توجد عناصر مضافة للمفضلة" if is_ar else "No favorites added yet")
+    
     st.subheader("📜 السجل الكامل (History)")
     st.caption("السجل فارغ حتى الآن" if is_ar else "History is currently empty")
 
 # ==========================================
-# 4. الواجهة الرئيسية والتبويبات الـ 5
+# 4. الواجهة الرئيسية والتبويبات الـ 5 الشاملة
 # ==========================================
 st.title("🎬 استوديو المحتوى الذكي الشامل (50 ميزة)")
 st.caption("منظومة احترافية متكاملة لصناعة الأغاني، الصور، الفيديوهات، والـ Storyboards")
@@ -82,8 +85,8 @@ tabs = st.tabs([
 # ----------------------------------------------------
 with tabs[0]:
     st.markdown("### 🎵 صناعة الأغاني، الهندسة الصوتية، والقوافي (Suno Pro Studio)")
-    col1, col2 = st.columns([2, 1])
     
+    col1, col2 = st.columns([2, 1])
     with col1:
         song_idea = st.text_area("💡 فكرة الأغنية أو موضوعها:", placeholder="مثال: أغنية حماسية عن التحدي والمثابرة...", height=100)
         song_structure = st.multiselect(
@@ -129,6 +132,7 @@ Provide:
 # ----------------------------------------------------
 with tabs[1]:
     st.markdown("### 📊 استوديو التسويق، الهاشتاجات، والتريندات")
+    
     m_topic = st.text_input("🎯 موضوع المحتوى أو المنتج:")
     m_platform = st.selectbox("📱 المنصة المستهدفة:", ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "X (Twitter)"])
     m_goal = st.selectbox("📌 الهدف من المحتوى:", ["زيادة التفاعل (Engagement)", "زيادة المبيعات (Sales)", "زيادة المتابعين (Awareness)"])
@@ -160,6 +164,7 @@ Provide:
 # ----------------------------------------------------
 with tabs[2]:
     st.markdown("### 🎬 صانع السكريبت التفصيلي والـ Storyboard السينمائي")
+    
     v_title = st.text_input("📽️ عنوان أو فكرة الفيديو:")
     v_duration = st.select_slider("⏱️ مدة الفيديو التقديرية:", options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق"])
     v_style = st.selectbox("🎨 النمط البصري (Visual Style):", ["سينمائي واقعي (Cinematic)", "3D Animation", "Dark Fantasy", "Cyberpunk", "Documentary"])
@@ -191,6 +196,7 @@ Format output in a structured table or detailed list:
 # ----------------------------------------------------
 with tabs[3]:
     st.markdown("### 🗣️ محرك الفيديو، الأفاتار، وتحويل النصوص لأصوات")
+    
     a_script = st.text_area("📜 النص المراد تحويله لصوت أو أفاتار:", height=100)
     a_voice = st.selectbox("🎙️ نبرة الصوت المفضل:", ["صوتي وثائقي فخم", "سريع وحماسي (Shorts/TikTok)", "ودود وإخباري", "درامي عميق"])
     a_ai_tool = st.selectbox("🤖 أداة التحريك المستهدفة:", ["Runway Gen-2 / Gen-3", "Luma Dream Machine", "HeyGen / D-ID", "Pika Labs"])
@@ -220,6 +226,7 @@ Provide:
 # ----------------------------------------------------
 with tabs[4]:
     st.markdown("### 🎨 مهندس برومبتات الصور الاحترافية (Midjourney & Flux)")
+    
     img_desc = st.text_input("🖼️ وصف الصورة التي تتخيلها:")
     img_engine = st.selectbox("🎯 محرك الصور:", ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox("أبعاد الصورة (Aspect Ratio):", ["16:9 (فيديو/يوتيوب)", "9:16 (ستوري/ريلز)", "1:1 (مربع)", "4:5 (إنستجرام)"])
