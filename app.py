@@ -76,16 +76,11 @@ with st.sidebar:
     
     st.divider()
     
-    # مفتاح API الخاص بـ Gemini
-    api_key_input = st.text_input(
-        "🔑 مفتاح Gemini API Key:" if is_ar else "🔑 Gemini API Key:",
-        type="password",
-        value=st.session_state.get("saved_api_key", "")
-    )
-    if api_key_input:
-        st.session_state["saved_api_key"] = api_key_input.strip()
+   # قراءة المفتاح تلقائياً من Secrets بدون إظهار أي خانة للمستخدم
+api_key = st.secrets.get("GEMINI_API_KEY") or st.session_state.get("saved_api_key")
 
-    st.divider()
+if api_key:
+    genai.configure(api_key=api_key)
     
     # وضع التركيز (Zen Mode)
     st.session_state["zen_mode"] = st.checkbox("🧘 وضع التركيز (Zen Mode)" if is_ar else "🧘 Zen Mode")
