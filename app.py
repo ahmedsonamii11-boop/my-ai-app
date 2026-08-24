@@ -15,17 +15,24 @@ st.set_page_config(
 # قراءة المفتاح من الـ Secrets
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
-# تهيئة السجل والمفضلة في session_state
+# تهيئة المتغيرات في session_state
 if "history" not in st.session_state:
     st.session_state["history"] = []
 
 if "favorites" not in st.session_state:
     st.session_state["favorites"] = []
 
+# التبويب النشط والنتيجة الحالية المعروضة
+if "active_tab_index" not in st.session_state:
+    st.session_state["active_tab_index"] = 0
+
+if "current_result" not in st.session_state:
+    st.session_state["current_result"] = None
+
 # ==========================================
-# 2. دالة الاتصال والحفظ الفوري
+# 2. دالة الاتصال والحفظ
 # ==========================================
-def generate_ai_response(prompt_text, category_name="عام", user_topic=""):
+def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
@@ -41,17 +48,21 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic=""):
         if response.status_code == 200:
             output_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
-            # 💾 حفظ فوري في السجل
+            # 💾 حفظ العنصر في السجل
             item = {
                 "id": len(st.session_state["history"]) + 1,
                 "timestamp": datetime.now().strftime("%I:%M %p"),
                 "category": category_name,
                 "topic": user_topic if user_topic else "طلب جديد",
                 "prompt": prompt_text,
-                "result": output_text
+                "result": output_text,
+                "tab_index": tab_index
             }
-            # إدراج في البداية لتظهر الأحدث أولاً
             st.session_state["history"].insert(0, item)
+            
+            # تعيين النتيجة الحالية والتبويب
+            st.session_state["current_result"] = item
+            st.session_state["active_tab_index"] = tab_index
             return output_text
         else:
             error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
@@ -62,7 +73,7 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic=""):
         return None
 
 # ==========================================
-# 3. القائمة الجانبية (Sidebar) - السجل
+# 3. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
@@ -84,7 +95,7 @@ with st.sidebar:
     
     st.divider()
     
-    # 📜 السجل الكامل
+    # 📜 السجل الكامل التفاعلي
     st.subheader("📜 السجل الكامل (History)" if is_ar else "📜 Full History")
     
     if not st.session_state["history"]:
@@ -96,15 +107,18 @@ with st.sidebar:
         ] if search_query else st.session_state["history"]
 
         for item in filtered:
-            with st.expander(f"📌 {item['topic']} - {item['timestamp']}"):
-                st.caption(f"التصنيف: {item['category']}")
-                st.markdown("---")
-                st.markdown(item["result"])
-                
-                if st.button(f"⭐ إضافة للمفضلة", key=f"fav_btn_{item['id']}"):
+            col_item1, col_item2 = st.columns([3, 1])
+            with col_item1:
+                # عند الضغط على اسم العنصر يتم فتح المحادثة في التبويب الخاص بها عرضها في المنتصف
+                if st.button(f"📌 {item['topic']} ({item['timestamp']})", key=f"hist_open_{item['id']}"):
+                    st.session_state["current_result"] = item
+                    st.session_state["active_tab_index"] = item["tab_index"]
+                    st.rerun()
+            with col_item2:
+                if st.button("⭐", key=f"fav_btn_{item['id']}"):
                     if item not in st.session_state["favorites"]:
                         st.session_state["favorites"].append(item)
-                        st.success("تمت الإضافة للمفضلة!")
+                        st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
 # 4. الواجهة الرئيسية
@@ -112,13 +126,16 @@ with st.sidebar:
 st.title("🎬 استوديو المحتوى الذكي الشامل")
 st.caption("منظومة احترافية متكاملة لصناعة الأغاني، الصور، الفيديوهات، والـ Storyboards")
 
-tabs = st.tabs([
+tab_names = [
     "🎵 Suno استوديو الأغاني", 
     "📊 تسويق المحتوى والتريند", 
     "🎬 سكريبت الفيديو والـ Storyboard", 
     "🗣️ تحريك الفيديو والمنصات", 
     "🎨 استوديو الصور والمؤثرات"
-])
+]
+
+# تنشيط التبويب بناءً على الاختيار من السجل
+tabs = st.tabs(tab_names)
 
 # ----------------------------------------------------
 # 1️⃣ Suno استوديو الأغاني
@@ -138,7 +155,7 @@ with tabs[0]:
         
     with col2:
         song_style = st.selectbox("🎼 النمط الموسيقي الرئيسي:", ["Egyptian Rap / راب مصري", "Pop / مبهج", "Acoustic / هادئ", "Rock / حماسي", "EDM / هيب وإيقاع"])
-        vocal_type = st.selectbox("🎤 نوع وتكنيك الغناء:", ["صوت رجالي بحوح", "صوت أنثوي قوي", "Auto-tune Rap Flow", "کورال حماسي"])
+        vocal_type = st.selectbox("🎤 نوع وتكنيك الغناء:", ["صوت رجالي بحوح", "صوت أنثوي قوي", "Auto-tune Rap Flow", "كورال حماسي"])
         audio_mixing = st.multiselect("🎛️ مؤثرات الهندسة الصوتية:", ["Heavy 808 Bass", "Reverb", "Stereo Width", "Echo Drops", "Lo-Fi Filter"])
         song_mood = st.select_slider("🎚️ طابع الأداء والصوت:", options=["حزين", "درامي", "متوازن", "حماسي جداً", "صاخب"])
 
@@ -162,9 +179,14 @@ Provide:
 2. Ready-to-use Suno AI Style Prompt.
 3. Rhyme Dictionary / Key Vocabulary used.
 """
-                result = generate_ai_response(prompt, category_name="أغاني Suno", user_topic=song_idea[:20])
-                if result:
-                    st.rerun() # إجبار التطبيق على تحديث القائمة الجانبية فوراً
+                generate_ai_response(prompt, category_name="أغاني Suno", user_topic=song_idea[:20], tab_index=0)
+                st.rerun()
+
+    # عرض النتيجة المحددة حالياً إذا كانت تابعة لهذا التبويب
+    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 0:
+        st.divider()
+        st.success(f"📌 النتيجة المعروضة: {st.session_state['current_result']['topic']}")
+        st.markdown(st.session_state["current_result"]["result"])
 
 # ----------------------------------------------------
 # 2️⃣ تسويق المحتوى والتريند
@@ -187,9 +209,13 @@ Create a marketing plan for:
 - Platform: {m_platform}
 - Goal: {m_goal}
 """
-                result = generate_ai_response(prompt, category_name="تسويق وتريند", user_topic=m_topic[:20])
-                if result:
-                    st.rerun()
+                generate_ai_response(prompt, category_name="تسويق وتريند", user_topic=m_topic[:20], tab_index=1)
+                st.rerun()
+
+    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 1:
+        st.divider()
+        st.success(f"📌 النتيجة المعروضة: {st.session_state['current_result']['topic']}")
+        st.markdown(st.session_state["current_result"]["result"])
 
 # ----------------------------------------------------
 # 3️⃣ سكريبت الفيديو والـ Storyboard
@@ -212,9 +238,13 @@ Create a scene-by-scene Storyboard for:
 - Duration: {v_duration}
 - Style: {v_style}
 """
-                result = generate_ai_response(prompt, category_name="سكريبت فيديو", user_topic=v_title[:20])
-                if result:
-                    st.rerun()
+                generate_ai_response(prompt, category_name="سكريبت فيديو", user_topic=v_title[:20], tab_index=2)
+                st.rerun()
+
+    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 2:
+        st.divider()
+        st.success(f"📌 النتيجة المعروضة: {st.session_state['current_result']['topic']}")
+        st.markdown(st.session_state["current_result"]["result"])
 
 # ----------------------------------------------------
 # 4️⃣ تحريك الفيديو والمنصات
@@ -235,9 +265,13 @@ with tabs[3]:
 Text: '{a_script}'
 Voice: {a_voice}
 """
-                result = generate_ai_response(prompt, category_name="تحريك فيديو", user_topic=a_script[:20])
-                if result:
-                    st.rerun()
+                generate_ai_response(prompt, category_name="تحريك فيديو", user_topic=a_script[:20], tab_index=3)
+                st.rerun()
+
+    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 3:
+        st.divider()
+        st.success(f"📌 النتيجة المعروضة: {st.session_state['current_result']['topic']}")
+        st.markdown(st.session_state["current_result"]["result"])
 
 # ----------------------------------------------------
 # 5️⃣ استوديو الصور والمؤثرات
@@ -258,6 +292,10 @@ with tabs[4]:
 Concept: {img_desc}
 Aspect Ratio: {img_aspect}
 """
-                result = generate_ai_response(prompt, category_name="برومبت صور", user_topic=img_desc[:20])
-                if result:
-                    st.rerun()
+                generate_ai_response(prompt, category_name="برومبت صور", user_topic=img_desc[:20], tab_index=4)
+                st.rerun()
+
+    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 4:
+        st.divider()
+        st.success(f"📌 النتيجة المعروضة: {st.session_state['current_result']['topic']}")
+        st.markdown(st.session_state["current_result"]["result"])
