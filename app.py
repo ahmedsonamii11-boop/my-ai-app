@@ -18,30 +18,29 @@ if API_KEY:
     genai.configure(api_key=API_KEY)
 
 # ==========================================
-# 2. دالة الاتصال الموحدة والآمنة لجميع التابّات
+# 2. دالة الاتصال الموحدة الآمنة (الحل الجذر)
 # ==========================================
 def generate_ai_response(prompt_text):
     """
-    دالة مركزية لتوليد النصوص بجميع التابات مع معالجة الأخطاء
+    دالة مركزية لتوليد النصوص بجميع التابات بأسماء الموديلات المستقرة
     """
     if not API_KEY:
-        st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets! يرجى إضافته أولاً.")
+        st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    try:
-        # استخدام اسم الموديل الرسمي السريع
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        response = model.generate_content(prompt_text)
-        return response.text
-    except Exception as e:
-        # إذا حدث خطأ مع الموديل الأول، نجرب الموديل المستقر الثانوى
+    # قائمة الموديلات المعتمدة رسمياً بترتيب الأفضلية
+    available_models = ['gemini-1.5-flash-latest', 'gemini-pro']
+
+    for model_name in available_models:
         try:
-            model = genai.GenerativeModel('gemini-1.5-pro')
+            model = genai.GenerativeModel(model_name)
             response = model.generate_content(prompt_text)
             return response.text
-        except Exception as err:
-            st.error(f"❌ حدث خطأ أثناء الاتصال بـ Gemini API: {str(err)}")
-            return None
+        except Exception:
+            continue
+
+    st.error("❌ تعذر الاتصال بجميع موديلات Gemini. يرجى التأكد من صحة الـ API Key في Secrets.")
+    return None
 
 # ==========================================
 # 3. القائمة الجانبية (Sidebar)
@@ -53,11 +52,8 @@ with st.sidebar:
     is_ar = (lang == "العربية")
     
     st.divider()
-    
     st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
-    
     st.divider()
-    
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
     
     st.subheader("⭐ المفضلة (Favorites)")
