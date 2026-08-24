@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+import requests
 
 # ==========================================
 # 1. إعدادات الصفحة والتهيئة الأساسية
@@ -11,39 +11,40 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# قراءة المفتاح تلقائياً من الـ Secrets
+# قراءة المفتاح من الـ Secrets
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
-if API_KEY:
-    genai.configure(api_key=API_KEY)
-
 # ==========================================
-# 2. دالة الاتصال الموحدة والآمنة (الحل الجذر)
+# 2. دالة الاتصال المباشر المضمونة (REST API)
 # ==========================================
 def generate_ai_response(prompt_text):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    # أسماء الموديلات المتوافقة مع المكتبة الحالية
-    models_to_try = [
-        "gemini-1.5-flash",
-        "gemini-1.5-pro",
-        "gemini-pro"
-    ]
+    # رابط API المباشر مع أحدث موديل من جوجل
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    
+    headers = {'Content-Type': 'application/json'}
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt_text}]
+        }]
+    }
 
-    last_error = ""
-    for model_name in models_to_try:
-        try:
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(prompt_text)
-            return response.text
-        except Exception as e:
-            last_error = str(e)
-            continue
-
-    st.error(f"❌ حدث خطأ أثناء الاتصال بالخدمة: {last_error}")
-    return None
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        res_data = response.json()
+        
+        if response.status_code == 200:
+            return res_data['candidates'][0]['content']['parts'][0]['text']
+        else:
+            error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
+            st.error(f"❌ خطأ من جوجل API ({response.status_code}): {error_msg}")
+            return None
+    except Exception as e:
+        st.error(f"❌ حدث خطأ في الاتصال: {str(e)}")
+        return None
 
 # ==========================================
 # 3. القائمة الجانبية (Sidebar)
