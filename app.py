@@ -15,15 +15,15 @@ st.set_page_config(
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. دالة الاتصال المحدثة (REST API 2026 Direct)
+# 2. دالة الاتصال المحدثة (REST API 2026)
 # ==========================================
 def generate_ai_response(prompt_text):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    # المسار المباشر والمستقر لـ gemini-2.5-flash
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
+    # مسار الموديل المحدث والمستقر gemini-3.6-flash
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
     
     headers = {'Content-Type': 'application/json'}
     payload = {
