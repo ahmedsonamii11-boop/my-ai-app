@@ -203,6 +203,7 @@ with tabs[0]:
 
     if st.button("✨ توليد الأغنية، البرومبت، وقاموس القوافي", type="primary", key="btn_song"):
         if song_idea:
+            genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
             with st.spinner("جاري صياغة الكلمات، حساب الـ BPM، وتنظيم الهندسة الصوتية..."):
                 prompt = f"""You are an elite Music Producer and Songwriter.
 Create a complete song package based on:
