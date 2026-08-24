@@ -11,36 +11,60 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# تهيئة المفتاح السري تلقائياً من Streamlit Secrets (بدون ظهور أي خانة)
-api_key = st.secrets.get("GEMINI_API_KEY")
-if api_key:
-    genai.configure(api_key=api_key)
+# قراءة المفتاح تلقائياً من الـ Secrets
+API_KEY = st.secrets.get("GEMINI_API_KEY")
+
+if API_KEY:
+    genai.configure(api_key=API_KEY)
 
 # ==========================================
-# 2. القائمة الجانبية (Sidebar)
+# 2. دالة الاتصال الموحدة والآمنة (الحل الجذر)
+# ==========================================
+def generate_ai_response(prompt_text):
+    """
+    دالة مركزية لتوليد النصوص مع تجربة الموديلات المتاحة تلقائياً لتفادي أخطاء 404
+    """
+    if not API_KEY:
+        st.error("❌ لم يتم العثور على GEMINI_API_KEY في الـ Secrets الخاصة بـ Streamlit!")
+        return None
+
+    # قائمة الموديلات مرتبة بالأفضلية
+    models_to_try = [
+        'gemini-1.5-flash-latest',
+        'gemini-1.5-flash',
+        'gemini-1.5-pro',
+        'gemini-pro'
+    ]
+
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt_text)
+            return response.text
+        except Exception:
+            continue  # الانتقال للموديل التالي إذا فشل الموديل الحالي
+            
+    st.error("❌ تعذر الاتصال بجميع موديلات Gemini المتاحة. يرجى التأكد من صحة الـ API Key.")
+    return None
+
+# ==========================================
+# 3. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
-    
     lang = st.radio("🌐 لغة الواجهة:", ["العربية", "English"])
     is_ar = (lang == "العربية")
-    
     st.divider()
-    
     st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
-    
     st.divider()
-    
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
-    
     st.subheader("⭐ المفضلة (Favorites)")
     st.caption("لا توجد عناصر مضافة للمفضلة" if is_ar else "No favorites added yet")
-    
     st.subheader("📜 السجل الكامل (History)")
     st.caption("السجل فارغ حتى الآن" if is_ar else "History is currently empty")
 
 # ==========================================
-# 3. الواجهة الرئيسية والتبويبات الـ 5
+# 4. الواجهة الرئيسية والتبويبات الـ 5
 # ==========================================
 st.title("🎬 استوديو المحتوى الذكي الشامل (50 ميزة)")
 st.caption("منظومة احترافية متكاملة لصناعة الأغاني، الصور، الفيديوهات، والـ Storyboards")
@@ -58,8 +82,8 @@ tabs = st.tabs([
 # ----------------------------------------------------
 with tabs[0]:
     st.markdown("### 🎵 صناعة الأغاني، الهندسة الصوتية، والقوافي (Suno Pro Studio)")
-    
     col1, col2 = st.columns([2, 1])
+    
     with col1:
         song_idea = st.text_area("💡 فكرة الأغنية أو موضوعها:", placeholder="مثال: أغنية حماسية عن التحدي والمثابرة...", height=100)
         song_structure = st.multiselect(
@@ -78,13 +102,9 @@ with tabs[0]:
     if st.button("✨ توليد الأغنية، البرومبت، وقاموس القوافي", type="primary", key="btn_song"):
         if not song_idea:
             st.warning("⚠️ يرجى إدخال فكرة الأغنية أولاً!")
-        elif not api_key:
-            st.error("❌ لم يتم العثور على API Key في Secrets!")
         else:
             with st.spinner("...جارٍ صياغة الكلمات وهندسة البرومبت"):
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"""You are an elite Music Producer and Songwriter.
+                prompt = f"""You are an elite Music Producer and Songwriter.
 Create a complete song package based on:
 - Idea: '{song_idea}'
 - Structure: {', '.join(song_structure)}
@@ -99,18 +119,16 @@ Provide:
 2. Ready-to-use Suno AI Style Prompt.
 3. Rhyme Dictionary / Key Vocabulary used.
 """
-                    response = model.generate_content(prompt)
+                result = generate_ai_response(prompt)
+                if result:
                     st.success("🎉 تم توليد مشروع الأغنية بنجاح!")
-                    st.markdown(response.text)
-                except Exception as e:
-                    st.error(f"❌ حدث خطأ: {str(e)}")
+                    st.markdown(result)
 
 # ----------------------------------------------------
 # 2️⃣ تسويق المحتوى والتريند
 # ----------------------------------------------------
 with tabs[1]:
     st.markdown("### 📊 استوديو التسويق، الهاشتاجات، والتريندات")
-    
     m_topic = st.text_input("🎯 موضوع المحتوى أو المنتج:")
     m_platform = st.selectbox("📱 المنصة المستهدفة:", ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "X (Twitter)"])
     m_goal = st.selectbox("📌 الهدف من المحتوى:", ["زيادة التفاعل (Engagement)", "زيادة المبيعات (Sales)", "زيادة المتابعين (Awareness)"])
@@ -118,13 +136,9 @@ with tabs[1]:
     if st.button("🚀 توليد الخطة التسويقية والتريند", type="primary", key="btn_mkt"):
         if not m_topic:
             st.warning("⚠️ يرجى إدخال موضوع المحتوى!")
-        elif not api_key:
-            st.error("❌ لم يتم العثور على API Key!")
         else:
             with st.spinner("...جارٍ تحليل التريندات وكتابة الاستراتيجية"):
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"""You are a Digital Marketing & Growth Hacking Expert.
+                prompt = f"""You are a Digital Marketing & Growth Hacking Expert.
 Create a marketing plan for:
 - Topic: {m_topic}
 - Platform: {m_platform}
@@ -133,21 +147,19 @@ Create a marketing plan for:
 Provide:
 1. 3 Catchy Hooks (العناوين الجاذبة).
 2. Content Strategy & Post Description.
-3. High-performing Hashtags (تريندات وهاشتاجات قوية).
-4. Call to Action (CTA) optimized for the platform.
+3. High-performing Hashtags.
+4. Call to Action (CTA).
 """
-                    response = model.generate_content(prompt)
+                result = generate_ai_response(prompt)
+                if result:
                     st.success("🎉 تم توليد الخطة التسويقية!")
-                    st.markdown(response.text)
-                except Exception as e:
-                    st.error(f"❌ حدث خطأ: {str(e)}")
+                    st.markdown(result)
 
 # ----------------------------------------------------
 # 3️⃣ سكريبت الفيديو والـ Storyboard
 # ----------------------------------------------------
 with tabs[2]:
     st.markdown("### 🎬 صانع السكريبت التفصيلي والـ Storyboard السينمائي")
-    
     v_title = st.text_input("📽️ عنوان أو فكرة الفيديو:")
     v_duration = st.select_slider("⏱️ مدة الفيديو التقديرية:", options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق"])
     v_style = st.selectbox("🎨 النمط البصري (Visual Style):", ["سينمائي واقعي (Cinematic)", "3D Animation", "Dark Fantasy", "Cyberpunk", "Documentary"])
@@ -155,13 +167,9 @@ with tabs[2]:
     if st.button("🎬 توليد السكريبت والـ Storyboard", type="primary", key="btn_script"):
         if not v_title:
             st.warning("⚠️ يرجى إدخال عنوان الفيديو!")
-        elif not api_key:
-            st.error("❌ لم يتم العثور على API Key!")
         else:
             with st.spinner("...جارٍ رسم المشاهد وكتابة السكريبت"):
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"""You are a Professional Film Director and Scriptwriter.
+                prompt = f"""You are a Professional Film Director and Scriptwriter.
 Create a scene-by-scene Storyboard & Script for:
 - Title/Idea: {v_title}
 - Duration: {v_duration}
@@ -169,22 +177,20 @@ Create a scene-by-scene Storyboard & Script for:
 
 Format output in a structured table or detailed list:
 - Scene Number
-- Visual Prompt (For Midjourney/Runway)
-- Audio / Voiceover (التعليق الصوتي)
+- Visual Prompt
+- Audio / Voiceover
 - Camera Angle & Movement
 """
-                    response = model.generate_content(prompt)
+                result = generate_ai_response(prompt)
+                if result:
                     st.success("🎉 تم كتابة السكريبت والـ Storyboard!")
-                    st.markdown(response.text)
-                except Exception as e:
-                    st.error(f"❌ حدث خطأ: {str(e)}")
+                    st.markdown(result)
 
 # ----------------------------------------------------
 # 4️⃣ تحريك الفيديو والمنصات
 # ----------------------------------------------------
 with tabs[3]:
     st.markdown("### 🗣️ محرك الفيديو، الأفاتار، وتحويل النصوص لأصوات")
-    
     a_script = st.text_area("📜 النص المراد تحويله لصوت أو أفاتار:", height=100)
     a_voice = st.selectbox("🎙️ نبرة الصوت المفضل:", ["صوتي وثائقي فخم", "سريع وحماسي (Shorts/TikTok)", "ودود وإخباري", "درامي عميق"])
     a_ai_tool = st.selectbox("🤖 أداة التحريك المستهدفة:", ["Runway Gen-2 / Gen-3", "Luma Dream Machine", "HeyGen / D-ID", "Pika Labs"])
@@ -192,34 +198,28 @@ with tabs[3]:
     if st.button("⚡ توليد برومبتات التحريك والصوت", type="primary", key="btn_anim"):
         if not a_script:
             st.warning("⚠️ يرجى إدخال النص أولاً!")
-        elif not api_key:
-            st.error("❌ لم يتم العثور على API Key!")
         else:
             with st.spinner("...جارٍ إعداد أوامر التحريك والصوت"):
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"""You are an AI Video & Avatar Animation Prompt Engineer.
+                prompt = f"""You are an AI Video & Avatar Animation Prompt Engineer.
 Process this text for video animation using {a_ai_tool}:
 Text: '{a_script}'
 Desired Voice Tone: {a_voice}
 
 Provide:
 1. Exact Motion/Camera Prompts for {a_ai_tool}.
-2. Voiceover Delivery Guide (إرشادات نبرة الصوت والتلوين الصوتي).
+2. Voiceover Delivery Guide.
 3. Recommended background music mood.
 """
-                    response = model.generate_content(prompt)
+                result = generate_ai_response(prompt)
+                if result:
                     st.success("🎉 تم جاهزية أوامر التحريك!")
-                    st.markdown(response.text)
-                except Exception as e:
-                    st.error(f"❌ حدث خطأ: {str(e)}")
+                    st.markdown(result)
 
 # ----------------------------------------------------
 # 5️⃣ استوديو الصور والمؤثرات
 # ----------------------------------------------------
 with tabs[4]:
     st.markdown("### 🎨 مهندس برومبتات الصور الاحترافية (Midjourney & Flux)")
-    
     img_desc = st.text_input("🖼️ وصف الصورة التي تتخيلها:")
     img_engine = st.selectbox("🎯 محرك الصور:", ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox("أبعاد الصورة (Aspect Ratio):", ["16:9 (فيديو/يوتيوب)", "9:16 (ستوري/ريلز)", "1:1 (مربع)", "4:5 (إنستجرام)"])
@@ -227,21 +227,16 @@ with tabs[4]:
     if st.button("🎨 توليد البرومبتات الاحترافية", type="primary", key="btn_img"):
         if not img_desc:
             st.warning("⚠️ يرجى إدخال وصف الصورة!")
-        elif not api_key:
-            st.error("❌ لم يتم العثور على API Key!")
         else:
             with st.spinner("...جارٍ كتابة برومبت الهندسة البصرية"):
-                try:
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    prompt = f"""You are a Master AI Image Prompt Engineer.
+                prompt = f"""You are a Master AI Image Prompt Engineer.
 Generate 3 distinct, hyper-detailed image prompts for {img_engine} based on:
 - Concept: {img_desc}
 - Aspect Ratio: {img_aspect}
 
-Include details on lighting, camera lens, resolution, style, and negative prompts if necessary.
+Include details on lighting, camera lens, resolution, and style.
 """
-                    response = model.generate_content(prompt)
+                result = generate_ai_response(prompt)
+                if result:
                     st.success("🎉 تم توليد برومبتات الصور بنجاح!")
-                    st.markdown(response.text)
-                except Exception as e:
-                    st.error(f"❌ حدث خطأ: {str(e)}")
+                    st.markdown(result)
