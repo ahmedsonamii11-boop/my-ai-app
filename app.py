@@ -1,5 +1,5 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 
 # ==========================================
 # 1. إعدادات الصفحة والتهيئة الأساسية
@@ -14,39 +14,54 @@ st.set_page_config(
 # قراءة المفتاح تلقائياً من الـ Secrets
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
+if API_KEY:
+    genai.configure(api_key=API_KEY)
+
 # ==========================================
-# 2. دالة الاتصال الموحدة والآمنة لجميع التابّات
+# 2. دالة الاتصال الموحدة والآمنة (الحل الجذر)
 # ==========================================
 def generate_ai_response(prompt_text):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    try:
-        # استخدام المكتبة والعميل الحديثين مع أحدث موديل
-        client = genai.Client(api_key=API_KEY)
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt_text,
-        )
-        return response.text
-    except Exception as e:
-        st.error(f"❌ حدث خطأ أثناء الاتصال بـ Gemini API: {str(e)}")
-        return None
+    # أسماء الموديلات المتوافقة مع المكتبة الحالية
+    models_to_try = [
+        "gemini-1.5-flash",
+        "gemini-1.5-pro",
+        "gemini-pro"
+    ]
+
+    last_error = ""
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            response = model.generate_content(prompt_text)
+            return response.text
+        except Exception as e:
+            last_error = str(e)
+            continue
+
+    st.error(f"❌ حدث خطأ أثناء الاتصال بالخدمة: {last_error}")
+    return None
 
 # ==========================================
 # 3. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
     st.title("⚙️ الإعدادات والسجل")
+    
     lang = st.radio("🌐 لغة الواجهة:", ["العربية", "English"])
     is_ar = (lang == "العربية")
+    
     st.divider()
     st.session_state["zen_mode"] = st.checkbox("🧘‍♂️ وضع التركيز (Zen Mode)" if is_ar else "🧘‍♂️ Zen Mode")
     st.divider()
     search_query = st.text_input("🔍 بحث في السجل:" if is_ar else "🔍 Search History:")
+    
     st.subheader("⭐ المفضلة (Favorites)")
     st.caption("لا توجد عناصر مضافة للمفضلة" if is_ar else "No favorites added yet")
+    
     st.subheader("📜 السجل الكامل (History)")
     st.caption("السجل فارغ حتى الآن" if is_ar else "History is currently empty")
 
