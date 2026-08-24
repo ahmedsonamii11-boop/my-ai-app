@@ -1,5 +1,7 @@
 import streamlit as st
 import requests
+import json
+import os
 from datetime import datetime
 
 # ==========================================
@@ -14,11 +16,33 @@ st.set_page_config(
 
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
+# ==========================================
+# نظام الحفظ الدائم (Persistent Storage - JSON)
+# ==========================================
+HISTORY_FILE = "content_studio_history.json"
+FAV_FILE = "content_studio_favorites.json"
+
+def load_data(file_path):
+    if os.path.exists(file_path):
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return []
+    return []
+
+def save_data(file_path, data):
+    try:
+        with open(file_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"Error saving data: {e}")
+
 if "history" not in st.session_state:
-    st.session_state["history"] = []
+    st.session_state["history"] = load_data(HISTORY_FILE)
 
 if "favorites" not in st.session_state:
-    st.session_state["favorites"] = []
+    st.session_state["favorites"] = load_data(FAV_FILE)
 
 if "selected_tab" not in st.session_state:
     st.session_state["selected_tab"] = 0
@@ -36,12 +60,12 @@ TEXTS = {
         "search_label": "🔍 بحث في السجل:",
         "fav_title": "⭐ المفضلة (Favorites)",
         "fav_empty": "لا توجد عناصر مضافة للمفضلة",
-        "history_title": "📜 السجل الكامل (History)",
+        "history_title": "📜 السجل الكامل (محفوظ دائماً)",
         "history_empty": "السجل فارغ حتى الآن",
+        "clear_history": "🗑️ مسح السجل",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل",
-        "main_caption": "منظومة احترافية مرتبة حسب مراحل صناعة المحتوى",
+        "main_caption": "منظومة احترافية مرتبة حسب مراحل صناعة المحتوى (محفوظة تلقائياً)",
         
-        # التبويبات
         "tabs": [
             "1️⃣ 💡 الفكرة والسكريبت",
             "2️⃣ 🎵 استوديو الأغاني والصوت",
@@ -50,7 +74,6 @@ TEXTS = {
             "5️⃣ 📊 تسويق المحتوى والتريند"
         ],
         
-        # التبويب 1
         "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Storyboard",
         "t1_input": "📽️ عنوان أو فكرة الفيديو:",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
@@ -59,7 +82,6 @@ TEXTS = {
         "t1_warn": "⚠️ يرجى إدخال عنوان الفيديو!",
         "t1_spin": "...جارٍ كتابة السكريبت",
 
-        # التبويب 2
         "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، والقوافي (Suno Pro Studio)",
         "t2_idea": "💡 فكرة الأغنية أو موضوعها:",
         "t2_struct": "🏗️ أجزاء الأغنية المطلوبة:",
@@ -72,7 +94,6 @@ TEXTS = {
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
         "t2_spin": "...جارٍ صياغة الكلمات وهندسة البرومبت",
 
-        # التبويب 3
         "t3_title": "🎨 مهندس برومبتات الصور الاحترافية (Midjourney & Flux)",
         "t3_desc": "🖼️ وصف الصورة التي تتخيلها:",
         "t3_engine": "🎯 محرك الصور:",
@@ -81,7 +102,6 @@ TEXTS = {
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة!",
         "t3_spin": "...جارٍ كتابة برومبت الهندسة البصرية",
 
-        # التبويب 4
         "t4_title": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور إلى فيديو",
         "t4_script": "📜 النص أو أوامر التحريك المطلوب تنفيذها:",
         "t4_voice": "🎙️ نبرة الصوت المفضل:",
@@ -90,7 +110,6 @@ TEXTS = {
         "t4_warn": "⚠️ يرجى إدخال النص أولاً!",
         "t4_spin": "...جارٍ إعداد أوامر التحريك",
 
-        # التبويب 5
         "t5_title": "📊 استوديو التسويق، الهاشتاجات، والتريندات",
         "t5_topic": "🎯 موضوع المحتوى أو المنتج:",
         "t5_platform": "📱 المنصة المستهدفة:",
@@ -107,10 +126,11 @@ TEXTS = {
         "search_label": "🔍 Search History:",
         "fav_title": "⭐ Favorites",
         "fav_empty": "No favorites added yet",
-        "history_title": "📜 Full History",
+        "history_title": "📜 Full History (Auto-Saved)",
         "history_empty": "History is empty",
+        "clear_history": "🗑️ Clear History",
         "main_title": "🎬 All-in-One Smart Content Studio",
-        "main_caption": "A professional system ordered by content creation stages",
+        "main_caption": "Professional system ordered by content stages (Auto-Saved)",
         
         "tabs": [
             "1️⃣ 💡 Idea & Script",
@@ -169,7 +189,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة الاتصال والحفظ
+# 3. دالة الاتصال والحفظ التلقائي في الملفات
 # ==========================================
 def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -189,14 +209,18 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab
             
             item = {
                 "id": len(st.session_state["history"]) + 1,
-                "timestamp": datetime.now().strftime("%I:%M %p"),
+                "timestamp": datetime.now().strftime("%Y-%m-%d %I:%M %p"),
                 "category": category_name,
                 "topic": user_topic if user_topic else "طلب جديد",
                 "prompt": prompt_text,
                 "result": output_text,
                 "tab_index": tab_index
             }
+            
+            # إضافة العنصر للسجل وتحديث الملف الدائم
             st.session_state["history"].insert(0, item)
+            save_data(HISTORY_FILE, st.session_state["history"])
+            
             st.session_state["current_result"] = item
             return output_text
         else:
@@ -211,7 +235,6 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab
 # 4. القائمة الجانبية (Sidebar)
 # ==========================================
 with st.sidebar:
-    # اختيار اللغة أولاً لتطبيق الترجمة على القائمة بالكامل
     lang = st.radio("🌐 لغة الواجهة / Interface Language:", ["العربية", "English"])
     T = TEXTS[lang]
     
@@ -231,8 +254,17 @@ with st.sidebar:
     
     st.divider()
     
-    # 📜 السجل الكامل
-    st.subheader(T["history_title"])
+    # 📜 السجل الكامل المحفوظ
+    col_h1, col_h2 = st.columns([2, 1])
+    with col_h1:
+        st.subheader(T["history_title"])
+    with col_h2:
+        if st.button(T["clear_history"], key="clear_hist"):
+            st.session_state["history"] = []
+            save_data(HISTORY_FILE, [])
+            st.session_state["current_result"] = None
+            st.rerun()
+
     if not st.session_state["history"]:
         st.caption(T["history_empty"])
     else:
@@ -244,7 +276,8 @@ with st.sidebar:
         for item in filtered:
             col_item1, col_item2 = st.columns([3, 1])
             with col_item1:
-                if st.button(f"📌 {item['topic']} ({item['timestamp']})", key=f"hist_{item['id']}" ):
+                # عند الضغط يرجعك للتبويب والنقطة بدقة
+                if st.button(f"📌 {item['topic']} ({item['timestamp']})", key=f"hist_{item['id']}"):
                     st.session_state["current_result"] = item
                     st.session_state["selected_tab"] = item["tab_index"]
                     st.rerun()
@@ -252,7 +285,8 @@ with st.sidebar:
                 if st.button("⭐", key=f"fav_btn_{item['id']}"):
                     if item not in st.session_state["favorites"]:
                         st.session_state["favorites"].append(item)
-                        st.toast("Done!" if lang == "English" else "تمت الإضافة للمفضلة!")
+                        save_data(FAV_FILE, st.session_state["favorites"])
+                        st.toast("Done!" if lang == "English" else "تمت الإضافة للمفضلة والحفظ!")
 
 # ==========================================
 # 5. الواجهة الرئيسية
@@ -260,7 +294,6 @@ with st.sidebar:
 st.title(T["main_title"])
 st.caption(T["main_caption"])
 
-# شريط التنقل الرئيسي المتجانس مع اللغة
 selected_tab_name = st.radio(
     "Navigation" if lang == "English" else "اختر مرحلة العمل:",
     T["tabs"],
