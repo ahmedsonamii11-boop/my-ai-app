@@ -15,15 +15,15 @@ st.set_page_config(
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. دالة الاتصال المباشر المضمونة (REST API)
+# 2. دالة الاتصال المباشر والجذرية (v1 Stable Endpoint)
 # ==========================================
 def generate_ai_response(prompt_text):
     if not API_KEY:
         st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
         return None
 
-    # رابط API المباشر مع أحدث موديل من جوجل
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
+    # استخدام الـ Endpoint المستقر v1 مع اسم الموديل الدقيق
+    url = f"https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     
     headers = {'Content-Type': 'application/json'}
     payload = {
@@ -39,8 +39,16 @@ def generate_ai_response(prompt_text):
         if response.status_code == 200:
             return res_data['candidates'][0]['content']['parts'][0]['text']
         else:
+            # محاولة احتياطية ثانية بموديل gemini-2.0-flash لو الـ 1.5 فيه مشكلة في حسابك
+            url_backup = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={API_KEY}"
+            res_backup = requests.post(url_backup, json=payload, headers=headers)
+            res_backup_data = res_backup.json()
+            
+            if res_backup.status_code == 200:
+                return res_backup_data['candidates'][0]['content']['parts'][0]['text']
+            
             error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
-            st.error(f"❌ خطأ من جوجل API ({response.status_code}): {error_msg}")
+            st.error(f"❌ خطأ من API: {error_msg}")
             return None
     except Exception as e:
         st.error(f"❌ حدث خطأ في الاتصال: {str(e)}")
