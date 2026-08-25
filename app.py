@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# كود CSS لتنسيق الواجهة وإزالة أي رموز غريبة وتظبيط المظهر الاحترافي
+# كود CSS لتنسيق الواجهة ومظهر احترافي متجاوب
 st.markdown("""
     <style>
     .stApp {
@@ -70,11 +70,6 @@ if "selected_tab" not in st.session_state:
 
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
-
-# تهيئة المتغيرات النصية المرتبطة بالصوت لضمان عدم حدوث أخطاء
-for key in ["t1_input_val", "t2_idea_val", "t3_desc_val", "t4_script_val", "t5_topic_val"]:
-    if key not in st.session_state:
-        st.session_state[key] = ""
 
 # ==========================================
 # 2. القاموس الثنائي الشامل (عربي / English)
@@ -226,45 +221,46 @@ TEXTS = {
     }
 }
 
-# دالة الجافاسكريبت للمايك المباشر (تضغط الزرار، تتكلم، وتتنسخ الفكرة أوتوماتيك للحافظة عشان تلصقها بضغطة زر)
+# دالة الجافاسكريبت للمايك المباشر (مصححة وخالية من أخطاء الأقواس)
 def render_inline_mic_helper(input_id_name):
-    st.markdown(f"""
+    html_code = """
         <div style="margin-bottom: 8px;">
             <span class="voice-hint">🎙️ بدل الكتابة، اضغط للحديث الصوتي:</span><br>
-            <button onclick="recordVoice_{input_id_name}()" style="background-color:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem; font-weight:bold;">
+            <button onclick="recordVoice_""" + input_id_name + """()" style="background-color:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem; font-weight:bold;">
                 🔴 اضغط وتحدث بصوتك
             </button>
-            <span id="status_{input_id_name}" style="font-size:0.8rem; color:#555; margin-left:8px;"></span>
+            <span id="status_""" + input_id_name + """" style="font-size:0.8rem; color:#555; margin-left:8px;"></span>
         </div>
         <script>
-        function recordVoice_{input_id_name}() {{
-            if (window.hasOwnProperty('webkitSpeechRecognition')) {{
+        function recordVoice_""" + input_id_name + """() {
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
                 var recognition = new webkitSpeechRecognition();
                 recognition.continuous = false;
                 recognition.interimResults = false;
                 recognition.lang = "ar-EG";
                 recognition.start();
                 
-                document.getElementById('status_{input_id_name}').innerText = "جاري الاستماع... تتحدث الآن 🎙️";
+                document.getElementById('status_""" + input_id_name + """').innerText = "جاري الاستماع... تتحدث الآن 🎙️";
                 
-                recognition.onresult = function(e) {{
+                recognition.onresult = function(e) {
                     var text = e.results[0][0].transcript;
-                    document.getElementById('status_{input_id_name}').innerText = "تم التقاط الصوت بنجاح! ✅";
+                    document.getElementById('status_""" + input_id_name + """').innerText = "تم التقاط الصوت بنجاح! ✅";
                     navigator.clipboard.writeText(text);
                     alert("تم نسخ كلامك الصوتي: (" + text + ")\\nالآن اضغط لصق (Paste) في خانة الكتابة أدناه.");
                     recognition.stop();
                 };
                 
-                recognition.onerror = function(e) {{
-                    document.getElementById('status_{input_id_name}').innerText = "حدث خطأ في التسجيل.";
+                recognition.onerror = function(e) {
+                    document.getElementById('status_""" + input_id_name + """').innerText = "حدث خطأ في التسجيل.";
                     recognition.stop();
-                }}
-            }} else {{
+                }
+            } else {
                 alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
-            }}
-        }}
+            }
+        }
         </script>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(html_code, unsafe_allow_html=True)
 
 # ==========================================
 # 3. دالة الاتصال الذكي بالـ API
