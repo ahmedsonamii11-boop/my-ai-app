@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. إعدادات الصفحة والتصميم التجاري الفاخر
 # ==========================================
 str_lit.set_page_config(
-    page_title="Smart Content Studio - Ultimate Pro Suite v9",
+    page_title="Smart Content Studio - Ultimate Pro Suite v10",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -69,8 +69,8 @@ API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v9_history.json"
-FAV_FILE = "content_studio_ultimate_v9_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v10_history.json"
+FAV_FILE = "content_studio_ultimate_v10_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -124,8 +124,8 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري المدمج (Ultimate Pro Suite v9)",
-        "main_caption": "منظومة ذكاء اصطناعي شاملة مع كافة الميزات مدمجة بسلاسة داخل كل قسم",
+        "main_title": "🎙️ استوديو المحتوى التجاري المدمج (Ultimate Pro Suite v10)",
+        "main_caption": "منظومة ذكاء اصطناعي شاملة مع المايك العائم المطور وميزات الدمج",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
@@ -147,7 +147,7 @@ TEXTS = {
 
         "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية",
         "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
-        "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو املِها بالمايك...",
+        "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو استخدم المايك الصوتي...",
         "t1_dur": "⏱️ مدة الفيديو:",
         "t1_dur_opts": [
             "10 ثوانٍ (Ultra Short)", "15 ثانية (Shorts/Reels)", "30 ثانية (Standard Promo)", 
@@ -172,7 +172,7 @@ TEXTS = {
 
         "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي",
         "t2_input_label": "💡 فكرة الأغنية أو موضوع الكلمات:",
-        "t2_input_placeholder": "اكتب موضوع الأغنية والجو العام المطلوب...",
+        "t2_input_placeholder": "اكتب موضوع الأغنية أو استخدم المايك الصوتي...",
         "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
         "t2_dialect_opts": [
             "عامية مصرية عصرية", "فصحى بلاغية فصيحة", "خليجي طربي أصيل", "مغربي / شمال إفريقي سريع", 
@@ -196,7 +196,7 @@ TEXTS = {
 
         "t3_header": "🎨 مهندس برومبتات الصور",
         "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
-        "t3_input_placeholder": "صف تفاصيل الصورة، العناصر، والألوان بدقة...",
+        "t3_input_placeholder": "صف تفاصيل الصورة، العناصر، أو استخدم المايك الصوتي...",
         "t3_engine": "🎯 محرك الذكاء الاصطناعي:",
         "t3_engine_opts": [
             "Midjourney v6 (أعلى جودة وسينمائية)", "Flux.1 (واقعية مذهلة وتفاصيل دقيقة)", "DALL-E 3 (فهم عميق للنصوص)", 
@@ -221,7 +221,7 @@ TEXTS = {
 
         "t4_header": "🗣️ محرك تحريك الفيديو والأفاتار",
         "t4_input_label": "📜 النص الإلقائي أو وصف الحركة البصرية:",
-        "t4_input_placeholder": "اكتب تفاصيل حركة الكاميرا أو النص الإلقائي...",
+        "t4_input_placeholder": "اكتب تفاصيل حركة الكاميرا أو استخدم المايك الصوتي...",
         "t4_tool": "🤖 أداة التحريك المستهدفة:",
         "t4_tool_opts": [
             "Runway Gen-3 Alpha (سينمائية واقعية)", "Luma Dream Machine (حركات ديناميكية)", "HeyGen Avatar (أفاتار ناطق احترافي)", 
@@ -240,7 +240,7 @@ TEXTS = {
 
         "t5_header": "📊 استوديو التسويق والخطط الاستراتيجية",
         "t5_input_label": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
-        "t5_input_placeholder": "اكتب تفاصيل المشروع أو المنتج المراد وضع خطة له...",
+        "t5_input_placeholder": "اكتب تفاصيل المشروع أو استخدم المايك الصوتي...",
         "t5_plat": "📱 المنصة المستهدفة:",
         "t5_plat_opts": [
             "TikTok (تريندات وفيديوهات قصيرة)", "Instagram Reels & Stories (براند وبصريات)", "YouTube Shorts & Long (تعليمي وترفيهي)", 
@@ -273,8 +273,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Integrated Commercial Content Studio (Ultimate Pro Suite v9)",
-        "main_caption": "Expanded AI suite with advanced features seamlessly integrated into each section",
+        "main_title": "🎙️ Integrated Commercial Content Studio (Ultimate Pro Suite v10)",
+        "main_caption": "Expanded AI suite with floating mic and advanced integration features",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
@@ -319,7 +319,7 @@ TEXTS = {
 
         "t2_header": "🎵 Music Production & Advanced Sound Engineering",
         "t2_input_label": "💡 Song Idea or Theme:",
-        "t2_input_placeholder": "Enter song theme and lyrics details...",
+        "t2_input_placeholder": "Enter song theme or use continuous mic...",
         "t2_dialect": "🗣️ Dialect / Cultural Flavor:",
         "t2_dialect_opts": [
             "Modern Egyptian Slang", "Classical Arabic (Fusha)", "Khaleeji Traditional", "North African / Fast Moroccan", 
@@ -341,7 +341,7 @@ TEXTS = {
 
         "t3_header": "🎨 Pro Image Prompt Engineer",
         "t3_input_label": "🖼️ Describe your scene precisely:",
-        "t3_input_placeholder": "Describe details, colors, and lighting...",
+        "t3_input_placeholder": "Describe details or use continuous mic...",
         "t3_engine": "🎯 AI Image Engine:",
         "t3_engine_opts": [
             "Midjourney v6 (Highest Cinematic Quality)", "Flux.1 (Stunning Realism & Details)", "DALL-E 3 (Deep Prompt Understanding)", 
@@ -365,7 +365,7 @@ TEXTS = {
 
         "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts",
         "t4_input_label": "📜 Voiceover Text or Motion Description:",
-        "t4_input_placeholder": "Enter text or camera motion details...",
+        "t4_input_placeholder": "Enter text or use continuous mic...",
         "t4_tool": "🤖 Target Animation Tool:",
         "t4_tool_opts": [
             "Runway Gen-3 Alpha (Realistic Cinematic)", "Luma Dream Machine (Dynamic Motion)", "HeyGen Avatar (Professional Speaker)", 
@@ -383,7 +383,7 @@ TEXTS = {
 
         "t5_header": "📊 Marketing Studio & Strategic Planning",
         "t5_input_label": "🎯 Content Topic or Product to Market:",
-        "t5_input_placeholder": "Enter product details or marketing scope...",
+        "t5_input_placeholder": "Enter product details or use continuous mic...",
         "t5_plat": "📱 Target Publishing Platform:",
         "t5_plat_opts": [
             "TikTok (Trends & Short Videos)", "Instagram Reels & Stories (Brand Building)", "YouTube Shorts & Long (Educational & Ent.)", 
@@ -408,7 +408,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة الإدخال الصوتي المتطورة
+# 3. دالة الإدخال الصوتي المتطورة (المايك العائم)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder):
     val = str_lit.text_area(label, value=str_lit.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
