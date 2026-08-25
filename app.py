@@ -70,14 +70,6 @@ str_lit.markdown("""
         margin-bottom: 20px;
     }
     
-    .feature-box {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(99, 102, 241, 0.2);
-        padding: 20px;
-        border-radius: 14px;
-        margin-top: 15px;
-    }
-    
     .enterprise-header {
         background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
         -webkit-background-clip: text;
@@ -149,14 +141,14 @@ TEXTS = {
         "d_title": "مرحباً بك في لوحة تحكم الجيل القادم",
         "d_sub": "تتيح لك هذه المنصة التحكم الكامل في جميع أذرع التسويق والإنتاج الفني بجودة تضاهي أكبر الوكالات العالمية.",
         
-        # تفاصيل لوحة القيادة الجديدة
+        # تفاصيل لوحة القيادة بالنظام النظيف
         "d_desc_title": "💡 ما هي منصة 'إبداع بريميوم' وكيف تحدث ثورة في عملك؟",
         "d_desc_text": "تعتبر هذه المنصة نظاماً برمجياً متكاملاً مصمماً خصيصاً للشركات الكبرى، وكالات التسويق، وصناع المحتوى المحترفين الذين يستهدفون جودة استثنائية وعوائد استثمارية ضخمة. نحن ندمج أحدث نماذج الذكاء الاصطناعي (مثل Gemini 1.5) لنقدم لك:",
         "d_feat_1": "🎯 **التخطيط الاستراتيجي المتقدم:** بناء نماذج العمل، دراسات جدوى، وخرائط طريق للشركات الناشئة.",
         "d_feat_2": "🎬 **استوديو السكريبتات الفيروسية:** توليد محتوى منصات التواصل الاجتماعي (تيك توك، ريلز، يوتيوب) بنبرات صوت وخطاب دقيقة.",
         "d_feat_3": "🎵 **الإنتاج الصوتي والموسيقي:** صياغة كلمات الأغاني والهويات الصوتية بلهجات وطابع احترافي.",
         "d_feat_4": "🎨 **هندسة الهوية البصرية:** كتابة أوامر مخصصة لأقوى محركات الصور (Midjourney, Flux) بأبعادات وتأثيرات سينمائية.",
-        "d_feat_5": "📊 **إدارة الحملات الإعلانية:** هيكلة ميزانيات ضخمة واستهدافات دقيقة لتحقيق أعلى معدلات تحويل (Conversions).",
+        "d_feat_5": "📊 **إدارة الحملات الإعلانية:** هيكلة ميزانيات ضخمة واستستهدافات دقيقة لتحقيق أعلى معدلات تحويل (Conversions).",
         
         "btn_gen": "⚡ تنفيذ عملية الإنتاج الذكي",
         "warn": "⚠️ يرجى إدخال البيانات المطلوبة أولاً!",
@@ -430,28 +422,27 @@ def log_and_store(tab_name, user_input, output_text):
     str_lit.session_state["current_result"] = output_text
 
 # ------------------------------------------
-# تبويب 0: لوحة القيادة (Command Center) - مع الشرح التفصيلي العملاق
+# تبويب 0: لوحة القيادة (Command Center) - النسخة الاحترافية بالمركدون النظيف
 # ------------------------------------------
 with tabs[0]:
-    str_lit.markdown(f"""
-    <div class="metric-card">
-        <h2>{t['d_title']}</h2>
-        <p style="font-size: 1.1rem; color: #94a3b8; margin-bottom: 20px;">{t['d_sub']}</p>
+    with str_lit.container():
+        str_lit.markdown(f"## {t['d_title']}")
+        str_lit.write(t['d_sub'])
         
-        <div class="feature-box">
-            <h3 style="color: #818cf8; margin-bottom: 10px;">{t['d_desc_title']}</h3>
-            <p style="line-height: 1.7; color: #cbd5e1;">{t['d_desc_text']}</p>
-            <ul style="line-height: 1.8; color: #e2e8f0; margin-top: 10px; list-style-type: none; padding: 0;">
-                <li>{t['d_feat_1']}</li>
-                <li>{t['d_feat_2']}</li>
-                <li>{t['d_feat_3']}</li>
-                <li>{t['d_feat_4']}</li>
-                <li>{t['d_feat_5']}</li>
-            </ul>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        str_lit.markdown("---")
+        
+        str_lit.markdown(f"### {t['d_desc_title']}")
+        str_lit.write(t['d_desc_text'])
+        
+        str_lit.markdown(f"""
+        * {t['d_feat_1']}
+        * {t['d_feat_2']}
+        * {t['d_feat_3']}
+        * {t['d_feat_4']}
+        * {t['d_feat_5']}
+        """)
     
+    str_lit.markdown("---")
     col1, col2, col3 = str_lit.columns(3)
     col1.metric("العمليات الناجحة / Operations", len(str_lit.session_state["history"]), "+100%")
     col2.metric("العناصر المفضلة / Favorites", len(str_lit.session_state["favorites"]), "Secure")
