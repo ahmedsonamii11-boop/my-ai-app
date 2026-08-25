@@ -71,7 +71,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية مع شريط التحدث الصوتي المطابق لـ Gemini",
+        "main_caption": "المنظومة الاحترافية مع شريط التحدث الصوتي المدمج تماماً",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -143,7 +143,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with Gemini-style voice input",
+        "main_caption": "Professional system with integrated Gemini voice box",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -206,7 +206,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. مكون شريط الصوت المطابق لـ Gemini (في المكان السفلي تماماً وبدون تكرار)
+# 3. مكون خانة الإدخال الذكية المطابقة لـ Gemini
 # ==========================================
 def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك أو اضغط المايك وتحدث..."):
     st.markdown(f"<label style='font-weight:600; color:#e2e8f0; font-size:1.1rem; margin-bottom: 8px; display:block;'>{label_text}</label>", unsafe_allow_html=True)
@@ -246,7 +246,7 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
                 outline: none;
                 font-size: 1.1rem;
                 resize: vertical;
-                min-height: 80px;
+                min-height: 90px;
                 font-family: inherit;
                 line-height: 1.5;
             }}
@@ -257,7 +257,7 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
                 border-top: 1px solid #333538;
                 padding-top: 8px;
             }}
-            .tools-left, .tools-right {{
+            .tools-left {{
                 display: flex;
                 align-items: center;
                 gap: 10px;
@@ -271,7 +271,7 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                padding: 6px 12px;
+                padding: 6px 14px;
                 border-radius: 20px;
                 transition: background 0.2s, color 0.2s;
                 gap: 6px;
@@ -334,8 +334,6 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
                         <div class="wave-bar"></div>
                     </div>
                 </div>
-
-                <div class="tools-right"></div>
             </div>
         </div>
 
@@ -362,7 +360,7 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'ar-EG';
-            recognition.interimResults = false;  /* منع التكرار بأخذ النتائج النهائية المعتمدة فقط مثل Gemini */
+            recognition.interimResults = false;
             recognition.continuous = true;
             
             const micBtn = document.getElementById('micBtn');
@@ -428,7 +426,7 @@ def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك �
     </body>
     </html>
     """
-    components.html(html_code, height=145)
+    components.html(html_code, height=155)
     
     hidden_val = st.text_area("", value=current_val, key=f"hidden_{session_key}", label_visibility="collapsed")
     if hidden_val != current_val:
@@ -591,12 +589,13 @@ def render_result_section(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
+    # 1. فكرة أو عنوان الفيديو أولاً (بجوف خانة التحدث الصوتي المدمجة)
+    v_title = gemini_voice_box(T['t1_input'], "t1_input_val", "اكتب فكرة الفيديو أو اضغط 'تحدث بصوتك' وتكلم براحتك...")
+    
+    # 2. المدة والنمط تحتها بالترتيب الأصلي
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
     v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
     v_hook_enabled = st.checkbox(T["t1_hook"], value=True)
-    
-    # الصندوق الصوتي في المكان السفلي الأساسي تماماً
-    v_title = gemini_voice_box(T['t1_input'], "t1_input_val", "اكتب فكرة الفيديو أو اضغط 'تحدث بصوتك' وتكلم براحتك...")
     
     if st.button(T["t1_btn"], type="primary", key="btn_s1"):
         if not v_title.strip():
@@ -615,6 +614,9 @@ if st.session_state["selected_tab"] == 0:
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
     
+    # 1. فكرة الأغنية أولاً في الخانة الكبيرة الذكية
+    song_idea = gemini_voice_box(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث بالمايك هنا...")
+    
     col1, col2 = st.columns(2)
     with col1:
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
@@ -625,8 +627,6 @@ elif st.session_state["selected_tab"] == 1:
         vocal_type = st.selectbox(T["t2_vocal"], ["صوت رجالي بحوح", "صوت أنثوي قوي", "Auto-tune Rap Flow", "كورال"])
         audio_mixing = st.multiselect(T["t2_mix"], ["Heavy 808 Bass", "Reverb", "Stereo Width", "Delay"])
         song_mood = st.select_slider(T["t2_mood"], options=["حزين", "درامي", "متوازن", "حماسي", "صاخب"])
-
-    song_idea = gemini_voice_box(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث بالمايك هنا...")
 
     if st.button(T["t2_btn"], type="primary", key="btn_s2"):
         if not song_idea.strip():
@@ -645,10 +645,11 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
+    # 1. وصف الصورة أولاً في الخانة الذكية
+    img_desc = gemini_voice_box(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم زر المايك...")
+    
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
-    
-    img_desc = gemini_voice_box(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم زر المايك...")
     
     if st.button(T["t3_btn"], type="primary", key="btn_s3"):
         if not img_desc.strip():
@@ -667,10 +668,11 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
+    # 1. النص أولاً في الخانة الذكية
+    a_script = gemini_voice_box(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك هنا...")
+    
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
-    
-    a_script = gemini_voice_box(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك هنا...")
     
     if st.button(T["t4_btn"], type="primary", key="btn_s4"):
         if not a_script.strip():
@@ -689,10 +691,11 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
+    # 1. موضوع المحتوى أولاً في الخانة الذكية
+    m_topic = gemini_voice_box(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
+    
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
     m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
-    
-    m_topic = gemini_voice_box(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
     
     if st.button(T["t5_btn"], type="primary", key="btn_s5"):
         if not m_topic.strip():
