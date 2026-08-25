@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم الجذاب المطور
+# 1. إعدادات الصفحة والتصميم التجاري الفاخر
 # ==========================================
 st.set_page_config(
     page_title="Smart Content Studio - Ultimate Pro",
@@ -16,51 +16,67 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* خلفية متدرجة وجذابة للتطبيق بالكامل */
+    /* خلفية المنصة الرئيسية - تدرج فخم وراقي */
     .stApp {
-        background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #0f172a 100%);
-        color: #f1f5f9;
+        background: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 50%, #020617 100%);
+        color: #f8fafc;
     }
     
-    /* القائمة الجانبية بتدرج وتصميم فخم */
+    /* القائمة الجانبية بتصميم منفصل تماماً ومميز (Glassmorphism) */
     [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
-        border-right: 1px solid rgba(59, 130, 246, 0.2);
+        background: rgba(15, 23, 42, 0.95) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(10px);
     }
 
-    /* تحسين الأزرار الرئيسية لتكون نابضة بالحياة */
+    /* كروت العمل الرئيسية لتكون بارزة ومختلفة عن الخلفية */
+    div.block-container {
+        padding-top: 2rem;
+    }
+
+    /* تحسين الأزرار الرئيسية (Call to Action) بلون نيون جذاب جداً */
     .stButton>button {
         border-radius: 12px;
         font-weight: 700;
-        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
         color: white;
         border: none;
+        padding: 0.6rem 1.2rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
     }
     .stButton>button:hover {
         transform: translateY(-2px);
-        background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
-        box-shadow: 0 6px 20px rgba(96, 165, 250, 0.6);
+        background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
+        box-shadow: 0 6px 25px rgba(129, 140, 248, 0.6);
     }
 
-    /* حقول الإدخال والـ Textarea بتصميم أزرق خفيف وواضح */
+    /* حقول الإدخال والـ Textarea بشكل تجاري أنيق وفخم */
     .stTextArea textarea, .stTextInput input, .stSelectbox select {
-        border-radius: 10px !important;
-        border: 1px solid rgba(59, 130, 246, 0.3) !important;
-        background-color: rgba(30, 41, 59, 0.8) !important;
-        color: #f8fafc !important;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        border-radius: 12px !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        background-color: rgba(30, 41, 59, 0.7) !important;
+        color: #f1f5f9 !important;
+        padding: 10px !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
     }
     .stTextArea textarea:focus, .stTextInput input:focus {
-        border-color: #3b82f6 !important;
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+        border-color: #6366f1 !important;
+        box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
     }
 
-    /* عناوين التبويبات والمكونات */
+    /* تحسين شكل الـ Radio Tabs لتصبح أزرار تنقل عصرية */
+    .stRadio [data-baseweb="radio"] {
+        background-color: rgba(30, 41, 59, 0.5);
+        border-radius: 10px;
+        padding: 5px;
+    }
+
+    /* العناوين الكبرى */
     h1, h2, h3 {
-        color: #f8fafc;
+        color: #ffffff;
         font-family: 'Segoe UI', sans-serif;
+        font-weight: 700;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -70,8 +86,8 @@ API_KEY = st.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v3_history.json"
-FAV_FILE = "content_studio_ultimate_v3_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v4_history.json"
+FAV_FILE = "content_studio_ultimate_v4_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -110,61 +126,61 @@ for k in ["t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
 # ==========================================
 TEXTS = {
     "العربية": {
-        "sidebar_title": "⚙️ الإدارة والتحكم الشامل",
-        "search_label": "🔍 بحث في السجل:",
-        "fav_title": "⭐ المفضلة المحفوظة",
-        "fav_empty": "لا توجد عناصر مفضلة",
-        "history_title": "📜 سجل العمليات (حفظ دائم)",
-        "history_empty": "السجل فارغ حالياً",
-        "clear_history": "🗑️ مسح السجل بالكامل",
-        "stats_title": "📊 لوحة الإحصائيات",
-        "stat_total": "إجمالي الأعمال المُنجزة:",
-        "main_title": "🎙️ استوديو المحتوى الذكي (Ultimate Pro Suite)",
-        "main_caption": "منظومة إبداعية احترافية بالكامل مع تعريب وترجمة كل العناصر فورياً",
+        "sidebar_title": "⚡ لوحة التحكم التجارية",
+        "search_label": "🔍 بحث متقدم في السجل:",
+        "fav_title": "⭐ العناصر المفضلة",
+        "fav_empty": "لا توجد مفضلات مسجلة",
+        "history_title": "📜 أرشيف العمليات (حفظ دائم)",
+        "history_empty": "الأرشيف فارغ حالياً",
+        "clear_history": "🗑️ تفريغ الأرشيف",
+        "stats_title": "📊 مؤشرات الأداء",
+        "stat_total": "إجمالي المهام المنجزة:",
+        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite)",
+        "main_caption": "منظومة ذكاء اصطناعي متكاملة ومترجمة بالكامل لإدارة وإنتاج المحتوى الاحترافي",
         
         "tabs": [
-            "1️⃣ 💡 الفكرة والسكريبت والخطافات",
-            "2️⃣ 🎵 أستديو الأغاني والصوت الاحترافي",
-            "3️⃣ 🎨 مهندس الصور والريزوليوشن القياسي",
-            "4️⃣ 🗣️ تحريك الفيديو والأفاتار المتقدم",
-            "5️⃣ 📊 التسويق وخطط المحتوى الاستراتيجية"
+            "1️⃣ 💡 الأفكار والسكريبتات",
+            "2️⃣ 🎵 استوديو الأغاني والصوت",
+            "3️⃣ 🎨 تصميم الصور والبرومبتات",
+            "4️⃣ 🗣️ تحريك الفيديو والأفاتار",
+            "5️⃣ 📊 استراتيجيات التسويق"
         ],
         
         # Tab 1
-        "t1_header": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator الاحترافي",
+        "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية مع خطافات فيرال",
         "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
-        "t1_input_placeholder": "اكتب فكرة الفيديو أو املِها بالمايك...",
-        "t1_dur": "⏱️ مدة الفيديو التقديرية:",
+        "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو املِها بالمايك...",
+        "t1_dur": "⏱️ مدة الفيديو:",
         "t1_dur_opts": ["15 ثانية (Shorts/Reels)", "30 ثانية", "60 ثانية (TikTok/Reels)", "3 دقائق (YouTube Standard)", "10+ دقائق (Documentary/Long)"],
-        "t1_style": "🎨 النمط البصري والإلقائي:",
+        "t1_style": "🎨 النمط البصري:",
         "t1_style_opts": ["سينمائي واقعي (Cinematic)", "وثائقي تشويقي (Documentary)", "كوميدي ساخر (Sarcastic/Comedy)", "تعليمي تفاعلي (Educational)", "حماسي تحفيزي (Motivational)"],
         "t1_target": "🎯 الجمهور المستهدف:",
         "t1_target_opts": ["الشباب والمراهقين (Gen Z)", "رواد الأعمال والمهنيين", "العامة والمهتمين بالترفيه", "الأطفال والعائلات"],
-        "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
-        "t1_warn": "⚠️ يرجى إدخال عنوان أو فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ توليد سكريبت احترافي وخطافات فيرال...",
+        "t1_btn": "🔥 توليد السكريبت والخطافات الاحترافية",
+        "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
+        "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت بواسطة الذكاء الاصطناعي...",
 
         # Tab 2
-        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي المتقدمة",
-        "t2_input_label": "💡 فكرة الأغنية أو الموضوع الرئيسي:",
-        "t2_input_placeholder": "اكتب موضوع الأغنية أو تفاصيل الكلمات المطلوبة...",
+        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي",
+        "t2_input_label": "💡 فكرة الأغنية أو موضوع الكلمات:",
+        "t2_input_placeholder": "اكتب موضوع الأغنية والجو العام المطلوب...",
         "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
         "t2_dialect_opts": ["عامية مصرية عصرية", "فصحى بلاغية", "خليجي طربي", "مغربي / شمال إفريقي", "إنجليزي غربي (English)"],
-        "t2_style": "🎼 النمط الموسيقي (Music Genre):",
+        "t2_style": "🎼 النمط الموسيقي:",
         "t2_style_opts": ["مهرجانات / شعبي سريع (Mahraganat)", "راب / هيب هوب أندرجراوند (Rap/Hip-Hop)", "بوب عربي رومانسي (Pop)", "أكوستيك هادئ جيتار (Acoustic)", "إي دي إم إلكتروني راقص (EDM/Dance)", "لوفي تشิล هادئ (Lo-Fi Beats)"],
-        "t2_vocal": "🎙️ صوت المغني والأداء (Vocal Profile):",
+        "t2_vocal": "🎙️ أداء صوت المغني:",
         "t2_vocal_opts": ["صوت رجالي قوي وعميق (Deep Baritone)", "صوت شبابي حماسي ومرن (Energetic Tenor)", "صوت نسائي ناعم ودافئ (Warm Soprano)", "صوت روبوتي مدمج أوتوتيون (Auto-Tune / Robotic)", "جوقة جماعية حماسية (Choir/Harmonies)"],
-        "t2_btn": "✨ تنفيذ وتوليد الأغنية الكاملة والقوافي",
+        "t2_btn": "✨ توليد الكلمات وتجهيز قالب الأغنية",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
-        "t2_spin": "⚡ جارٍ صياغة الكلمات، هندسة المكس، وتحديد البرومبتات الصوتية...",
+        "t2_spin": "⚡ جارٍ صياغة الكلمات والهندسة الصوتية...",
 
         # Tab 3
-        "t3_header": "🎨 مهندس برومبتات الصور الاحترافية مع تحديد المقاسات والمنصات",
-        "t3_input_label": "🖼️ وصف الصورة الخيالية أو المشهد بدقة:",
-        "t3_input_placeholder": "صف تفاصيل الصورة والألوان والإضاءة بدقة...",
-        "t3_engine": "🎯 محرك الذكاء الاصطناعي للصور:",
+        "t3_header": "🎨 مهندس برومبتات الصور مع تحديد المقاسات والمنصات",
+        "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
+        "t3_input_placeholder": "صف تفاصيل الصورة، العناصر، والألوان بدقة...",
+        "t3_engine": "🎯 محرك الذكاء الاصطناعي:",
         "t3_engine_opts": ["Midjourney v6 (أعلى جودة وسينمائية)", "Flux.1 (واقعية مذهلة وتفاصيل دقيقة)", "DALL-E 3 (فهم عميق للنصوص)", "Stable Diffusion XL (تحكم حر كامل)"],
-        "t3_aspect": "📐 الأبعاد والريزوليوشن المناسب للمنصة:",
+        "t3_aspect": "📐 الأبعاد والمنصة المستهدفة:",
         "t3_aspect_opts": [
             "9:16 (مناسب لـ TikTok / YouTube Shorts / Instagram Reels)", 
             "16:9 (مناسب لـ YouTube Videos / Desktop Wallpaper)", 
@@ -172,7 +188,7 @@ TEXTS = {
             "4:5 (مناسب لـ Portrait Feed / IG Carousel)", 
             "21:9 (مناسب لـ Ultra-Wide Cinematic Banners)"
         ],
-        "t3_light": "💡 نمط الإضاءة والجودة:",
+        "t3_light": "💡 نمط الإضاءة:",
         "t3_light_opts": [
             "إضاءة استوديو سينمائية (Cinematic Studio Lighting)", 
             "إضاءة نيون سايبربانك (Cyberpunk Neon Glow)", 
@@ -180,97 +196,97 @@ TEXTS = {
             "مظلم درامي غامض (Dark Moody Atmosphere)", 
             "ألوان زاهية نابضة بالحياة (Vibrant & Pop Art)"
         ],
-        "t3_btn": "🎨 تنفيذ وتوليد برومبتات الصور الاحترافية",
-        "t3_warn": "⚠️ يرجى إدخال وصف الصورة المطلوب!",
-        "t3_spin": "⚡ جارٍ هندسة الأوامر وتجهيز المقاسات المخصصة...",
+        "t3_btn": "🎨 توليد الأوامر البرمجية للصور",
+        "t3_warn": "⚠️ يرجى إدخال وصف الصورة أولاً!",
+        "t3_spin": "⚡ جارٍ هندسة البرومبت وتجهيز المقاسات القياسية...",
 
         # Tab 4
-        "t4_header": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور لحركة (Motion Prompts)",
+        "t4_header": "🗣️ محرك تحريك الفيديو، الأفاتار والـ Motion Prompts",
         "t4_input_label": "📜 النص الإلقائي أو وصف الحركة البصرية:",
-        "t4_input_placeholder": "اكتب النص أو تفاصيل الحركة المطلوبة للكاميرا والأفاتار...",
-        "t4_tool": "🤖 أداة التحريك والأفاتار المستهدفة:",
+        "t4_input_placeholder": "اكتب تفاصيل حركة الكاميرا أو النص الإلقائي...",
+        "t4_tool": "🤖 أداة التحريك المستهدفة:",
         "t4_tool_opts": ["Runway Gen-3 (حركة سينمائية واقعية)", "Luma Dream Machine (حركات ديناميكية سريعة)", "HeyGen Avatar (أفاتار ناطق احترافي)", "Pika Labs (تأثيرات بصرية وموشن جرافيك)"],
-        "t4_cam": "🎥 حركة الكاميرا (Camera Movement):",
+        "t4_cam": "🎥 حركة الكاميرا:",
         "t4_cam_opts": ["زوم إن بطيء (Slow Zoom In)", "حركة بانورامية جانبية (Pan Right/Left)", "تتبع الحركة (Dynamic Tracking Shot)", "لقطة ثابتة مع تفاصيل حية (Static with Ambient Motion)"],
-        "t4_btn": "⚡ تنفيذ برومبتات التحريك",
-        "t4_warn": "⚠️ يرجى إدخال النص أو الحركة أولاً!",
-        "t4_spin": "⚡ جارٍ إعداد أوامر الحركة المتقدمة...",
+        "t4_btn": "⚡ توليد أوامر التحريك",
+        "t4_warn": "⚠️ يرجى إدخال النص أو تفاصيل الحركة أولاً!",
+        "t4_spin": "⚡ جارٍ إعداد سيناريو الحركة...",
 
         # Tab 5
-        "t5_header": "📊 استوديو التسويق، خطط المحتوى، والتريندات الاستراتيجية",
+        "t5_header": "📊 استوديو التسويق ووضع الخطط الاستراتيجية",
         "t5_input_label": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
-        "t5_input_placeholder": "اكتب تفاصيل المنتج أو المشروع المراد وضع خطة له...",
-        "t5_plat": "📱 المنصة المستهدفة للنشر:",
+        "t5_input_placeholder": "اكتب تفاصيل المشروع أو المنتج المراد وضع خطة له...",
+        "t5_plat": "📱 المنصة المستهدفة:",
         "t5_plat_opts": ["TikTok (تريندات وفيديوهات قصيرة سريعة)", "Instagram Reels & Stories (بناء براند وبصريات)", "YouTube Shorts & Long (محتوى تعليمي وترفيهي متكامل)", "LinkedIn (تسويق احترافي وبزنس)", "Facebook Community (تفاعل جماهيري واسع)"],
-        "t5_goal": "🎯 هدف الحملة التسويقية:",
+        "t5_goal": "🎯 هدف الحملة:",
         "t5_goal_opts": ["زيادة المبيعات والتحويلات (Sales Conversion)", "بناء الوعي بالعلامة التجارية (Brand Awareness)", "زيادة التفاعل والمشاركات (Engagement & Shares)", "جذب زيارات للموقع أو القناة (Traffic Generation)"],
-        "t5_btn": "🚀 تنفيذ الخطة التسويقية والتريند",
-        "t5_warn": "⚠️ يرجى إدخال موضوع المحتوى أولاً!",
-        "t5_spin": "⚡ جارٍ تحليل السوق، وضع استراتيجية النشر واستخراج الهاشتاجات...",
+        "t5_btn": "🚀 تنفيذ الخطة الاستراتيجية",
+        "t5_warn": "⚠️ يرجى إدخال تفاصيل المنتج أو المحتوى أولاً!",
+        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الاستراتيجية...",
 
         # General Result UI
-        "result_label": "🚀 النتيجة الفورية المنجزة:",
+        "result_label": "🚀 النتيجة الاحترافية المنفذة:",
         "copy_btn": "📋 نسخ النص للحافظة",
         "download_txt": "📥 تحميل كملف نصي (.txt)",
-        "rating_label": "⭐ تقييم جودة النتيجة:",
+        "rating_label": "⭐ تقييم النتيجة:",
         "stats_res": "📊 إحصائيات الناتج:"
     },
     "English": {
-        "sidebar_title": "⚙️ Control Panel",
-        "search_label": "🔍 Search History:",
-        "fav_title": "⭐ Favorites",
-        "fav_empty": "No favorites added yet",
-        "history_title": "📜 History Log",
-        "history_empty": "History is empty",
-        "clear_history": "🗑️ Clear History",
-        "stats_title": "📊 Live Metrics",
-        "stat_total": "Total Executions:",
-        "main_title": "🎙️ Smart Content Studio (Ultimate Pro Suite)",
-        "main_caption": "Expanded professional AI suite with full bilingual localization & rich custom options",
+        "sidebar_title": "⚡ Commercial Control Panel",
+        "search_label": "🔍 Advanced History Search:",
+        "fav_title": "⭐ Saved Favorites",
+        "fav_empty": "No favorites saved yet",
+        "history_title": "📜 Execution Archive",
+        "history_empty": "Archive is currently empty",
+        "clear_history": "🗑️ Clear Archive",
+        "stats_title": "📊 Performance Metrics",
+        "stat_total": "Total Completed Tasks:",
+        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite)",
+        "main_caption": "Fully localized professional AI suite for enterprise content creation and management",
         
         "tabs": [
-            "1️⃣ 💡 Ideas, Scripts & Hooks",
-            "2️⃣ 🎵 Pro Suno Music & Audio",
-            "3️⃣ 🎨 Image Prompts & Resolutions",
-            "4️⃣ 🗣️ Advanced Video & Avatar",
-            "5️⃣ 📊 Marketing & Strategies"
+            "1️⃣ 💡 Ideas & Scripts",
+            "2️⃣ 🎵 Suno Music Studio",
+            "3️⃣ 🎨 Pro Image Prompts",
+            "4️⃣ 🗣️ Video & Avatar Motion",
+            "5️⃣ 📊 Marketing Strategies"
         ],
         
         # Tab 1
-        "t1_header": "🎬 Idea Generator, Script, & Viral Hooks",
+        "t1_header": "🎬 Professional Script & Viral Hooks Generator",
         "t1_input_label": "📽️ Video Title or Core Idea:",
         "t1_input_placeholder": "Enter video idea or use continuous mic...",
         "t1_dur": "⏱️ Estimated Duration:",
         "t1_dur_opts": ["15 Seconds (Shorts/Reels)", "30 Seconds", "60 Seconds (TikTok/Reels)", "3 Minutes (YouTube Standard)", "10+ Minutes (Documentary/Long)"],
-        "t1_style": "🎨 Visual & Delivery Style:",
+        "t1_style": "🎨 Visual Style:",
         "t1_style_opts": ["Cinematic Realism", "Documentary & Suspense", "Sarcastic / Comedy", "Educational & Interactive", "Motivational & High-Energy"],
         "t1_target": "🎯 Target Audience:",
         "t1_target_opts": ["Gen Z & Youth", "Entrepreneurs & Professionals", "General Entertainment", "Families & Kids"],
-        "t1_btn": "🔥 Execute Script & Hooks",
-        "t1_warn": "⚠️ Please enter video title or idea first!",
-        "t1_spin": "⚡ Generating professional script & viral hooks...",
+        "t1_btn": "🔥 Generate Script & Hooks",
+        "t1_warn": "⚠️ Please enter the video idea first!",
+        "t1_spin": "⚡ Generating professional script & hooks...",
 
         # Tab 2
         "t2_header": "🎵 Music Production & Advanced Sound Engineering",
-        "t2_input_label": "💡 Song Idea or Main Theme:",
-        "t2_input_placeholder": "Enter song theme or lyrics details...",
+        "t2_input_label": "💡 Song Idea or Theme:",
+        "t2_input_placeholder": "Enter song theme and lyrics details...",
         "t2_dialect": "🗣️ Dialect / Cultural Flavor:",
         "t2_dialect_opts": ["Modern Egyptian Slang", "Classical Arabic (Fusha)", "Khaleeji Traditional", "North African / Moroccan", "Western English"],
         "t2_style": "🎼 Music Genre:",
         "t2_style_opts": ["Fast Mahraganat / Street", "Underground Rap / Hip-Hop", "Romantic Arabic Pop", "Acoustic Guitar", "EDM / Dance", "Lo-Fi Beats"],
-        "t2_vocal": "🎙️ Vocal Profile & Performance:",
+        "t2_vocal": "🎙️ Vocal Performance:",
         "t2_vocal_opts": ["Deep Baritone Male", "Energetic Tenor", "Warm Female Soprano", "Auto-Tune / Robotic", "Group Choir / Harmonies"],
-        "t2_btn": "✨ Execute Full Song & Rhymes",
+        "t2_btn": "✨ Generate Full Song & Layout",
         "t2_warn": "⚠️ Please enter the song idea first!",
-        "t2_spin": "⚡ Crafting lyrics, mix layout, and audio prompt tags...",
+        "t2_spin": "⚡ Crafting lyrics and audio layout...",
 
         # Tab 3
-        "t3_header": "🎨 Pro Image Prompt Engineer with Resolutions & Platforms",
-        "t3_input_label": "🖼️ Describe your imagined image or scene:",
-        "t3_input_placeholder": "Describe precise details, colors, and lighting...",
+        "t3_header": "🎨 Pro Image Prompt Engineer & Platform Resolution",
+        "t3_input_label": "🖼️ Describe your scene precisely:",
+        "t3_input_placeholder": "Describe details, colors, and lighting...",
         "t3_engine": "🎯 AI Image Engine:",
         "t3_engine_opts": ["Midjourney v6 (Highest Cinematic Quality)", "Flux.1 (Stunning Realism & Details)", "DALL-E 3 (Deep Prompt Understanding)", "Stable Diffusion XL (Full Control)"],
-        "t3_aspect": "📐 Aspect Ratio & Platform Resolution:",
+        "t3_aspect": "📐 Platform Resolution & Aspect Ratio:",
         "t3_aspect_opts": [
             "9:16 (Best for TikTok / YouTube Shorts / Instagram Reels)", 
             "16:9 (Best for YouTube Videos / Desktop Wallpaper)", 
@@ -278,7 +294,7 @@ TEXTS = {
             "4:5 (Best for Portrait Feed / IG Carousel)", 
             "21:9 (Best for Ultra-Wide Cinematic Banners)"
         ],
-        "t3_light": "💡 Lighting & Atmosphere:",
+        "t3_light": "💡 Lighting Style:",
         "t3_light_opts": [
             "Cinematic Studio Lighting", 
             "Cyberpunk Neon Glow", 
@@ -286,36 +302,36 @@ TEXTS = {
             "Dark Moody Atmosphere", 
             "Vibrant & Pop Art"
         ],
-        "t3_btn": "🎨 Execute Pro Image Prompts",
+        "t3_btn": "🎨 Generate Pro Image Prompts",
         "t3_warn": "⚠️ Please enter image description first!",
-        "t3_spin": "⚡ Engineering visual prompts & custom resolutions...",
+        "t3_spin": "⚡ Engineering visual prompts & resolutions...",
 
         # Tab 4
         "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts",
-        "t4_input_label": "📜 Voiceover Text or Visual Motion Description:",
-        "t4_input_placeholder": "Enter text or specific camera/avatar motion details...",
+        "t4_input_label": "📜 Voiceover Text or Motion Description:",
+        "t4_input_placeholder": "Enter text or camera motion details...",
         "t4_tool": "🤖 Target Animation Tool:",
         "t4_tool_opts": ["Runway Gen-3 (Cinematic Motion)", "Luma Dream Machine (Dynamic Motion)", "HeyGen Avatar (Speaking Professional Avatar)", "Pika Labs (VFX & Motion Graphics)"],
         "t4_cam": "🎥 Camera Movement:",
         "t4_cam_opts": ["Slow Zoom In", "Pan Right/Left", "Dynamic Tracking Shot", "Static with Ambient Motion"],
-        "t4_btn": "⚡ Execute Motion Prompts",
+        "t4_btn": "⚡ Generate Motion Prompts",
         "t4_warn": "⚠️ Please enter text or motion description first!",
         "t4_spin": "⚡ Preparing advanced motion commands...",
 
         # Tab 5
-        "t5_header": "📊 Marketing Studio, Content Plans & Strategies",
+        "t5_header": "📊 Marketing Studio & Strategic Planning",
         "t5_input_label": "🎯 Content Topic or Product to Market:",
-        "t5_input_placeholder": "Enter product details or project marketing scope...",
+        "t5_input_placeholder": "Enter product details or marketing scope...",
         "t5_plat": "📱 Target Publishing Platform:",
         "t5_plat_opts": ["TikTok (Trends & Short Videos)", "Instagram Reels & Stories (Brand Building)", "YouTube Shorts & Long (Educational & Entertainment)", "LinkedIn (Professional Business)", "Facebook Community (Mass Audience Engagement)"],
-        "t5_goal": "🎯 Marketing Campaign Goal:",
+        "t5_goal": "🎯 Campaign Goal:",
         "t5_goal_opts": ["Sales Conversion", "Brand Awareness", "Engagement & Shares", "Traffic Generation"],
-        "t5_btn": "🚀 Execute Marketing Plan & Trend",
+        "t5_btn": "🚀 Execute Strategic Marketing Plan",
         "t5_warn": "⚠️ Please enter content topic first!",
-        "t5_spin": "⚡ Analyzing market strategy, content calendar, and hashtags...",
+        "t5_spin": "⚡ Analyzing market strategy and hashtags...",
 
         # General Result UI
-        "result_label": "🚀 Executed Result:",
+        "result_label": "🚀 Executed Professional Result:",
         "copy_btn": "📋 Copy Text",
         "download_txt": "📥 Download (.txt)",
         "rating_label": "⭐ Rate Result:",
@@ -346,11 +362,11 @@ def floating_voice_textarea(label, session_key, placeholder):
                     
                     micDiv.innerHTML = `
                         <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 12px;">
-                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
-                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
-                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
+                            <div style="width: 3px; background: #6366f1; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
+                            <div style="width: 3px; background: #6366f1; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
+                            <div style="width: 3px; background: #6366f1; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_{session_key}" title="Mic" style="background: #1e293b; border: 1px solid #3b82f6; color: #60a5fa; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_{session_key}" title="Mic" style="background: #1e293b; border: 1px solid #6366f1; color: #818cf8; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
                         </button>
                         <button type="button" id="stop_btn_{session_key}" title="Stop" style="background: #1e293b; border: 1px solid #f85149; color: #f85149; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
@@ -432,8 +448,8 @@ def floating_voice_textarea(label, session_key, placeholder):
                             try {{ recognition.stop(); }} catch(e) {{}}
                         }}
                         btn.style.background = '#1e293b';
-                        btn.style.color = '#60a5fa';
-                        btn.style.borderColor = '#3b82f6';
+                        btn.style.color = '#818cf8';
+                        btn.style.borderColor = '#6366f1';
                         btn.style.transform = 'scale(1.0)';
                         stopBtn.style.display = 'none';
                         waves.style.display = 'none';
@@ -715,12 +731,12 @@ elif st.session_state["selected_tab"] == 4:
         m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'])
 
     if st.button(T['t5_btn'], type="primary", key="action_btn_5"):
-        if not m_topic.strip():
-            st.warning(T['t5_warn'])
-        else:
-            with st.spinner(T['t5_spin']):
-                prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."
-                execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)
-                st.rerun()
+        `if not m_topic.strip():`
+            `st.warning(T['t5_warn'])`
+        `else:`
+            `with st.spinner(T['t5_spin']):`
+                `prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."`
+                `execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)`
+                `st.rerun()`
 
-    render_active_result(4)
+    `render_active_result(4)`
