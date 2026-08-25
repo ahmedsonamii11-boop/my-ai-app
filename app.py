@@ -3,7 +3,6 @@ import requests
 import json
 import os
 from datetime import datetime
-import streamlit.components.v1 as components
 
 # ==========================================
 # 1. إعدادات الصفحة
@@ -71,7 +70,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية مع خانة الإدخال الصوتية المدمجة كقطعة واحدة",
+        "main_caption": "المنظومة الاحترافية مع نظام إدخال صوتي متطابق مع تصميم Gemini",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -143,7 +142,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with unified voice input box",
+        "main_caption": "Professional system with Gemini-style integrated voice input",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -206,242 +205,89 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. صندوق الإدخال الموحد (Gemini Style Box)
+# 3. مكون إدخال جيميني المباشر (Gemini Native Box)
 # ==========================================
-def unified_voice_textarea(label_text, session_key, placeholder="اكتب فكرتك أو اضغط على المิاك وتحدث..."):
-    current_val = st.session_state.get(session_key, "")
+def gemini_input_field(label_text, session_key, placeholder="اكتب فكرتك هنا أو اضغط على المايك وتحدث..."):
+    # دالة تعتمد على حقل نصي قياسي من Streamlit مضاف إليه كود JavaScript خفيف يضع زر المايك جواه مباشرة
+    val = st.text_area(label_text, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
-    # سنقوم بإنشاء عنصر مرئي متكامل يحتوي على الليبل، المربع الأسود الكبير، أزرار المايك بالأسفل تماماً بداخل نفس الإطار
-    html_code = f"""
-    <!DOCTYPE html>
-    <html lang="ar" dir="rtl">
-    <head>
-        <meta charset="UTF-8">
-        <style>
-            body {{
-                margin: 0;
-                background-color: transparent;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }}
-            .field-label {{
-                font-weight: 600;
-                color: #e2e8f0;
-                font-size: 1.05rem;
-                margin-bottom: 8px;
-                display: block;
-            }}
-            .gemini-box-container {{
-                display: flex;
-                flex-direction: column;
-                background-color: #1e1f22;
-                border: 2px solid #444746;
-                border-radius: 16px;
-                padding: 12px 16px;
-                gap: 10px;
-                box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-                transition: border-color 0.3s;
-            }}
-            .gemini-box-container:focus-within {{
-                border-color: #8ab4f8;
-            }}
-            .gemini-textarea {{
-                background: transparent;
-                border: none;
-                color: #e3e3e3;
-                width: 100%;
-                outline: none;
-                font-size: 1.1rem;
-                resize: vertical;
-                min-height: 100px;
-                font-family: inherit;
-                line-height: 1.5;
-            }}
-            .toolbar {{
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                border-top: 1px solid #333538;
-                padding-top: 8px;
-            }}
-            .tools-left {{
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }}
-            .icon-btn {{
-                background: transparent;
-                border: none;
-                color: #c4c7c5;
-                cursor: pointer;
-                font-size: 0.95rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                padding: 6px 14px;
-                border-radius: 20px;
-                transition: background 0.2s, color 0.2s;
-                gap: 6px;
-            }}
-            .icon-btn:hover {{
-                background: rgba(255, 255, 255, 0.12);
-                color: #ffffff;
-            }}
-            .mic-btn {{
-                color: #8ab4f8;
-                background: rgba(138, 180, 248, 0.1);
-            }}
-            .stop-btn {{
-                color: #ea4335;
-                display: none;
-                background: rgba(234, 67, 53, 0.15);
-            }}
-            .waveform {{
-                display: none;
-                align-items: center;
-                gap: 3px;
-                height: 18px;
-                padding: 0 8px;
-            }}
-            .wave-bar {{
-                width: 3px;
-                background-color: #ea4335;
-                border-radius: 2px;
-                animation: waveAnim 1s infinite ease-in-out;
-            }}
-            .wave-bar:nth-child(2) {{ animation-delay: 0.2s; }}
-            .wave-bar:nth-child(3) {{ animation-delay: 0.4s; }}
-            .wave-bar:nth-child(4) {{ animation-delay: 0.1s; }}
-            .wave-bar:nth-child(5) {{ animation-delay: 0.3s; }}
-
-            @keyframes waveAnim {{
-                0%, 100% {{ height: 4px; }}
-                50% {{ height: 18px; }}
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="field-label">{label_text}</div>
-        <div class="gemini-box-container">
-            <textarea class="gemini-textarea" id="mainTextArea" placeholder="{placeholder}" oninput="syncVal(this.value)">{current_val}</textarea>
-            
-            <div class="toolbar">
-                <div class="tools-left">
-                    <button type="button" class="icon-btn mic-btn" id="micBtn" onclick="startRecording()">
-                        🎤 <span>تحدث بصوتك</span>
-                    </button>
-                    
-                    <button type="button" class="icon-btn stop-btn" id="stopBtn" onclick="stopRecording()">
-                        ⏹️ <span>إيقاف المايك</span>
-                    </button>
-
-                    <div class="waveform" id="waveContainer">
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                        <div class="wave-bar"></div>
-                    </div>
-                </div>
+    # حقن تصميم وزر المايك داخل الصندوق مباشرة بطريقة تضمن عمل زر التوليد في بايثون بكفاءة 100%
+    st.markdown(f"""
+    <div style="display: flex; align-items: center; justify-content: space-between; background: #1e1f22; padding: 8px 14px; border-radius: 0 0 12px 12px; margin-top: -15px; border: 1px solid #444746; border-top: none;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+            <button type="button" id="mic_btn_{session_key}" onclick="toggleVoice_{session_key}()" style="background: rgba(138, 180, 248, 0.15); border: none; color: #8ab4f8; padding: 6px 14px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem; transition: 0.2s;">
+                🎤 <span>تحدث بصوتك (Voice)</span>
+            </button>
+            <div id="wave_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px;">
+                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out;"></div>
+                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out 0.2s;"></div>
+                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out 0.4s;"></div>
             </div>
         </div>
-
-        <script>
-        let recognition = null;
-        let isRecording = false;
-
-        function syncVal(val) {{
-            const hiddenBox = window.parent.document.querySelector('textarea[data-baseweb="textarea"][aria-label*="{session_key}"]') || 
-                              window.parent.document.getElementById('hidden_{session_key}');
-            if (hiddenBox) {{
-                hiddenBox.value = val;
-                hiddenBox.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                hiddenBox.dispatchEvent(new Event('change', {{ bubbles: true }}));
-            }}
-        }}
-
-        function startRecording() {{
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام متصفح Google Chrome.");
-                return;
-            }}
-            
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'ar-EG';
-            recognition.interimResults = false;
-            recognition.continuous = true;
-            
-            const micBtn = document.getElementById('micBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const waveContainer = document.getElementById('waveContainer');
-            const mainTextArea = document.getElementById('mainTextArea');
-            
-            recognition.onstart = function() {{
-                isRecording = true;
-                micBtn.style.display = 'none';
-                stopBtn.style.display = 'flex';
-                waveContainer.style.display = 'flex';
-                mainTextArea.placeholder = "جاري الاستماع... تحدث براحتك 🎙️";
-            }};
-            
-            recognition.onresult = function(event) {{
-                let finalTranscript = '';
-                for (let i = event.resultIndex; i < event.results.length; ++i) {{
-                    if (event.results[i].isFinal) {{
-                        finalTranscript += event.results[i][0].transcript + ' ';
-                    }}
-                }}
-                if (finalTranscript.trim() !== '') {{
-                    let currentText = mainTextArea.value;
-                    if (currentText.length > 0 && !currentText.endsWith(' ')) {{
-                        currentText += ' ';
-                    }}
-                    mainTextArea.value = currentText + finalTranscript;
-                    syncVal(mainTextArea.value);
-                }}
-            }};
-            
-            recognition.onerror = function() {{
-                stopRecording();
-            }};
-            
-            recognition.onend = function() {{
-                if (isRecording) {{
-                    try {{ recognition.start(); }} catch(e) {{}}
-                }}
-            }};
-            
-            recognition.start();
-        }}
-
-        function stopRecording() {{
-            isRecording = false;
-            if (recognition) {{
-                recognition.stop();
-            }}
-            
-            const micBtn = document.getElementById('micBtn');
-            const stopBtn = document.getElementById('stopBtn');
-            const waveContainer = document.getElementById('waveContainer');
-            const mainTextArea = document.getElementById('mainTextArea');
-            
-            micBtn.style.display = 'flex';
-            stopBtn.style.display = 'none';
-            waveContainer.style.display = 'none';
-            mainTextArea.placeholder = "{placeholder}";
-        }}
-        </script>
-    </body>
-    </html>
-    """
-    # عرض الحاوية المدمجة
-    components.html(html_code, height=170)
+        <span style="color: #9aa0a6; font-size: 0.8rem;">Gemini Voice Engine v2.5</span>
+    </div>
     
-    # حقل مخفي لربط القيمة بـ Streamlit Session State بدقة تامة
-    hidden_val = st.text_area("", value=current_val, key=f"hidden_{session_key}", label_visibility="collapsed")
-    if hidden_val != current_val:
-        st.session_state[session_key] = hidden_val
-    return st.session_state[session_key]
+    <style>
+    @keyframes waveAnim {{
+        0%, 100% {{ height: 4px; }}
+        50% {{ height: 16px; }}
+    }}
+    </style>
+
+    <script>
+    function toggleVoice_{session_key}() {{
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
+            alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
+            return;
+        }}
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-EG';
+        recognition.interimResults = false;
+        recognition.continuous = false;
+        
+        const micBtn = document.getElementById('mic_btn_{session_key}');
+        const waveBox = document.getElementById('wave_{session_key}');
+        const targetTextArea = document.querySelector('textarea[aria-label*="{label_text}"]');
+        
+        recognition.onstart = function() {{
+            micBtn.style.background = 'rgba(234, 67, 53, 0.2)';
+            micBtn.style.color = '#ea4335';
+            micBtn.innerHTML = '🔴 <span>جاري الاستماع...</span>';
+            waveBox.style.display = 'flex';
+        }};
+        
+        recognition.onresult = function(event) {{
+            const speechToText = event.results[0][0].transcript;
+            if (targetTextArea) {{
+                let existing = targetTextArea.value;
+                targetTextArea.value = existing ? existing + ' ' + speechToText : speechToText;
+                targetTextArea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+            }}
+        }};
+        
+        recognition.onerror = function() {{
+            resetMic_{session_key}();
+        }};
+        
+        recognition.onend = function() {{
+            resetMic_{session_key}();
+        }};
+        
+        function resetMic_{session_key}() {{
+            micBtn.style.background = 'rgba(138, 180, 248, 0.15)';
+            micBtn.style.color = '#8ab4f8';
+            micBtn.innerHTML = '🎤 <span>تحدث بصوتك (Voice)</span>';
+            waveBox.style.display = 'none';
+        }}
+        
+        recognition.start();
+    }}
+    </script>
+    """, unsafe_allow_html=True)
+    
+    return val
 
 # ==========================================
 # 4. دالة الـ API
@@ -599,10 +445,8 @@ def render_result_section(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    # الصندوق الموحد للفكرة (جواه مربع الكتابة + زرار المايك في الأسفل كقطعة واحدة)
-    v_title = unified_voice_textarea(T['t1_input'], "t1_input_val", "اكتب فكرتك هنا أو اضغط 'تحدث بصوتك' لتتحول لكتابة تلقائياً...")
+    v_title = gemini_input_field(T['t1_input'], "t1_input_val", "اكتب فكرتك هنا أو اضغط زر المايك للتحدث...")
     
-    # المدة والنمط تحتها
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
     v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
     v_hook_enabled = st.checkbox(T["t1_hook"], value=True)
@@ -624,7 +468,7 @@ if st.session_state["selected_tab"] == 0:
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
     
-    song_idea = unified_voice_textarea(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو اضغط زر المايك للتحدث...")
+    song_idea = gemini_input_field(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث عبر المايك...")
     
     col1, col2 = st.columns(2)
     with col1:
@@ -654,7 +498,7 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    img_desc = unified_voice_textarea(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم زر المايك للإملاء الصوتي...")
+    img_desc = gemini_input_field(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم زر المايك للإملاء الصوتي...")
     
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
@@ -676,7 +520,7 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    a_script = unified_voice_textarea(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك مباشرة...")
+    a_script = gemini_input_field(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك مباشرة...")
     
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
@@ -698,7 +542,7 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    m_topic = unified_voice_textarea(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
+    m_topic = gemini_input_field(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
     
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
     m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
