@@ -192,110 +192,108 @@ TEXTS = {
 # 3. دالة خانة النص المدمجة مع المايك العائم
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك اليمين..."):
-    # خانة النص العادية من Streamlit
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
-    # حقن كود جافاسكريبت و CSS لتثبيت زر المايك والترددات في الزاوية اليمنى السفلى داخل حقل النص مباشرة
-    components_code = f"""
+    # استخدام f-string آمنة تماماً وخالية من أي تداخل في الأقواس
+    js_code = """
     <script>
-    (function() {{
+    (function() {
         const doc = window.parent.document;
         const textAreas = doc.querySelectorAll('textarea');
         
-        textAreas.forEach((ta) => {{
-            if (ta.getAttribute('aria-label') === `{label}` || ta.placeholder === `{placeholder}`) {{
+        textAreas.forEach((ta) => {
+            if (ta.getAttribute('aria-label') === '%s' || ta.placeholder === '%s') {
                 const wrapper = ta.closest('.stTextArea') || ta.parentElement;
                 
-                if (wrapper && !wrapper.querySelector('.floating-mic-container_{session_key}')) {{
-                    // إنشاء الحاوية العائمة في اليمين تحت
+                if (wrapper && !wrapper.querySelector('.floating-mic-container_%s')) {
                     const micDiv = doc.createElement('div');
-                    micDiv.className = 'floating-mic-container_{session_key}';
+                    micDiv.className = 'floating-mic-container_%s';
                     micDiv.style.cssText = "position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 999;";
                     
                     micDiv.innerHTML = `
-                        <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
+                        <div id="waves_%s" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_{session_key}" title="تحدث بالصوت" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_%s" title="تحدث بالصوت" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
                         </button>
                     `;
                     
-                    // إضافة أسلوب الحركة للترددات
-                    if (!doc.getElementById('wave-style-global')) {{
+                    if (!doc.getElementById('wave-style-global')) {
                         const style = doc.createElement('style');
                         style.id = 'wave-style-global';
-                        style.innerHTML = '@keyframes waveA {{ 0%, 100% {{ height: 4px; }} 50% {{ height: 16px; }} }}';
+                        style.innerHTML = '@keyframes waveA { 0%%, 100%% { height: 4px; } 50%% { height: 16px; } }';
                         doc.head.appendChild(style);
-                    }}
+                    }
 
                     wrapper.style.position = 'relative';
                     wrapper.appendChild(micDiv);
 
                     let recognition = null;
                     let isRec = false;
-                    const btn = micDiv.querySelector('#mic_btn_{session_key}');
-                    const waves = micDiv.querySelector('#waves_{session_key}');
+                    const btn = micDiv.querySelector('#mic_btn_%s');
+                    const waves = micDiv.querySelector('#waves_%s');
 
-                    btn.onclick = function() {{
+                    btn.onclick = function() {
                         const SpeechRecognition = window.parent.SpeechRecognition || window.parent.webkitSpeechRecognition;
-                        if (!SpeechRecognition) {{
+                        if (!SpeechRecognition) {
                             alert("متصفحك لا يدعم التعرف الصوتي. يرجى استخدام Google Chrome.");
                             return;
-                        }}
+                        }
 
-                        if (!isRec) {{
+                        if (!isRec) {
                             recognition = new SpeechRecognition();
                             recognition.lang = 'ar-EG';
                             recognition.interimResults = true;
                             recognition.continuous = true;
 
-                            recognition.onstart = function() {{
+                            recognition.onstart = function() {
                                 isRec = true;
                                 btn.style.background = '#ea4335';
                                 btn.style.color = '#fff';
                                 btn.style.borderColor = '#ff8580';
                                 btn.style.transform = 'scale(1.1)';
                                 waves.style.display = 'flex';
-                            }};
+                            };
 
-                            recognition.onresult = function(e) {{
+                            recognition.onresult = function(e) {
                                 let transcript = '';
-                                for (let i = e.resultIndex; i < e.results.length; ++i) {{
+                                for (let i = e.resultIndex; i < e.results.length; ++i) {
                                     transcript += e.results[i][0].transcript;
-                                }}
+                                }
                                 ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
-                                ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                                ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
-                            }};
+                                ta.dispatchEvent(new Event('input', { bubbles: true }));
+                                ta.dispatchEvent(new Event('change', { bubbles: true }));
+                            };
 
-                            recognition.onerror = function() {{ stopRec(); }};
-                            recognition.onend = function() {{ stopRec(); }};
+                            recognition.onerror = function() { stopRec(); };
+                            recognition.onend = function() { stopRec(); };
 
-                            try {{ recognition.start(); }} catch(err) {{ console.log(err); }}
-                        }} else {{
+                            try { recognition.start(); } catch(err) { console.log(err); }
+                        } else {
                             if (recognition) recognition.stop();
                             stopRec();
-                        }}
-                    }};
+                        }
+                    };
 
-                    function stopRec() {{
+                    function stopRec() {
                         isRec = false;
                         btn.style.background = '#2b2d31';
                         btn.style.color = '#8ab4f8';
                         btn.style.borderColor = '#5f6368';
                         btn.style.transform = 'scale(1.0)';
                         waves.style.display = 'none';
-                    }}
-                }}
+                    }
+                }
             }
-        }});
-    }})();
+        });
+    })();
     </script>
-    """
-    st.components.v1.html(components_code, height=0, width=0)
+    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key)
+
+    st.components.v1.html(js_code, height=0, width=0)
     return val
 
 # ==========================================
@@ -446,7 +444,6 @@ def render_active_result(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    # استدعاء خانة النص مع المايك العائم على اليمين تحت
     v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك اليمين للتحدث...")
     
     col_a, col_b = st.columns(2)
