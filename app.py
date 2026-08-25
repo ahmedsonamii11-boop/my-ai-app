@@ -36,7 +36,7 @@ str_lit.markdown("""
         transform: translateY(-2px);
         background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
     }
-    .stTextArea textarea, .stTextInput input, .stSelectbox select {
+    .stTextArea textarea, .stTextInput input, .stSelectbox select, .stMultiSelect div {
         border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         background-color: rgba(30, 41, 59, 0.7) !important;
@@ -92,7 +92,7 @@ for key in ["t0_val", "t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
         str_lit.session_state[key] = ""
 
 # ==========================================
-# 3. القاموس اللغوي الشامل (منصة إبداع)
+# 3. القاموس اللغوي والخيارات المتقدمة
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -106,11 +106,11 @@ TEXTS = {
         "stats_title": "📊 المؤشرات",
         "stat_total": "إجمالي العمليات المحفوظة:",
         
-        "main_title": "✨ منصة إبداع | Ibda3 Studio",
-        "main_caption": "المنظومة المتكاملة الذكية لإنتاج المحتوى، الخطط الاستراتيجية، الصور، الفيديوهات والأغاني من مكان واحد",
+        "main_title": "✨ منصة إبداع | Ibda3 Studio Pro",
+        "main_caption": "المنظومة الاحترافية المتكاملة لإنتاج المحتوى والخطط الاستراتيجية بالذكاء الاصطناعي",
         
         "tabs": [
-            "🏠 دليل الاستخدام والبداية",
+            "🏠 دليل الاستخدام",
             "0️⃣ 🗺️ التخطيط الاستراتيجي",
             "1️⃣ 💡 الأفكار والسكريبتات",
             "2️⃣ 🎵 الأغاني والصوت",
@@ -119,86 +119,105 @@ TEXTS = {
             "5️⃣ 📊 التسويق والإعلانات"
         ],
         
-        # نصوص دليل الاستخدام
-        "guide_title": "👋 أهلاً بك في منصة إبداع المتكاملة",
-        "guide_desc": "هذه المنصة صممت لتكون رفيقك الذكي والشامل لتحويل أي فكرة بسيطة إلى مشروع احترافي متكامل عبر خطوات مرتبة ومنظمة:",
-        "step_0": "🗺️ الخطوة الأولى (التخطيط الاستراتيجي): ابدأ بكتابة فكرة مشروعك ليتولى الذكاء الاصطناعي تحليل السوق وبناء خطة عمل كاملة وأهداف واضحة.",
-        "step_1": "💡 الخطوة الثانية (الأفكار والسكريبتات): صغ سيناريوهات فيديوهات احترافية وخطافات فيروسية لجذب انتباه الجمهور.",
-        "step_2": "🎵 الخطوة الثالثة (الأغاني والصوت): ابتكر كلمات الأغاني، وحدد النمط الموسيقي والأداء الصوتي المناسب لعملك.",
-        "step_3": "🎨 الخطوة الرابعة (تصميم الصور والهوية): جهز أوامر برمجية دقيقة (Prompts) لأقوى محركات الذكاء الاصطناعي لتصميم صور مشهدية فريدة.",
-        "step_4": "🗣️ الخطوة الخامسة (تحريك الفيديو): حدد حركات الكاميرا والأفاتار لإنتاج مقاطع فيديو متحركة باحترافية عالية.",
-        "step_5": "📊 الخطوة السادسة (التسويق والإعلانات): ابنِ خطة تسويقية متكاملة وميزانية مقترحة لاستهداف المنصات الرقمية المختلفة.",
-        
-        "t0_header": "🗺️ المرحلة الأولى: التخطيط الاستراتيجي وإدارة المشروع",
-        "t0_input_label": "🎯 ما هو مشروعك أو الفكرة العامة؟",
+        "guide_title": "👋 أهلاً بك في النسخة الاحترافية من منصة إبداع",
+        "guide_desc": "تم إثراء المنصة الآن بـ خيارات متقدمة لكل مرحلة تتيح لك تخصيص كل تفصيل بدقة مذهلة:",
+        "step_0": "🗺️ التخطيط: اختر أهداف عملك، منهجية الإدارة، ونطاق السوق المستهدف.",
+        "step_1": "💡 السكريبتات: حدد مدة الفيديو، النمط البصري، نبرة الصوت، وعقدة البداية (الخطاف).",
+        "step_2": "🎵 الأغاني: تحكم في اللهجة، النمط الموسيقي، الآلات المستخدمة، ونوع الأداء الصوتي.",
+        "step_3": "🎨 الصور: اختر محركات الذكاء الاصطناعي الكبرى، زوايا التصوير، الأبعاد، والإضاءة الدرامية.",
+        "step_4": "🗣️ الفيديو: اختر أدوات التحريك الحركي، مسارات الكاميرا، وسرعة الحركة.",
+        "step_5": "📊 التسويق: حدد المنصات الإعلانية، نوع الجمهور، استراتيجية الإنفاق، وهدف الحملة.",
+
+        # خيارات المرحلة 0
+        "t0_header": "🗺️ المرحلة الأولى: التخطيط الاستراتيجي المتقدم",
+        "t0_input_label": "🎯 ما هو مشروعك أو فكرتك الريادية؟",
         "t0_input_placeholder": "اكتب فكرة المشروع بالتفصيل...",
-        "t0_goal": "🎯 الهدف الرئيسي من المشروع:",
-        "t0_goal_opts": ["إطلاق مشروع أو براند جديد", "حملة تسويقية لمحتوى رقمي", "سلسلة بودكاست أو تعليم", "خطة نمو مبيعات"],
-        "t0_btn": "🗺️ بناء الخطة الاستراتيجية",
+        "t0_goal": "🎯 الهدف الاستراتيجي:",
+        "t0_goal_opts": ["إطلاق شركة ناشئة (Startup)", "حملة تسويقية رقمية كبرى", "منصة تعليمية أو بودكاست", "إعادة هيكلة براند", "توسيع مبيعات التجارة الإلكترونية"],
+        "t0_meth": "📈 منهجية العمل:",
+        "t0_meth_opts": ["Business Model Canvas", "Lean Startup", "SWOT & Competitor Analysis", "OKRs Growth Plan"],
+        "t0_market": "🌍 النطاق الجغرافي / السوق:",
+        "t0_market_opts": ["مصر والشمال الإفريقي", "دول الخليج العربي", "الشرق الأوسط وشمال إفريقيا (MENA)", "السوق العالمي (Global - English)"],
+        "t0_btn": "🗺️ هندسة الخطة الاستراتيجية الشاملة",
         "t0_warn": "⚠️ يرجى إدخال تفاصيل المشروع أولاً!",
-        "t0_spin": "⚡ جارٍ تحليل السوق وصياغة الخطة...",
+        "t0_spin": "⚡ جارٍ تحليل الأسواق وبناء الاستراتيجية...",
 
-        "t1_header": "🎬 المرحلة الثانية: صانع الأفكار والسكريبتات",
-        "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
-        "t1_input_placeholder": "اكتب فكرة الفيديو...",
+        # خيارات المرحلة 1
+        "t1_header": "🎬 المرحلة الثانية: صانع الأفكار والسكريبتات الاحترافية",
+        "t1_input_label": "📽️ فكرة الفيديو أو الموضوع الأساسي:",
+        "t1_input_placeholder": "اكتب فكرة الفيديو باختصار...",
         "t1_dur": "⏱️ مدة الفيديو:",
-        "t1_dur_opts": ["15 ثانية (Shorts)", "30 ثانية", "60 ثانية (TikTok)", "3 دقائق", "10 دقائق"],
-        "t1_style": "🎨 النمط البصري:",
-        "t1_style_opts": ["سينمائي واقعي", "وثائقي", "تعليمي تفاعلي", "حماسي", "قصصي درامي"],
-        "t1_target": "🎯 الجمهور المستهدف:",
-        "t1_target_opts": ["الشباب (Gen Z)", "رواد الأعمال", "المهنيين", "العامة"],
-        "t1_btn": "🔥 توليد السكريبت",
+        "t1_dur_opts": ["15 ثانية (Reels/Shorts)", "30 ثانية (Fast Hook)", "60 ثانية (TikTok Pro)", "3 دقائق (YouTube Deep)", "10 دقائق (Masterclass)"],
+        "t1_style": "🎨 النمط البصري والسينمائي:",
+        "t1_style_opts": ["سينمائي واقعي (Cinematic)", "وثائقي تحقيقي (Documentary)", "تعليمي تفاعلي (Edutainment)", "كوميدي خفيف", "درامي مؤثر", "تقني تكنولوجي"],
+        "t1_tone": "🎙️ نبرة الإلقاء (Tone):",
+        "t1_tone_opts": ["حماسي ومتحفز", "هادئ وموثوق", "غموض وتشويق", "تحفيزي ملهم", "ساخر وذكاء ترفيهي"],
+        "t1_target": "🎯 الفئة المستهدفة:",
+        "t1_target_opts": ["الجيل الناشئ (Gen Z)", "رواد الأعمال والمستثمرون", "المهنيون والموظفون", "الأسرة وربات البيوت", "المهتمون بالتكنولوجيا والتقنية"],
+        "t1_btn": "🔥 توليد السكريبت الاحترافي",
         "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ توليد السكريبت...",
+        "t1_spin": "⚡ جارٍ صياغة الخطاف والسكريبت...",
 
-        "t2_header": "🎵 المرحلة الثالثة: الأغاني والموسيقى",
-        "t2_input_label": "💡 فكرة الأغنية أو الكلمات:",
-        "t2_input_placeholder": "اكتب موضوع الأغنية...",
-        "t2_dialect": "🗣️ اللهجة أو الطابع:",
-        "t2_dialect_opts": ["عامية مصرية", "فصحى", "خليجي", "إنجليزي بوب"],
+        # خيارات المرحلة 2
+        "t2_header": "🎵 المرحلة الثالثة: استوديو الأغاني والموسيقى المتطور",
+        "t2_input_label": "💡 موضوع الأغنية أو الرسالة المراد توصيلها:",
+        "t2_input_placeholder": "اكتب موضوع الكلمات أو القصة...",
+        "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
+        "t2_dialect_opts": ["عامية مصرية عصرية", "فصحى فخمة", "خليجي طربي", "لبناني/شامي دافئ", "إنجليزي بوب عالمي"],
         "t2_style": "🎼 النمط الموسيقي:",
-        "t2_style_opts": ["مهرجانات / شعبي", "راب سريع", "بوب هادئ", "أكوستيك"],
-        "t2_vocal": "🎙️ صوت المغني:",
-        "t2_vocal_opts": ["رجالي عميق", "شبابي حماسي", "نسائي دافئ", "أوتوتيون"],
-        "t2_btn": "✨ توليد الكلمات والصوت",
+        "t2_style_opts": ["مهرجانات وشعبي حديث", "راب وسريع (Hip Hop/Trap)", "بوب هادئ (Chill Pop)", "روك درامي", "موسيقى تصويرية ملحمية"],
+        "t2_vocal": "🎙️ نوع الأداء الصوتي:",
+        "t2_vocal_opts": ["رجالي عميق (Bass/Baritone)", "شبابي حماسي عالي", "نسائي دافئ وناعم", "كورال جماعي", "مؤثرات أوتوتيون حديثة"],
+        "t2_inst": "🎸 الآلات البارزة:",
+        "t2_inst_opts": ["بيتات إلكترونية وثقيلة", "جيتار آكوستيك هادئ", "عود شرقي وإيقاعات", "بيانو كلاسيكي درامي"],
+        "t2_btn": "✨ توليد الكلمات وتوزيع الأغنية",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية!",
-        "t2_spin": "⚡ جارٍ صياغة الكلمات...",
+        "t2_spin": "⚡ جارٍ تأليف الكلمات والمقاطع...",
 
-        "t3_header": "🎨 المرحلة الرابعة: الصور والهوية البصرية",
-        "t3_input_label": "🖼️ وصف المشهد المراد تصميمه:",
-        "t3_input_placeholder": "صف تفاصيل الصورة بدقة...",
-        "t3_engine": "🎯 محرك الذكاء الاصطناعي:",
-        "t3_engine_opts": ["Midjourney v6", "Flux.1", "DALL-E 3", "Adobe Firefly"],
-        "t3_aspect": "📐 الأبعاد:",
-        "t3_aspect_opts": ["9:16 (Reels/TikTok)", "16:9 (YouTube)", "1:1 (Square)", "4:5 (Portrait)"],
-        "t3_light": "💡 الإضاءة:",
-        "t3_light_opts": ["سينمائية استوديو", "سايبربانك نيون", "ساعة ذهبية", "درامي مظلم"],
-        "t3_btn": "🎨 توليد أوامر الصور",
+        # خيارات المرحلة 3
+        "t3_header": "🎨 المرحلة الرابعة: هندسة الصور والهوية البصرية",
+        "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
+        "t3_input_placeholder": "صف العناصر، الألوان، والخلفية...",
+        "t3_engine": "🎯 محرك الذكاء الاصطناعي المستهدف:",
+        "t3_engine_opts": ["Midjourney v6.0", "Flux.1 Dev/Pro", "DALL-E 3 Ultra", "Adobe Firefly v3", "Stable Diffusion XL"],
+        "t3_aspect": "📐 أبعاد الصورة (Aspect Ratio):",
+        "t3_aspect_opts": ["9:16 (Stories / Reels / TikTok)", "16:9 (YouTube Cinematic)", "1:1 (Instagram Square)", "4:5 (Instagram Portrait)", "21:9 (Ultra Wide Cinema)"],
+        "t3_light": "💡 الإضاءة والتأثيرات:",
+        "t3_light_opts": ["سينمائية استوديو (Studio Lighting)", "سايبربانك نيون مظلم", "ساعة ذهبية (Golden Hour)", "إضاءة خافتة درامية (Moody)", "إضاءة إعلانية تجارية نظيفة"],
+        "t3_shot": "📷 زاوية الكاميرا:",
+        "t3_shot_opts": ["لقطة مقربة جداً (Macro/Close-up)", "عين الطائر (Bird's Eye View)", "لقطة من أسفل لتعظيم الشخصية", "بورتريه احترافي عريض"],
+        "t3_btn": "🎨 هندسة أوامر الصور المتقدمة",
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة!",
-        "t3_spin": "⚡ هندسة الأوامر...",
+        "t3_spin": "⚡ هندسة الأوامر البرمجية للصور...",
 
-        "t4_header": "🗣️ المرحلة الخامسة: تحريك الفيديو",
-        "t4_input_label": "📜 النص أو حركة الكاميرا:",
-        "t4_input_placeholder": "صف الحركة المطلوبة...",
-        "t4_tool": "🤖 أداة التحريك:",
-        "t4_tool_opts": ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"],
-        "t4_cam": "🎥 حركة الكاميرا:",
-        "t4_cam_opts": ["زوم إن بطيء", "زوم أوت درامي", "بانوراما", "تتبع حركي"],
-        "t4_btn": "⚡ توليد أوامر التحريك",
+        # خيارات المرحلة 4
+        "t4_header": "🗣️ المرحلة الخامسة: سينما تحريك الفيديو والموشن",
+        "t4_input_label": "📜 وصف الحركة المطلوبة أو تحريك الصورة:",
+        "t4_input_placeholder": "صف كيف تتحرك الكاميرا أو العناصر...",
+        "t4_tool": "🤖 أداة التحريك الذكية:",
+        "t4_tool_opts": ["Runway Gen-3 Alpha", "Luma Dream Machine", "OpenAI Sora Prompts", "Pika Labs v2.2", "HeyGen AI Avatar"],
+        "t4_cam": "🎥 حركة الكاميرا الاحترافية:",
+        "t4_cam_opts": ["زوم إن بطيء ودرامي (Slow Zoom In)", "زوم أوت للكشف عن المشهد", "بانوراما أفقية سريعة (Pan)", "تتبع حركي متقدم (Tracking Shot)", "لقطة دوران 360 درجة"],
+        "t4_speed": "⚡ سرعة وتيرة الحركة:",
+        "t4_speed_opts": ["بطيء جداً وسينمائي (Cinematic Slow-mo)", "سرعة عادية متوازنة", "حركة سريعة وخاطفة (Dynamic Fast)"],
+        "t4_btn": "⚡ توليد سيناريو وأوامر التحريك",
         "t4_warn": "⚠️ يرجى إدخال تفاصيل الحركة!",
-        "t4_spin": "⚡ إعداد مسار الحركة...",
+        "t4_spin": "⚡ إعداد مسار الكاميرا والحركة...",
 
-        "t5_header": "📊 المرحلة السادسة: التسويق والإعلانات",
-        "t5_input_label": "🎯 المنتج أو الخدمة للتسويق:",
-        "t5_input_placeholder": "تفاصيل الحملة...",
-        "t5_plat": "📱 المنصة:",
-        "t5_plat_opts": ["TikTok Ads", "Instagram", "YouTube", "LinkedIn"],
-        "t5_goal": "🎯 الهدف:",
-        "t5_goal_opts": ["مبيعات", "وعي بالعلامة التجارية", "زيارات", "تجميع ليدز"],
-        "t5_budget": "💰 الميزانية ($):",
-        "t5_btn": "🚀 تنفيذ الخطة التسويقية",
+        # خيارات المرحلة 5
+        "t5_header": "📊 المرحلة السادسة: الإعلانات والتسويق الرقمي",
+        "t5_input_label": "🎯 المنتج أو الخدمة المراد تسويقها:",
+        "t5_input_placeholder": "اكتب تفاصيل المنتج والجمهور المستهدف...",
+        "t5_plat": "📱 المنصة الإعلانية المستهدفة:",
+        "t5_plat_opts": ["TikTok Ads Manager", "Meta Ads (Instagram/Facebook)", "YouTube Video Ads", "LinkedIn B2B Ads", "Google Search Ads"],
+        "t5_goal": "🎯 الهدف التسويقي (Campaign Objective):",
+        "t5_goal_opts": ["مبيعات مباشرة وإيرادات (Conversions)", "وعي عالي بالعلامة التجارية (Awareness)", "توليد عملاء محتملين (Lead Generation)", "زيارات وزيارات للموقع (Traffic)"],
+        "t5_strategy": "💡 استراتيجية المحتوى الإعلاني:",
+        "t5_strategy_opts": ["قصة العميل (UGC Style)", "إثبات اجتماعي ومراجعات", "عرض خصم لفترة محدودة", "مقارنة تنافسية مباشرة"],
+        "t5_budget": "💰 الميزانية الشهرية المقترحة ($):",
+        "t5_btn": "🚀 تصميم الحملة التسويقية المتكاملة",
         "t5_warn": "⚠️ يرجى إدخال تفاصيل الحملة!",
-        "t5_spin": "⚡ تحليل السوق...",
+        "t5_spin": "⚡ تحليل السوق واستهداف الجماهير...",
 
         "result_label": "🚀 النتيجة الاحترافية المحفوظة:",
         "copy_btn": "📋 نسخ",
@@ -215,38 +234,38 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Metrics",
         "stat_total": "Total Saved Tasks:",
-        "main_title": "✨ Ibda3 Studio | Content & Strategy Platform",
-        "main_caption": "End-to-end AI studio for strategy, scripts, images, videos, and audio production",
+        "main_title": "✨ Ibda3 Studio | Content & Strategy Platform Pro",
+        "main_caption": "Advanced AI-powered end-to-end studio for professional content creation",
         
         "tabs": ["🏠 Guide", "0️⃣ Strategy", "1️⃣ Scripts", "2️⃣ Music", "3️⃣ Images", "4️⃣ Video", "5️⃣ Marketing"],
         
-        "guide_title": "👋 Welcome to Ibda3 Studio",
-        "guide_desc": "Your ultimate end-to-end platform to turn any idea into a fully-fledged professional project through structured steps:",
-        "step_0": "🗺️ Phase 1 (Strategy): Enter your core idea to generate business plans, market analysis, and KPIs.",
-        "step_1": "💡 Phase 2 (Scripts): Write viral video hooks and engaging professional scripts.",
-        "step_2": "🎵 Phase 3 (Music): Generate song lyrics, music genres, and vocal styles.",
-        "step_3": "🎨 Phase 4 (Images): Engineer expert image prompts for top-tier AI engines.",
-        "step_4": "🗣️ Phase 5 (Video Motion): Direct camera movements and avatar animations.",
-        "step_5": "📊 Phase 6 (Marketing): Formulate complete ad campaigns and budgets.",
+        "guide_title": "👋 Welcome to Ibda3 Studio Pro",
+        "guide_desc": "Enhanced with advanced options for each phase to give you absolute professional control:",
+        "step_0": "🗺️ Strategy: Choose business models, market scale, and growth objectives.",
+        "step_1": "💡 Scripts: Select durations, visual styles, vocal tones, and viral hooks.",
+        "step_2": "🎵 Music: Customize dialects, music genres, instruments, and vocal styles.",
+        "step_3": "🎨 Images: Pick top AI engines, aspect ratios, lighting, and camera angles.",
+        "step_4": "🗣️ Video: Control motion tools, camera tracks, and speed dynamics.",
+        "step_5": "📊 Marketing: Target ad platforms, campaign objectives, and bidding strategies.",
 
-        "t0_header": "Phase 1: Strategy", "t0_input_label": "Core Idea:", "t0_input_placeholder": "Enter idea...",
-        "t0_goal": "Goal:", "t0_goal_opts": ["Startup", "Campaign", "Podcast", "Growth"], "t0_btn": "Build Strategy",
-        "t0_warn": "Enter details!", "t0_spin": "Analyzing...",
-        "t1_header": "Phase 2: Scripts", "t1_input_label": "Video Idea:", "t1_input_placeholder": "Enter video...",
-        "t1_dur": "Duration:", "t1_dur_opts": ["15s", "30s", "60s", "3m"], "t1_style": "Style:", "t1_style_opts": ["Cinematic", "Doc"],
-        "t1_target": "Audience:", "t1_target_opts": ["Gen Z", "Entrepreneurs"], "t1_btn": "Generate Script", "t1_warn": "Enter idea!", "t1_spin": "Generating...",
-        "t2_header": "Phase 3: Music", "t2_input_label": "Song Idea:", "t2_input_placeholder": "Song theme...",
-        "t2_dialect": "Flavor:", "t2_dialect_opts": ["Egyptian", "Classical"], "t2_style": "Genre:", "t2_style_opts": ["Mahraganat", "Rap"],
-        "t2_vocal": "Vocal:", "t2_vocal_opts": ["Deep", "Energetic"], "t2_btn": "Generate Song", "t2_warn": "Enter song!", "t2_spin": "Crafting...",
-        "t3_header": "Phase 4: Images", "t3_input_label": "Scene Description:", "t3_input_placeholder": "Describe scene...",
-        "t3_engine": "Engine:", "t3_engine_opts": ["Midjourney", "Flux"], "t3_aspect": "Aspect:", "t3_aspect_opts": ["9:16", "16:9"],
-        "t3_light": "Lighting:", "t3_light_opts": ["Studio", "Neon"], "t3_btn": "Generate Prompts", "t3_warn": "Enter description!", "t3_spin": "Engineering...",
+        "t0_header": "Phase 1: Advanced Strategy", "t0_input_label": "Core Idea:", "t0_input_placeholder": "Enter idea...",
+        "t0_goal": "Goal:", "t0_goal_opts": ["Startup Launch", "Major Campaign", "Podcast/Ed", "Rebranding"], "t0_meth": "Methodology:", "t0_meth_opts": ["Business Model Canvas", "Lean Startup", "SWOT"], "t0_market": "Market:", "t0_market_opts": ["MENA", "GCC", "Global"], "t0_btn": "Build Strategy", "t0_warn": "Enter details!", "t0_spin": "Analyzing...",
+        
+        "t1_header": "Phase 2: Professional Scripts", "t1_input_label": "Video Idea:", "t1_input_placeholder": "Enter video...",
+        "t1_dur": "Duration:", "t1_dur_opts": ["15s", "30s", "60s", "3m"], "t1_style": "Style:", "t1_style_opts": ["Cinematic", "Documentary", "Edutainment"], "t1_tone": "Tone:", "t1_tone_opts": ["Energetic", "Calm", "Suspense"], "t1_target": "Audience:", "t1_target_opts": ["Gen Z", "Entrepreneurs", "Professionals"], "t1_btn": "Generate Script", "t1_warn": "Enter idea!", "t1_spin": "Generating...",
+        
+        "t2_header": "Phase 3: Music Studio", "t2_input_label": "Song Idea:", "t2_input_placeholder": "Song theme...",
+        "t2_dialect": "Flavor:", "t2_dialect_opts": ["Egyptian", "Classical", "Gulf"], "t2_style": "Genre:", "t2_style_opts": ["Mahraganat", "Hip Hop", "Chill Pop"], "t2_vocal": "Vocal:", "t2_vocal_opts": ["Deep Bass", "Energetic", "Warm Female"], "t2_inst": "Instruments:", "t2_inst_opts": ["Electronic Beats", "Acoustic Guitar", "Oriental Oud"], "t2_btn": "Generate Song", "t2_warn": "Enter song!", "t2_spin": "Crafting...",
+        
+        "t3_header": "Phase 4: Image Engineering", "t3_input_label": "Scene Description:", "t3_input_placeholder": "Describe scene...",
+        "t3_engine": "AI Engine:", "t3_engine_opts": ["Midjourney v6", "Flux.1", "DALL-E 3"], "t3_aspect": "Aspect Ratio:", "t3_aspect_opts": ["9:16", "16:9", "1:1"], "t3_light": "Lighting:", "t3_light_opts": ["Studio", "Cyberpunk", "Golden Hour"], "t3_shot": "Camera Shot:", "t3_shot_opts": ["Close-up", "Bird's Eye", "Wide Portrait"], "t3_btn": "Generate Prompts", "t3_warn": "Enter description!", "t3_spin": "Engineering...",
+        
         "t4_header": "Phase 5: Video Motion", "t4_input_label": "Motion Text:", "t4_input_placeholder": "Motion details...",
-        "t4_tool": "Tool:", "t4_tool_opts": ["Runway", "Luma"], "t4_cam": "Camera:", "t4_cam_opts": ["Slow Zoom", "Pan"],
-        "t4_btn": "Generate Motion", "t4_warn": "Enter motion!", "t4_spin": "Preparing...",
-        "t5_header": "Phase 6: Marketing", "t5_input_label": "Product:", "t5_input_placeholder": "Campaign details...",
-        "t5_plat": "Platform:", "t5_plat_opts": ["TikTok", "Instagram"], "t5_goal": "Goal:", "t5_goal_opts": ["Sales", "Awareness"],
-        "t5_budget": "Budget ($):", "t5_btn": "Execute", "t5_warn": "Enter details!", "t5_spin": "Analyzing...",
+        "t4_tool": "Motion Tool:", "t4_tool_opts": ["Runway Gen-3", "Luma", "Pika"], "t4_cam": "Camera Motion:", "t4_cam_opts": ["Slow Zoom In", "Pan", "Tracking Shot"], "t4_speed": "Speed:", "t4_speed_opts": ["Cinematic Slow-mo", "Balanced", "Fast Dynamic"], "t4_btn": "Generate Motion", "t4_warn": "Enter motion!", "t4_spin": "Preparing...",
+        
+        "t5_header": "Phase 6: Advanced Marketing", "t5_input_label": "Product:", "t5_input_placeholder": "Campaign details...",
+        "t5_plat": "Platform:", "t5_plat_opts": ["TikTok Ads", "Meta Ads", "YouTube Ads"], "t5_goal": "Objective:", "t5_goal_opts": ["Conversions", "Awareness", "Leads"], "t5_strategy": "Ad Strategy:", "t5_strategy_opts": ["UGC Style", "Social Proof", "Limited Offer"], "t5_budget": "Budget ($):", "t5_btn": "Execute Campaign", "t5_warn": "Enter details!", "t5_spin": "Analyzing...",
+        
         "result_label": "🚀 Saved Professional Result:", "copy_btn": "Copy", "download_txt": "Download (.txt)", "rating_label": "Rating:"
     }
 }
@@ -259,7 +278,7 @@ def call_gemini(prompt_text, lang_choice):
         return "❌ الخطأ: مفتاح API الخاص بـ Gemini غير موجود في أسرار Streamlit Secrets."
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     headers = {"Content-Type": "application/json"}
-    system_instruction = f"You are an elite AI Studio Expert for Ibda3 Platform. Language: {lang_choice}."
+    system_instruction = f"You are an elite expert AI Producer for Ibda3 Platform Pro, providing highly professional, comprehensive, and detailed outputs. Language: {lang_choice}."
     payload = {"contents": [{"role": "user", "parts": [{"text": system_instruction + "\n\n" + prompt_text}]}]}
     try:
         response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
@@ -348,7 +367,7 @@ def log_and_save(tab_name, input_val, result_text):
     str_lit.session_state["current_result"] = result_text
 
 # ------------------------------------------
-# تبويب 0: دليل الاستخدام والتوجيه (جديد)
+# تبويب 0: دليل الاستخدام والتوجيه
 # ------------------------------------------
 with tabs[0]:
     str_lit.markdown(f"""
@@ -367,102 +386,134 @@ with tabs[0]:
     </div>
     """, unsafe_allow_html=True)
 
-# تبويب 1: التخطيط الاستراتيجي
+# ------------------------------------------
+# تبويب 1: التخطيط الاستراتيجي المتقدم
+# ------------------------------------------
 with tabs[1]:
     str_lit.subheader(t["t0_header"])
     str_lit.session_state["t0_val"] = str_lit.text_area(t["t0_input_label"], value=str_lit.session_state["t0_val"], placeholder=t["t0_input_placeholder"], key="t0_w")
-    goal_0 = str_lit.selectbox(t["t0_goal"], t["t0_goal_opts"], key="t0_g")
+    c1, c2, c3 = str_lit.columns(3)
+    goal_0 = c1.selectbox(t["t0_goal"], t["t0_goal_opts"], key="t0_g")
+    meth_0 = c2.selectbox(t["t0_meth"], t["t0_meth_opts"], key="t0_m")
+    market_0 = c3.selectbox(t["t0_market"], t["t0_market_opts"], key="t0_mk")
+    
     if str_lit.button(t["t0_btn"], key="t0_b"):
         if not str_lit.session_state["t0_val"].strip():
             str_lit.warning(t["t0_warn"])
         else:
             with str_lit.spinner(t["t0_spin"]):
-                res = call_gemini(f"Strategic plan for: '{str_lit.session_state['t0_val']}'. Goal: {goal_0}", selected_lang)
-                log_and_save("Strategic Planning", str_lit.session_state["t0_val"], res)
+                prompt = f"Advanced Strategic plan for project: '{str_lit.session_state['t0_val']}'. Goal: {goal_0}, Methodology: {meth_0}, Market: {market_0}. Provide comprehensive business analysis, KPIs, and roadmap."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Strategic Planning Pro", str_lit.session_state["t0_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 2: الأفكار والسكريبتات
+# ------------------------------------------
+# تبويب 2: الأفكار والسكريبتات الاحترافية
+# ------------------------------------------
 with tabs[2]:
     str_lit.subheader(t["t1_header"])
     str_lit.session_state["t1_val"] = str_lit.text_area(t["t1_input_label"], value=str_lit.session_state["t1_val"], placeholder=t["t1_input_placeholder"], key="t1_w")
-    c1, c2, c3 = str_lit.columns(3)
+    c1, c2, c3, c4 = str_lit.columns(4)
     dur = c1.selectbox(t["t1_dur"], t["t1_dur_opts"], key="t1_d")
     style = c2.selectbox(t["t1_style"], t["t1_style_opts"], key="t1_s")
-    target = c3.selectbox(t["t1_target"], t["t1_target_opts"], key="t1_t")
+    tone = c3.selectbox(t["t1_tone"], t["t1_tone_opts"], key="t1_tn")
+    target = c4.selectbox(t["t1_target"], t["t1_target_opts"], key="t1_t")
+    
     if str_lit.button(t["t1_btn"], key="t1_b"):
         if not str_lit.session_state["t1_val"].strip():
             str_lit.warning(t["t1_warn"])
         else:
             with str_lit.spinner(t["t1_spin"]):
-                res = call_gemini(f"Video script for: '{str_lit.session_state['t1_val']}', Duration: {dur}, Style: {style}, Target: {target}", selected_lang)
-                log_and_save("Ideas & Scripts", str_lit.session_state["t1_val"], res)
+                prompt = f"Pro Video Script for: '{str_lit.session_state['t1_val']}', Duration: {dur}, Visual Style: {style}, Tone: {tone}, Target Audience: {target}. Include strong hook, body scenes, and CTA."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Ideas & Scripts Pro", str_lit.session_state["t1_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 3: الأغاني والصوت
+# ------------------------------------------
+# تبويب 3: الأغاني والصوت المتطور
+# ------------------------------------------
 with tabs[3]:
     str_lit.subheader(t["t2_header"])
     str_lit.session_state["t2_val"] = str_lit.text_area(t["t2_input_label"], value=str_lit.session_state["t2_val"], placeholder=t["t2_input_placeholder"], key="t2_w")
-    c1, c2, c3 = str_lit.columns(3)
+    c1, c2, c3, c4 = str_lit.columns(4)
     dialect = c1.selectbox(t["t2_dialect"], t["t2_dialect_opts"], key="t2_d")
     genre = c2.selectbox(t["t2_style"], t["t2_style_opts"], key="t2_s")
     vocal = c3.selectbox(t["t2_vocal"], t["t2_vocal_opts"], key="t2_v")
+    inst = c4.selectbox(t["t2_inst"], t["t2_inst_opts"], key="t2_i")
+    
     if str_lit.button(t["t2_btn"], key="t2_b"):
         if not str_lit.session_state["t2_val"].strip():
             str_lit.warning(t["t2_warn"])
         else:
             with str_lit.spinner(t["t2_spin"]):
-                res = call_gemini(f"Song lyrics and audio for: '{str_lit.session_state['t2_val']}', Dialect: {dialect}, Genre: {genre}, Vocal: {vocal}", selected_lang)
-                log_and_save("Music & Audio", str_lit.session_state["t2_val"], res)
+                prompt = f"Pro Song Lyrics and Music Production Guide for: '{str_lit.session_state['t2_val']}', Dialect: {dialect}, Genre: {genre}, Vocal Style: {vocal}, Instruments: {inst}."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Music & Audio Pro", str_lit.session_state["t2_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 4: الصور والهوية
+# ------------------------------------------
+# تبويب 4: الصور والهوية البصرية المتقدمة
+# ------------------------------------------
 with tabs[4]:
     str_lit.subheader(t["t3_header"])
     str_lit.session_state["t3_val"] = str_lit.text_area(t["t3_input_label"], value=str_lit.session_state["t3_val"], placeholder=t["t3_input_placeholder"], key="t3_w")
-    c1, c2, c3 = str_lit.columns(3)
+    c1, c2, c3, c4 = str_lit.columns(4)
     engine = c1.selectbox(t["t3_engine"], t["t3_engine_opts"], key="t3_e")
     aspect = c2.selectbox(t["t3_aspect"], t["t3_aspect_opts"], key="t3_a")
     light = c3.selectbox(t["t3_light"], t["t3_light_opts"], key="t3_l")
+    shot = c4.selectbox(t["t3_shot"], t["t3_shot_opts"], key="t3_sh")
+    
     if str_lit.button(t["t3_btn"], key="t3_b"):
         if not str_lit.session_state["t3_val"].strip():
             str_lit.warning(t["t3_warn"])
         else:
             with str_lit.spinner(t["t3_spin"]):
-                res = call_gemini(f"Image prompt for: '{str_lit.session_state['t3_val']}', Engine: {engine}, Aspect: {aspect}, Lighting: {light}", selected_lang)
-                log_and_save("Image Prompts", str_lit.session_state["t3_val"], res)
+                prompt = f"Advanced Image Generation Prompts for: '{str_lit.session_state['t3_val']}', Engine: {engine}, Aspect Ratio: {aspect}, Lighting: {light}, Shot Type: {shot}. Provide ready-to-use professional prompts."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Image Prompts Pro", str_lit.session_state["t3_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 5: تحريك الفيديو
+# ------------------------------------------
+# تبويب 5: تحريك الفيديو والموشن
+# ------------------------------------------
 with tabs[5]:
     str_lit.subheader(t["t4_header"])
     str_lit.session_state["t4_val"] = str_lit.text_area(t["t4_input_label"], value=str_lit.session_state["t4_val"], placeholder=t["t4_input_placeholder"], key="t4_w")
-    c1, c2 = str_lit.columns(2)
+    c1, c2, c3 = str_lit.columns(3)
     tool = c1.selectbox(t["t4_tool"], t["t4_tool_opts"], key="t4_t")
     cam = c2.selectbox(t["t4_cam"], t["t4_cam_opts"], key="t4_c")
+    speed = c3.selectbox(t["t4_speed"], t["t4_speed_opts"], key="t4_sp")
+    
     if str_lit.button(t["t4_btn"], key="t4_b"):
         if not str_lit.session_state["t4_val"].strip():
             str_lit.warning(t["t4_warn"])
         else:
             with str_lit.spinner(t["t4_spin"]):
-                res = call_gemini(f"Video motion prompt for: '{str_lit.session_state['t4_val']}', Tool: {tool}, Camera: {cam}", selected_lang)
-                log_and_save("Video Motion", str_lit.session_state["t4_val"], res)
+                prompt = f"Pro Video Motion Prompts for AI Tools for: '{str_lit.session_state['t4_val']}', Tool: {tool}, Camera Movement: {cam}, Speed: {speed}."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Video Motion Pro", str_lit.session_state["t4_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 6: التسويق والإعلانات
+# ------------------------------------------
+# تبويب 6: التسويق والإعلانات الرقمية المتقدمة
+# ------------------------------------------
 with tabs[6]:
     str_lit.subheader(t["t5_header"])
     str_lit.session_state["t5_val"] = str_lit.text_area(t["t5_input_label"], value=str_lit.session_state["t5_val"], placeholder=t["t5_input_placeholder"], key="t5_w")
-    c1, c2, c3 = str_lit.columns(3)
+    c1, c2, c3, c4 = str_lit.columns(4)
     plat = c1.selectbox(t["t5_plat"], t["t5_plat_opts"], key="t5_p")
     goal = c2.selectbox(t["t5_goal"], t["t5_goal_opts"], key="t5_g")
-    budget = c3.number_input(t["t5_budget"], min_value=50, max_value=100000, value=1000, step=50, key="t5_bgt")
+    strategy = c3.selectbox(t["t5_strategy"], t["t5_strategy_opts"], key="t5_st")
+    budget = c4.number_input(t["t5_budget"], min_value=50, max_value=500000, value=1500, step=100, key="t5_bgt")
+    
     if str_lit.button(t["t5_btn"], key="t5_b"):
         if not str_lit.session_state["t5_val"].strip():
             str_lit.warning(t["t5_warn"])
         else:
             with str_lit.spinner(t["t5_spin"]):
-                res = call_gemini(f"Marketing campaign for: '{str_lit.session_state['t5_val']}', Platform: {plat}, Goal: {goal}, Budget: ${budget}", selected_lang)
-                log_and_save("Marketing Strategy", str_lit.session_state["t5_val"], res)
+                prompt = f"Advanced Digital Marketing Campaign for: '{str_lit.session_state['t5_val']}', Platform: {plat}, Objective: {goal}, Strategy: {strategy}, Monthly Budget: ${budget}. Include target audience, ad copy angles, and KPIs."
+                res = call_gemini(prompt, selected_lang)
+                log_and_save("Marketing Strategy Pro", str_lit.session_state["t5_val"], res)
                 str_lit.success("تم بنجاح!")
 
 # ==========================================
@@ -480,10 +531,10 @@ if str_lit.session_state["current_result"]:
         str_lit.download_button(
             label=t["download_txt"],
             data=current_res,
-            file_name=f"Ibda3_Studio_Result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            file_name=f"Ibda3_Studio_Pro_Result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
             mime="text/plain"
         )
     with col_b:
         str_lit.slider(t["rating_label"], 1, 5, 5, key="result_rating")
 else:
-    str_lit.info("قم بتنفيذ أي خيار بالأعلى لعرض النتيجة الفورية هنا.")
+    str_lit.info("قم بتنفيذ أي خيار بالأعلى لعرض النتيجة الفورية الاحترافية هنا.")
