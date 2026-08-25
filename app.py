@@ -83,7 +83,7 @@ str_lit.markdown("""
 API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. نظام التخزين الدائم المؤمّن والزوار
+# 2. نظام التخزين الدائم والزوار
 # ==========================================
 HISTORY_FILE = "ibda3_enterprise_history.json"
 FAV_FILE = "ibda3_enterprise_favorites.json"
@@ -107,8 +107,8 @@ def save_data(path, data):
 if "history" not in str_lit.session_state: str_lit.session_state["history"] = load_data(HISTORY_FILE)
 if "favorites" not in str_lit.session_state: str_lit.session_state["favorites"] = load_data(FAV_FILE)
 if "current_result" not in str_lit.session_state: str_lit.session_state["current_result"] = None
+if "current_tools" not in str_lit.session_state: str_lit.session_state["current_tools"] = []
 
-# نظام تتبع عدد الزيارات الفعلي (مرة لكل جلسة متصفح)
 if "visited" not in str_lit.session_state:
     str_lit.session_state["visited"] = True
     stats_data = load_data(STATS_FILE)
@@ -171,6 +171,7 @@ TEXTS = {
         "warn": "⚠️ يرجى إدخال البيانات المطلوبة أولاً!",
         "spin": "⚡ جارٍ معالجة البيانات عبر شبكات النماذج الكبرى...",
         "res_title": "🚀 مخرجات الذكاء الاصطناعي المعتمدة:",
+        "tools_title": "🛠️ المنصات والأدوات العالمية المتاحة لتنفيذ هذه الخدمة:",
         "download": "📥 تصدير التقرير الاحترافي (.txt)",
         "rate": "⭐ تقييم جودة المخرج:",
 
@@ -282,6 +283,7 @@ TEXTS = {
         "warn": "⚠️ Please enter required details first!",
         "spin": "⚡ Processing via Advanced LLM Cluster...",
         "res_title": "🚀 Verified AI Output:",
+        "tools_title": "🛠️ Recommended Global Platforms & Tools:",
         "download": "📥 Export Professional Report (.txt)",
         "rate": "⭐ Rate Output Quality:",
 
@@ -355,6 +357,49 @@ TEXTS = {
 }
 
 # ==========================================
+# قاعدة بيانات الأدوات والمواقع العالمية لكل قسم
+# ==========================================
+PLATFORM_TOOLS = {
+    "Strategic Planning": [
+        {"name": "ChatGPT (OpenAI)", "type": "مجاني مع خيارات مدفوعة", "url": "https://chat.openai.com"},
+        {"name": "Claude (Anthropic)", "type": "مجاني / مدفوع", "url": "https://claude.ai"},
+        {"name": "Notion AI", "type": "فترة تجريبية / مدفوع", "url": "https://www.notion.so"},
+        {"name": "Boardmix", "type": "مجاني جزئياً", "url": "https://boardmix.com"}
+    ],
+    "Scripts Studio": [
+        {"name": "ChatGPT", "type": "مجاني / مدفوع", "url": "https://chat.openai.com"},
+        {"name": "Jasper AI", "type": "مدفوع", "url": "https://www.jasper.ai"},
+        {"name": "Copy.ai", "type": "مجاني جزئياً / مدفوع", "url": "https://www.copy.ai"},
+        {"name": "Writesonic", "type": "مجاني جزئياً", "url": "https://writesonic.com"}
+    ],
+    "Music Studio": [
+        {"name": "Suno AI", "type": "مجاني (يعطي رصيد يومي)", "url": "https://suno.com"},
+        {"name": "Udio", "type": "مجاني (يعطي رصيد شهري)", "url": "https://www.udio.com"},
+        {"name": "ElevenLabs", "type": "مجاني جزئياً", "url": "https://elevenlabs.io"},
+        {"name": "Boomy", "type": "مجاني جزئياً", "url": "https://boomy.com"}
+    ],
+    "Visual Engineering": [
+        {"name": "Midjourney", "type": "مدفوع (اشتراك شهري)", "url": "https://www.midjourney.com"},
+        {"name": "Leonardo.ai", "type": "مجاني (رصيد يومي متجدد)", "url": "https://leonardo.ai"},
+        {"name": "Flux.1 (HuggingFace)", "type": "مجاني للاستخدام المفتوح", "url": "https://huggingface.co"},
+        {"name": "Bing Image Creator (DALL-E 3)", "type": "مجاني تماماً", "url": "https://www.bing.com/create"},
+        {"name": "Adobe Firefly", "type": "مجاني برصيد تجريبي", "url": "https://firefly.adobe.com"}
+    ],
+    "Motion Cinema": [
+        {"name": "RunwayML (Gen-3)", "type": "مجاني بفترة تجريبية / مدفوع", "url": "https://runwayml.com"},
+        {"name": "Luma Dream Machine", "type": "مجاني جزئياً", "url": "https://lumalabs.ai/dream-machine"},
+        {"name": "Pika Labs", "type": "مجاني برصيد متجدد", "url": "https://pika.art"},
+        {"name": "Kling AI", "type": "مجاني برصيد يومي", "url": "https://klingai.com"}
+    ],
+    "Mega Campaigns": [
+        {"name": "Meta Ads Manager", "type": "منصة إعلانية رسمية", "url": "https://adsmanager.facebook.com"},
+        {"name": "TikTok Ads Manager", "type": "منصة إعلانية رسمية", "url": "https://ads.tiktok.com"},
+        {"name": "Google Ads", "type": "منصة إعلانية رسمية", "url": "https://ads.google.com?subid=xs-ip-gemini-adlc"},
+        {"name": "AdCreative.ai", "type": "فترة تجريبية / مدفوع", "url": "https://www.adcreative.ai"}
+    ]
+}
+
+# ==========================================
 # 4. محرك استدعاء الذكاء الاصطناعي المؤسسي
 # ==========================================
 def call_gemini_enterprise(prompt, lang_choice):
@@ -382,7 +427,6 @@ with str_lit.sidebar:
     str_lit.markdown(f"### {t['sidebar_title']}")
     str_lit.markdown("---")
     
-    # قسم عداد الزوار الجديد والمميز في الـ Sidebar
     str_lit.markdown(f"#### {t['visitor_stat_title']}")
     str_lit.metric(label=t["visitor_count_label"], value=get_total_visits())
     str_lit.markdown("---")
@@ -413,7 +457,7 @@ with str_lit.sidebar:
         str_lit.rerun()
 
 # ==========================================
-# 6. الواجهة الرئيسية والتبويبات الكاملة بالتفاصيل
+# 6. الواجهة الرئيسية والتبويبات الكاملة
 # ==========================================
 str_lit.markdown(f'<h1 class="enterprise-header">{t["main_title"]}</h1>', unsafe_allow_html=True)
 str_lit.caption(t["main_caption"])
@@ -431,9 +475,10 @@ def log_and_store(tab_name, user_input, output_text):
     str_lit.session_state["history"].append(rec)
     save_data(HISTORY_FILE, str_lit.session_state["history"])
     str_lit.session_state["current_result"] = output_text
+    str_lit.session_state["current_tools"] = PLATFORM_TOOLS.get(tab_name, [])
 
 # ------------------------------------------
-# تبويب 0: لوحة القيادة (Command Center)
+# تبويب 0: لوحة القيادة
 # ------------------------------------------
 with tabs[0]:
     with str_lit.container():
@@ -580,11 +625,11 @@ with tabs[6]:
             with str_lit.spinner(t["spin"]):
                 prompt = f"Mega Ad Campaign for: '{str_lit.session_state['t5_v']}', Platform: {plat}, Objective: {goal}, Strategy: {strategy}, Budget: ${budget}."
                 res = call_gemini_enterprise(prompt, selected_lang)
-                log_and_stats = log_and_store("Mega Campaigns", str_lit.session_state["t5_v"], res)
+                log_and_store("Mega Campaigns", str_lit.session_state["t5_v"], res)
                 str_lit.success("تم بنجاح!")
 
 # ==========================================
-# 7. قسم النتائج والتصدير
+# 7. قسم النتائج، التصدير، ودليل المواقع والمنصات
 # ==========================================
 str_lit.markdown("---")
 str_lit.markdown(f"### {t['res_title']}")
@@ -593,6 +638,26 @@ if str_lit.session_state["current_result"]:
     res_box = str_lit.session_state["current_result"]
     str_lit.markdown(res_box)
     
+    # عرض دليل المواقع والمنصات المرتبطة بالخدمة تحت النتيجة مباشرة
+    tools_list = str_lit.session_state.get("current_tools", [])
+    if tools_list:
+        str_lit.markdown("---")
+        str_lit.markdown(f"### {t['tools_title']}")
+        
+        # عمل جدول أو كروت منظمة للمواقع بالأسماء واللينكات وحالة الدفع
+        cols = str_lit.columns(len(tools_list)) if len(tools_list) <= 4 else str_lit.columns(2)
+        for i, tool_item in enumerate(tools_list):
+            col_idx = i % len(cols)
+            with cols[col_idx]:
+                str_lit.markdown(f"""
+                <div style="background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(99, 102, 241, 0.3); padding: 15px; border-radius: 12px; margin-bottom: 10px;">
+                    <h4 style="margin: 0 0 5px 0; color: #818cf8;">{tool_item['name']}</h4>
+                    <p style="margin: 0 0 10px 0; font-size: 0.85rem; color: #cbd5e1;">🏷️ {tool_item['type']}</p>
+                    <a href="{tool_item['url']}" target="_blank" style="display: inline-block; background: #4f46e5; color: white; padding: 6px 12px; border-radius: 8px; text-decoration: none; font-size: 0.9rem; font-weight: bold;">🌐 زيارة الموقع</a>
+                </div>
+                """, unsafe_allow_html=True)
+
+    str_lit.markdown("---")
     c_dl, c_rt = str_lit.columns(2)
     with c_dl:
         str_lit.download_button(
@@ -604,4 +669,4 @@ if str_lit.session_state["current_result"]:
     with c_rt:
         str_lit.slider(t["rate"], 1, 5, 5, key="enterprise_rating")
 else:
-    str_lit.info("قم بتنفيذ أي عملية في الأقسام بالأعلى لعرض التقرير المؤسسي الفوري هنا.")
+    str_lit.info("قم بتنفيذ أي عملية في الأقسام بالأعلى لعرض التقرير المؤسسي ودليل المواقع المرتبطة فوراً هنا.")
