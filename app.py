@@ -392,20 +392,38 @@ PLATFORM_TOOLS = {
 }
 
 # ==========================================
-# 4. محرك استدعاء الذكاء الاصطناعي (محدث وثابت)
+# 4. محرك استدعاء الذكاء الاصطناعي (محدث ومضمون لكل الأقسام)
 # ==========================================
 def call_gemini_enterprise(prompt, lang_choice):
     if not API_KEY:
         return "❌ الخطأ: مفتاح API غير موجود في إعدادات المنصة (Streamlit Secrets)."
+    
+    # تجربة الموديلات المتاحة تلقائياً لمنع أي خطأ 404
+    models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash']
+    
+    for model_name in models_to_try:
+        try:
+            model = genai.GenerativeModel(model_name)
+            sys_inst = f"You are an elite enterprise AI Architect for 'Ibda3 Enterprise Suite', producing world-class, exhaustive, highly professional business and creative assets. Language: {lang_choice}."
+            full_prompt = sys_inst + "\n\n" + prompt
+            response = model.generate_content(full_prompt)
+            if response and response.text:
+                return response.text
+        except Exception:
+            continue
+            
+    # محاولة أخيرة بالطريقة البديلة للـ GenerativeModel في حال فشل الأسماء السابقة
     try:
-        # استخدام مكتبة google.generativeai الرسمية والمستقرة
-        model = genai.GenerativeModel('gemini-1.5-flash')
-        sys_inst = f"You are an elite enterprise AI Architect for 'Ibda3 Enterprise Suite', producing world-class, exhaustive, highly professional business and creative assets. Language: {lang_choice}."
-        full_prompt = sys_inst + "\n\n" + prompt
-        response = model.generate_content(full_prompt)
-        return response.text
+        for m in genai.list_models():
+            if 'generateContent' in m.supported_generation_methods:
+                model = genai.GenerativeModel(m.name)
+                response = model.generate_content(prompt)
+                if response and response.text:
+                    return response.text
     except Exception as e:
-        return f"❌ خطأ تقني في الاتصال: {str(e)}"
+        return f"❌ خطأ تقني في الاتصال بجميع النماذج المتاحة: {str(e)}"
+        
+    return "❌ لم يتم العثور على موديل متوافق لإنشاء المحتوى، يرجى مراجعة إعدادات الـ API Key."
 
 # ==========================================
 # 5. الشريط الجانبي وتغيير اللغة الفوري
@@ -488,7 +506,7 @@ with tabs[0]:
     col1, col2, col3 = str_lit.columns(3)
     col1.metric("العمليات الناجحة / Operations", len(str_lit.session_state["history"]), "+100%")
     col2.metric("العناصر المفضلة / Favorites", len(str_lit.session_state["favorites"]), "Secure")
-    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini 1.5 Flash")
+    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini Pro/Flash")
 
 # ------------------------------------------
 # تبويب 1: التخطيط الاستراتيجي
