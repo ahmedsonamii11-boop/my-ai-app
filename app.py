@@ -36,14 +36,14 @@ str_lit.markdown("""
         transform: translateY(-2px);
         background: linear-gradient(135deg, #818cf8 0%, #6366f1 100%);
     }
-    .stTextArea textarea, .stTextInput input, .stSelectbox select, .stMultiSelect div {
+    .stTextArea textarea, .stTextInput input, .stSelectbox select {
         border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         background-color: rgba(30, 41, 59, 0.7) !important;
         color: #f1f5f9 !important;
         padding: 10px !important;
     }
-    .guide-box {
+    .guide-box, .voice-hint-box {
         background: rgba(30, 41, 59, 0.5);
         border: 1px solid rgba(99, 102, 241, 0.3);
         padding: 20px;
@@ -110,7 +110,7 @@ TEXTS = {
         "main_caption": "المنظومة الاحترافية المتكاملة لإنتاج المحتوى والخطط الاستراتيجية بالذكاء الاصطناعي",
         
         "tabs": [
-            "🏠 دليل الاستخدام",
+            "🏠 دليل الاستخدام والبدء",
             "0️⃣ 🗺️ التخطيط الاستراتيجي",
             "1️⃣ 💡 الأفكار والسكريبتات",
             "2️⃣ 🎵 الأغاني والصوت",
@@ -120,7 +120,9 @@ TEXTS = {
         ],
         
         "guide_title": "👋 أهلاً بك في النسخة الاحترافية من منصة إبداع",
-        "guide_desc": "تم إثراء المنصة الآن بـ خيارات متقدمة لكل مرحلة تتيح لك تخصيص كل تفصيل بدقة مذهلة:",
+        "guide_desc": "تم تصميم المنصة لتمنحك تحكماً كاملاً عبر خيارات متقدمة لكل مرحلة:",
+        "voice_hint": "🎙️ **ملاحظة حول الإدخال الصوتي:** يمكنك استخدام خاصية الإملاء الصوتي في لوحة المفاتيح لديك (مثل زر المايك في هاتفes أو أجهزة الكمبيوتر عبر اختصار Windows + H أو Cmd + Shift + S) لإدخال الأفكار والتحدث بها مباشرة.",
+        
         "step_0": "🗺️ التخطيط: اختر أهداف عملك، منهجية الإدارة، ونطاق السوق المستهدف.",
         "step_1": "💡 السكريبتات: حدد مدة الفيديو، النمط البصري، نبرة الصوت، وعقدة البداية (الخطاف).",
         "step_2": "🎵 الأغاني: تحكم في اللهجة، النمط الموسيقي، الآلات المستخدمة، ونوع الأداء الصوتي.",
@@ -128,9 +130,8 @@ TEXTS = {
         "step_4": "🗣️ الفيديو: اختر أدوات التحريك الحركي، مسارات الكاميرا، وسرعة الحركة.",
         "step_5": "📊 التسويق: حدد المنصات الإعلانية، نوع الجمهور، استراتيجية الإنفاق، وهدف الحملة.",
 
-        # خيارات المرحلة 0
         "t0_header": "🗺️ المرحلة الأولى: التخطيط الاستراتيجي المتقدم",
-        "t0_input_label": "🎯 ما هو مشروعك أو فكرتك الريادية؟",
+        "t0_input_label": "🎯 ما هو مشروعك أو فكرتك الريادية؟ (يمكنك التحدث بالصوت وإملائها هنا)",
         "t0_input_placeholder": "اكتب فكرة المشروع بالتفصيل...",
         "t0_goal": "🎯 الهدف الاستراتيجي:",
         "t0_goal_opts": ["إطلاق شركة ناشئة (Startup)", "حملة تسويقية رقمية كبرى", "منصة تعليمية أو بودكاست", "إعادة هيكلة براند", "توسيع مبيعات التجارة الإلكترونية"],
@@ -142,7 +143,6 @@ TEXTS = {
         "t0_warn": "⚠️ يرجى إدخال تفاصيل المشروع أولاً!",
         "t0_spin": "⚡ جارٍ تحليل الأسواق وبناء الاستراتيجية...",
 
-        # خيارات المرحلة 1
         "t1_header": "🎬 المرحلة الثانية: صانع الأفكار والسكريبتات الاحترافية",
         "t1_input_label": "📽️ فكرة الفيديو أو الموضوع الأساسي:",
         "t1_input_placeholder": "اكتب فكرة الفيديو باختصار...",
@@ -158,7 +158,6 @@ TEXTS = {
         "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
         "t1_spin": "⚡ جارٍ صياغة الخطاف والسكريبت...",
 
-        # خيارات المرحلة 2
         "t2_header": "🎵 المرحلة الثالثة: استوديو الأغاني والموسيقى المتطور",
         "t2_input_label": "💡 موضوع الأغنية أو الرسالة المراد توصيلها:",
         "t2_input_placeholder": "اكتب موضوع الكلمات أو القصة...",
@@ -174,7 +173,6 @@ TEXTS = {
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية!",
         "t2_spin": "⚡ جارٍ تأليف الكلمات والمقاطع...",
 
-        # خيارات المرحلة 3
         "t3_header": "🎨 المرحلة الرابعة: هندسة الصور والهوية البصرية",
         "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
         "t3_input_placeholder": "صف العناصر، الألوان، والخلفية...",
@@ -190,7 +188,6 @@ TEXTS = {
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة!",
         "t3_spin": "⚡ هندسة الأوامر البرمجية للصور...",
 
-        # خيارات المرحلة 4
         "t4_header": "🗣️ المرحلة الخامسة: سينما تحريك الفيديو والموشن",
         "t4_input_label": "📜 وصف الحركة المطلوبة أو تحريك الصورة:",
         "t4_input_placeholder": "صف كيف تتحرك الكاميرا أو العناصر...",
@@ -204,7 +201,6 @@ TEXTS = {
         "t4_warn": "⚠️ يرجى إدخال تفاصيل الحركة!",
         "t4_spin": "⚡ إعداد مسار الكاميرا والحركة...",
 
-        # خيارات المرحلة 5
         "t5_header": "📊 المرحلة السادسة: الإعلانات والتسويق الرقمي",
         "t5_input_label": "🎯 المنتج أو الخدمة المراد تسويقها:",
         "t5_input_placeholder": "اكتب تفاصيل المنتج والجمهور المستهدف...",
@@ -220,7 +216,6 @@ TEXTS = {
         "t5_spin": "⚡ تحليل السوق واستهداف الجماهير...",
 
         "result_label": "🚀 النتيجة الاحترافية المحفوظة:",
-        "copy_btn": "📋 نسخ",
         "download_txt": "📥 تحميل ملف (.txt)",
         "rating_label": "⭐ التقييم:"
     },
@@ -241,6 +236,8 @@ TEXTS = {
         
         "guide_title": "👋 Welcome to Ibda3 Studio Pro",
         "guide_desc": "Enhanced with advanced options for each phase to give you absolute professional control:",
+        "voice_hint": "🎙️ **Voice Input Tip:** You can use your device's built-in voice dictation (microphone icon on your keyboard or shortcuts like Windows+H / Cmd+Shift+S) to speak your ideas directly into any text box.",
+        
         "step_0": "🗺️ Strategy: Choose business models, market scale, and growth objectives.",
         "step_1": "💡 Scripts: Select durations, visual styles, vocal tones, and viral hooks.",
         "step_2": "🎵 Music: Customize dialects, music genres, instruments, and vocal styles.",
@@ -266,7 +263,7 @@ TEXTS = {
         "t5_header": "Phase 6: Advanced Marketing", "t5_input_label": "Product:", "t5_input_placeholder": "Campaign details...",
         "t5_plat": "Platform:", "t5_plat_opts": ["TikTok Ads", "Meta Ads", "YouTube Ads"], "t5_goal": "Objective:", "t5_goal_opts": ["Conversions", "Awareness", "Leads"], "t5_strategy": "Ad Strategy:", "t5_strategy_opts": ["UGC Style", "Social Proof", "Limited Offer"], "t5_budget": "Budget ($):", "t5_btn": "Execute Campaign", "t5_warn": "Enter details!", "t5_spin": "Analyzing...",
         
-        "result_label": "🚀 Saved Professional Result:", "copy_btn": "Copy", "download_txt": "Download (.txt)", "rating_label": "Rating:"
+        "result_label": "🚀 Saved Professional Result:", "download_txt": "Download (.txt)", "rating_label": "Rating:"
     }
 }
 
@@ -374,6 +371,9 @@ with tabs[0]:
     <div class="guide-box">
         <h2>{t['guide_title']}</h2>
         <p style="font-size: 1.1rem; line-height: 1.6;">{t['guide_desc']}</p>
+        <div class="voice-hint-box" style="margin-top: 15px;">
+            {t['voice_hint']}
+        </div>
         <hr style="border-color: rgba(255,255,255,0.1);">
         <ul>
             <li style="margin-bottom: 10px;">{t['step_0']}</li>
