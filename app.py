@@ -189,69 +189,69 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop (مصصححة تماماً)
+# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop (باستخدام f-string آمنة تماماً)
 # ==========================================
-def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك لتسجيل ممتد..."):
+def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك للتسجيل المستمر..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
-    js_code = """
+    js_code = f"""
     <script>
-    (function() {
+    (function() {{
         const doc = window.parent.document;
         const textAreas = doc.querySelectorAll('textarea');
         
-        textAreas.forEach((ta) => {
-            if (ta.getAttribute('aria-label') === '%s' || ta.placeholder === '%s') {
+        textAreas.forEach((ta) => {{
+            if (ta.getAttribute('aria-label') === '{label}' || ta.placeholder === '{placeholder}') {{
                 const wrapper = ta.closest('.stTextArea') || ta.parentElement;
                 
-                if (wrapper && !wrapper.querySelector('.floating-mic-container_%s')) {
+                if (wrapper && !wrapper.querySelector('.floating-mic-container_{session_key}')) {{
                     const micDiv = doc.createElement('div');
-                    micDiv.className = 'floating-mic-container_%s';
+                    micDiv.className = 'floating-mic-container_{session_key}';
                     micDiv.style.cssText = "position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 999;";
                     
                     micDiv.innerHTML = `
-                        <div id="waves_%s" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
+                        <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_%s" title="بدء التسجيل المستمر" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_{session_key}" title="بدء التسجيل المستمر" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
                         </button>
-                        <button type="button" id="stop_btn_%s" title="إيقاف التسجيل" style="background: #3c4043; border: 1px solid #ea4335; color: #ea4335; width: 30px; height: 30px; border-radius: 50%%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="stop_btn_{session_key}" title="إيقاف التسجيل" style="background: #3c4043; border: 1px solid #ea4335; color: #ea4335; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
                             ⏹️
                         </button>
                     `;
                     
-                    if (!doc.getElementById('wave-style-global')) {
+                    if (!doc.getElementById('wave-style-global')) {{
                         const style = doc.createElement('style');
                         style.id = 'wave-style-global';
-                        style.innerHTML = '@keyframes waveA { 0%%, 100%% { height: 4px; } 50%% { height: 16px; } }';
+                        style.innerHTML = '@keyframes waveA {{ 0%, 100% {{ height: 4px; }} 50% {{ height: 16px; }} }}';
                         doc.head.appendChild(style);
-                    }
+                    }}
 
                     wrapper.style.position = 'relative';
                     wrapper.appendChild(micDiv);
 
                     let recognition = null;
                     let isRec = false;
-                    const btn = micDiv.querySelector('#mic_btn_%s');
-                    const stopBtn = micDiv.querySelector('#stop_btn_%s');
-                    const waves = micDiv.querySelector('#waves_%s');
+                    const btn = micDiv.querySelector('#mic_btn_{session_key}');
+                    const stopBtn = micDiv.querySelector('#stop_btn_{session_key}');
+                    const waves = micDiv.querySelector('#waves_{session_key}');
 
-                    function startRecording() {
+                    function startRecording() {{
                         const SpeechRecognition = window.parent.SpeechRecognition || window.parent.webkitSpeechRecognition;
-                        if (!SpeechRecognition) {
+                        if (!SpeechRecognition) {{
                             alert("متصفحك لا يدعم التعرف الصوتي. يرجى استخدام Google Chrome.");
                             return;
-                        }
+                        }}
 
                         recognition = new SpeechRecognition();
                         recognition.lang = 'ar-EG';
                         recognition.interimResults = true;
                         recognition.continuous = true;
 
-                        recognition.onstart = function() {
+                        recognition.onstart = function() {{
                             isRec = true;
                             btn.style.background = '#ea4335';
                             btn.style.color = '#fff';
@@ -259,43 +259,43 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                             btn.style.transform = 'scale(1.1)';
                             stopBtn.style.display = 'flex';
                             waves.style.display = 'flex';
-                        };
+                        }};
 
                         let finalTranscript = ta.value ? ta.value + ' ' : '';
 
-                        recognition.onresult = function(e) {
+                        recognition.onresult = function(e) {{
                             let interim = '';
-                            for (let i = e.resultIndex; i < e.results.length; ++i) {
-                                if (e.results[i].isFinal) {
+                            for (let i = e.resultIndex; i < e.results.length; ++i) {{
+                                if (e.results[i].isFinal) {{
                                     finalTranscript += e.results[i][0].transcript + ' ';
-                                } else {
+                                }} else {{
                                     interim += e.results[i][0].transcript;
-                                }
-                            }
+                                }}
+                            }}
                             const fullText = finalTranscript + interim;
                             
                             const setter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
                             setter.call(ta, fullText);
                             
-                            ta.dispatchEvent(new Event('input', { bubbles: true }));
-                            ta.dispatchEvent(new Event('change', { bubbles: true }));
-                        };
+                            ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                            ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        }};
 
-                        recognition.onerror = function() { stopRecordingProcess(); };
-                        recognition.onend = function() {
-                            if (isRec) {
-                                try { recognition.start(); } catch(err) {}
-                            }
-                        };
+                        recognition.onerror = function() {{ stopRecordingProcess(); }};
+                        recognition.onend = function() {{
+                            if (isRec) {{
+                                try {{ recognition.start(); }} catch(err) {{}}
+                            }}
+                        }};
 
-                        try { recognition.start(); } catch(err) { console.log(err); }
-                    }
+                        try {{ recognition.start(); }} catch(err) {{ console.log(err); }}
+                    }}
 
-                    function stopRecordingProcess() {
+                    function stopRecordingProcess() {{
                         isRec = false;
-                        if (recognition) {
-                            try { recognition.stop(); } catch(e) {}
-                        }
+                        if (recognition) {{
+                            try {{ recognition.stop(); }} catch(e) {{}}
+                        }}
                         btn.style.background = '#2b2d31';
                         btn.style.color = '#8ab4f8';
                         btn.style.borderColor = '#5f6368';
@@ -303,29 +303,29 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         stopBtn.style.display = 'none';
                         waves.style.display = 'none';
 
-                        ta.dispatchEvent(new Event('input', { bubbles: true }));
-                        ta.dispatchEvent(new Event('change', { bubbles: true }));
+                        ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
                         ta.blur();
                         ta.focus();
-                    }
+                    }}
 
-                    btn.onclick = function() {
-                        if (!isRec) {
+                    btn.onclick = function() {{
+                        if (!isRec) {{
                             startRecording();
-                        } else {
+                        }} else {{
                             stopRecordingProcess();
-                        }
-                    };
+                        }}
+                    }};
 
-                    stopBtn.onclick = function() {
+                    stopBtn.onclick = function() {{
                         stopRecordingProcess();
-                    };
-                }
-            }
-        });
-    })();
+                    }};
+                }}
+            }}
+        }});
+    }})();
     </script>
-    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key, session_key, session_key, session_key)
+    """
 
     st.components.v1.html(js_code, height=0, width=0)
     return st.session_state.get(session_key, "")
