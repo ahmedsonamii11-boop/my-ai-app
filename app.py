@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم الاحترافي
+# 1. إعدادات الصفحة والتصميم الجذاب المطور
 # ==========================================
 st.set_page_config(
     page_title="Smart Content Studio - Ultimate Pro",
@@ -16,27 +16,51 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .main { background-color: #0e1117; }
-    .stApp { color: #e0e0e0; }
+    /* خلفية متدرجة وجذابة للتطبيق بالكامل */
+    .stApp {
+        background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 50%, #0f172a 100%);
+        color: #f1f5f9;
+    }
+    
+    /* القائمة الجانبية بتدرج وتصميم فخم */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #111827 0%, #1f2937 100%);
+        border-right: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    /* تحسين الأزرار الرئيسية لتكون نابضة بالحياة */
     .stButton>button {
         border-radius: 12px;
-        font-weight: 600;
+        font-weight: 700;
+        background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        color: white;
+        border: none;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
     }
     .stButton>button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(138, 180, 248, 0.3);
+        background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+        box-shadow: 0 6px 20px rgba(96, 165, 250, 0.6);
     }
+
+    /* حقول الإدخال والـ Textarea بتصميم أزرق خفيف وواضح */
     .stTextArea textarea, .stTextInput input, .stSelectbox select {
         border-radius: 10px !important;
-        border: 1px solid #30363d !important;
-        background-color: #161b22 !important;
-        color: #c9d1d9 !important;
+        border: 1px solid rgba(59, 130, 246, 0.3) !important;
+        background-color: rgba(30, 41, 59, 0.8) !important;
+        color: #f8fafc !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
-    [data-testid="stSidebar"] {
-        background-color: #111418;
-        border-right: 1px solid #21262d;
+    .stTextArea textarea:focus, .stTextInput input:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+    }
+
+    /* عناوين التبويبات والمكونات */
+    h1, h2, h3 {
+        color: #f8fafc;
+        font-family: 'Segoe UI', sans-serif;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -326,10 +350,10 @@ def floating_voice_textarea(label, session_key, placeholder):
                             <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
                             <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_{session_key}" title="Mic" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_{session_key}" title="Mic" style="background: #1e293b; border: 1px solid #3b82f6; color: #60a5fa; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
                         </button>
-                        <button type="button" id="stop_btn_{session_key}" title="Stop" style="background: #21262d; border: 1px solid #f85149; color: #f85149; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="stop_btn_{session_key}" title="Stop" style="background: #1e293b; border: 1px solid #f85149; color: #f85149; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
                             ⏹️
                         </button>
                     `;
@@ -407,9 +431,9 @@ def floating_voice_textarea(label, session_key, placeholder):
                         if (recognition) {{
                             try {{ recognition.stop(); }} catch(e) {{}}
                         }}
-                        btn.style.background = '#21262d';
-                        btn.style.color = '#58a6ff';
-                        btn.style.borderColor = '#30363d';
+                        btn.style.background = '#1e293b';
+                        btn.style.color = '#60a5fa';
+                        btn.style.borderColor = '#3b82f6';
                         btn.style.transform = 'scale(1.0)';
                         stopBtn.style.display = 'none';
                         waves.style.display = 'none';
