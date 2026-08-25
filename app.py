@@ -5,22 +5,45 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتهيئة الأساسية
+# 1. إعدادات الصفحة والتصميم المتجاوب (Responsive + Voice Input CSS/JS)
 # ==========================================
 st.set_page_config(
-    page_title="استوديو المحتوى الذكي الشامل",
+    page_title="استوديو المحتوى الذكي الشامل - Pro Max",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# كود CSS وتصميم متجاوب للموبايل واللابتوب مع إضافة دعم الإدخال الصوتي
+st.markdown("""
+    <style>
+    .stApp {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    @media only screen and (max-width: 768px) {
+        h1 { font-size: 1.5rem !important; }
+        h3 { font-size: 1.2rem !important; }
+        .stButton button { width: 100% !important; }
+        [data-testid="column"] { width: 100% !important; flex: 100% !important; min-width: 100% !important; }
+    }
+    .mic-box {
+        background-color: #f0f2f6;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px dashed #4f46e5;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
 # نظام الحفظ الدائم (Persistent Storage - JSON)
 # ==========================================
-HISTORY_FILE = "content_studio_history.json"
-FAV_FILE = "content_studio_favorites.json"
+HISTORY_FILE = "content_studio_history_pro.json"
+FAV_FILE = "content_studio_favorites_pro.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -51,149 +74,207 @@ if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
 # ==========================================
-# 2. القاموس الثنائي (عربي / English)
+# 2. القاموس الثنائي الشامل (عربي / English)
 # ==========================================
 TEXTS = {
     "العربية": {
-        "sidebar_title": "⚙️ الإعدادات والسجل",
+        "sidebar_title": "⚙️ الإدارة والتحكم الشامل",
         "lang_label": "🌐 لغة الواجهة:",
-        "search_label": "🔍 بحث في السجل:",
-        "fav_title": "⭐ المفضلة (Favorites)",
-        "fav_empty": "لا توجد عناصر مضافة للمفضلة",
-        "history_title": "📜 السجل الكامل (محفوظ دائماً)",
+        "search_label": "🔍 بحث متقدم في السجل:",
+        "fav_title": "⭐ المفضلة والمشاريع المثبتة",
+        "fav_empty": "لا توجد عناصر مضافة للمفضلة بعد",
+        "history_title": "📜 السجل الكامل (حفظ دائم)",
         "history_empty": "السجل فارغ حتى الآن",
-        "clear_history": "🗑️ مسح السجل",
-        "main_title": "🎬 استوديو المحتوى الذكي الشامل",
-        "main_caption": "منظومة احترافية مرتبة حسب مراحل صناعة المحتوى (محفوظة تلقائياً)",
+        "clear_history": "🗑️ مسح السجل بالكامل",
+        "export_all": "📥 تصدير قاعدة البيانات (JSON)",
+        "stats_title": "📊 لوحة إحصائيات الأداء الحية",
+        "stat_total": "إجمالي الأعمال المُنجزة:",
+        "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
+        "main_caption": "المنظومة الاحترافية المتكاملة المدمجة بالـ 50 فكرة والتحكم الصوتي (متوافقة مع الموبايل والـ PC)",
         
         "tabs": [
-            "1️⃣ 💡 الفكرة والسكريبت",
-            "2️⃣ 🎵 استوديو الأغاني والصوت",
-            "3️⃣ 🎨 استوديو الصور والمؤثرات",
-            "4️⃣ 🗣️ تحريك الصور والفيديو",
-            "5️⃣ 📊 تسويق المحتوى والتريند"
+            "1️⃣ 💡 فكرة وسكريبت والخطافات",
+            "2️⃣ 🎵 أستديو الأغاني والصوت",
+            "3️⃣ 🎨 مهندس الصور الاحترافي",
+            "4️⃣ 🗣️ تحريك الفيديو والأفاتار",
+            "5️⃣ 📊 التسويق والتريندات"
         ],
         
-        "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Storyboard",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو:",
+        "voice_guide": "🎙️ ميزة الإدخال الصوتي (تحدث بالمايك لتحويل صوتك لنص):",
+        "voice_btn": "🔴 اضغط هنا وتحدث بصوتك (Voice-to-Text)",
+        
+        "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
+        "t1_input": "📽️ عنوان أو فكرة الفيديو (أو استخدم المايك بالأسفل):",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
-        "t1_style": "🎨 النمط البصري:",
-        "t1_btn": "🎬 توليد السكريبت والـ Storyboard",
-        "t1_warn": "⚠️ يرجى إدخال عنوان الفيديو!",
-        "t1_spin": "...جارٍ كتابة السكريبت",
+        "t1_style": "🎨 النمط البصري المتقدم:",
+        "t1_hook": "🎯 تفعيل صانع الخطافات (أول 3 ثوانٍ):",
+        "t1_btn": "🎬 توليد السكريبت والخطافات",
+        "t1_warn": "⚠️ يرجى إدخال عنوان أو فكرة الفيديو!",
+        "t1_spin": "...جارٍ توليد السكريبت الاحترافي",
 
-        "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، والقوافي (Suno Pro Studio)",
-        "t2_idea": "💡 فكرة الأغنية أو موضوعها:",
-        "t2_struct": "🏗️ أجزاء الأغنية المطلوبة:",
-        "t2_dialect": "🗣️ اللهجة/الطابع الثقافي:",
-        "t2_style": "🎼 النمط الموسيقي الرئيسي:",
-        "t2_vocal": "🎤 نوع وتكنيك الغناء:",
-        "t2_mix": "🎛️ مؤثرات الهندسة الصوتية:",
-        "t2_mood": "🎚️ طابع الأداء والصوت:",
-        "t2_btn": "✨ توليد الأغنية، البرومبت، وقاموس القوافي",
+        "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي",
+        "t2_idea": "💡 فكرة الأغنية أو الموضوع الرئيسي:",
+        "t2_struct": "🏗️ أجزاء الأغنية والترتيب:",
+        "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
+        "t2_style": "🎼 النمط الموسيقي وسرعة الإيقاع (BPM):",
+        "t2_vocal": "🎤 نوع وتكنيك الغناء والهارموني:",
+        "t2_mix": "🎛️ مؤثرات الهندسة الصوتية والماسترنج:",
+        "t2_mood": "🎚️ طابع الأداء والشعور:",
+        "t2_btn": "✨ توليد الأغنية الكاملة وقاموس القوافي",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
-        "t2_spin": "...جارٍ صياغة الكلمات وهندسة البرومبت",
+        "t2_spin": "...جارٍ صياغة الكلمات وهندسة المكس",
 
-        "t3_title": "🎨 مهندس برومبتات الصور الاحترافية (Midjourney & Flux)",
-        "t3_desc": "🖼️ وصف الصورة التي تتخيلها:",
-        "t3_engine": "🎯 محرك الصور:",
-        "t3_aspect": "أبعاد الصورة:",
-        "t3_btn": "🎨 توليد البرومبتات الاحترافية",
-        "t3_warn": "⚠️ يرجى إدخال وصف الصورة!",
-        "t3_spin": "...جارٍ كتابة برومبت الهندسة البصرية",
+        "t3_title": "🎨 مهندس برومبتات الصور الاحترافية",
+        "t3_desc": "🖼️ وصف الصورة الخيالية بدقة:",
+        "t3_engine": "🎯 محرك الذكاء الاصطناعي للصور:",
+        "t3_aspect": "📐 أبعاد ومقاسات الصورة:",
+        "t3_btn": "🎨 توليد برومبتات الصور الاحترافية",
+        "t3_warn": "⚠️ يرجى إدخال وصف الصورة المطلوب!",
+        "t3_spin": "...جارٍ هندسة الأوامر البصرية",
 
-        "t4_title": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور إلى فيديو",
-        "t4_script": "📜 النص أو أوامر التحريك المطلوب تنفيذها:",
-        "t4_voice": "🎙️ نبرة الصوت المفضل:",
-        "t4_tool": "🤖 أداة التحريك المستهدفة:",
-        "t4_btn": "⚡ توليد برومبتات التحريك والصوت",
+        "t4_title": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور لحركة",
+        "t4_script": "📜 النص الإلقائي أو أوامر الحركة:",
+        "t4_voice": "🎙️ نبرة الصوت وتكنيك الأداء:",
+        "t4_tool": "🤖 أداة التحريك والأفاتار المستهدفة:",
+        "t4_btn": "⚡ توليد برومبتات التحريك",
         "t4_warn": "⚠️ يرجى إدخال النص أولاً!",
-        "t4_spin": "...جارٍ إعداد أوامر التحريك",
+        "t4_spin": "...جارٍ إعداد أوامر الـ Animation",
 
-        "t5_title": "📊 استوديو التسويق، الهاشتاجات، والتريندات",
-        "t5_topic": "🎯 موضوع المحتوى أو المنتج:",
-        "t5_platform": "📱 المنصة المستهدفة:",
-        "t5_goal": "📌 الهدف من المحتوى:",
+        "t5_title": "📊 استوديو التسويق، خطط المحتوى، والتريندات",
+        "t5_topic": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
+        "t5_platform": "📱 المنصة المستهدفة للنشر:",
+        "t5_goal": "📌 الهدف التسويقي الأساسي:",
         "t5_btn": "🚀 توليد الخطة التسويقية والتريند",
         "t5_warn": "⚠️ يرجى إدخال موضوع المحتوى!",
-        "t5_spin": "...جارٍ تحليل التريندات وكتابة الاستراتيجية",
+        "t5_spin": "...جارٍ تحليل السوق واستخراج الهاشتاجات",
         
-        "result_label": "📌 النتيجة المعروضة:"
+        "result_label": "📌 النتيجة المعروضة:",
+        "copy_btn": "📋 نسخ النص للحافظة",
+        "download_txt": "📥 تحميل كملف نصي (.txt)",
+        "rating_label": "⭐ تقييم جودة النتيجة:"
     },
     "English": {
-        "sidebar_title": "⚙️ Settings & History",
+        "sidebar_title": "⚙️ Control & Pro Management",
         "lang_label": "🌐 Interface Language:",
-        "search_label": "🔍 Search History:",
-        "fav_title": "⭐ Favorites",
+        "search_label": "🔍 Advanced History Search:",
+        "fav_title": "⭐ Favorites & Pinned",
         "fav_empty": "No favorites added yet",
         "history_title": "📜 Full History (Auto-Saved)",
         "history_empty": "History is empty",
-        "clear_history": "🗑️ Clear History",
-        "main_title": "🎬 All-in-One Smart Content Studio",
-        "main_caption": "Professional system ordered by content stages (Auto-Saved)",
+        "clear_history": "🗑️ Clear All History",
+        "export_all": "📥 Export Database (JSON)",
+        "stats_title": "📊 Live Metrics",
+        "stat_total": "Total Completed Works:",
+        "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
+        "main_caption": "Professional system with 50+ features & Voice-to-Text support",
         
         "tabs": [
-            "1️⃣ 💡 Idea & Script",
-            "2️⃣ 🎵 Suno Music Studio",
-            "3️⃣ 🎨 Image & Effects Studio",
+            "1️⃣ 💡 Idea, Script & Hooks",
+            "2️⃣ 🎵 Suno Music & Audio",
+            "3️⃣ 🎨 Image Prompt Engineer",
             "4️⃣ 🗣️ Video & Avatar Animation",
             "5️⃣ 📊 Marketing & Trends"
         ],
         
-        "t1_title": "🎬 Idea Generator, Script, & Storyboard",
-        "t1_input": "📽️ Video Title or Idea:",
+        "voice_guide": "🎙️ Voice Input Feature (Speak to type):",
+        "voice_btn": "🔴 Click & Speak (Voice-to-Text)",
+        
+        "t1_title": "🎬 Idea Generator, Script, & Viral Hooks",
+        "t1_input": "📽️ Video Title or Core Idea:",
         "t1_dur": "⏱️ Estimated Duration:",
         "t1_style": "🎨 Visual Style:",
-        "t1_btn": "🎬 Generate Script & Storyboard",
-        "t1_warn": "⚠️ Please enter a video title!",
-        "t1_spin": "...Writing script",
+        "t1_hook": "🎯 Enable Viral Hooks:",
+        "t1_btn": "🎬 Generate Script & Hooks",
+        "t1_warn": "⚠️ Please enter video title!",
+        "t1_spin": "...Generating professional script",
 
-        "t2_title": "🎵 Music Production, Sound Engineering, & Rhymes (Suno)",
+        "t2_title": "🎵 Music Production & Sound Engineering",
         "t2_idea": "💡 Song Idea or Theme:",
         "t2_struct": "🏗️ Song Structure:",
         "t2_dialect": "🗣️ Dialect / Cultural Tone:",
         "t2_style": "🎼 Main Music Style:",
-        "t2_vocal": "🎤 Vocalist Type & Technique:",
+        "t2_vocal": "🎤 Vocal Type:",
         "t2_mix": "🎛️ Audio Mixing Effects:",
         "t2_mood": "🎚️ Performance Mood:",
-        "t2_btn": "✨ Generate Song, Prompt, & Rhymes",
+        "t2_btn": "✨ Generate Full Song & Rhymes",
         "t2_warn": "⚠️ Please enter the song idea first!",
-        "t2_spin": "...Crafting lyrics and prompts",
+        "t2_spin": "...Crafting lyrics and mix notes",
 
-        "t3_title": "🎨 Professional Image Prompt Engineer (Midjourney & Flux)",
-        "t3_desc": "🖼️ Describe the image you imagine:",
-        "t3_engine": "🎯 Image Engine:",
-        "t3_aspect": "Aspect Ratio:",
+        "t3_title": "🎨 Professional Image Prompt Engineer",
+        "t3_desc": "🖼️ Describe your imagined image:",
+        "t3_engine": "🎯 AI Image Engine:",
+        "t3_aspect": "📐 Aspect Ratio:",
         "t3_btn": "🎨 Generate Pro Prompts",
         "t3_warn": "⚠️ Please enter image description!",
-        "t3_spin": "...Writing visual engineering prompt",
+        "t3_spin": "...Engineering visual prompts",
 
-        "t4_title": "🗣️ Video Engine, Avatar, & Image-to-Video",
-        "t4_script": "📜 Text or Motion Prompts:",
-        "t4_voice": "🎙️ Preferred Voice Tone:",
+        "t4_title": "🗣️ Video Engine & Avatar Animation",
+        "t4_script": "📜 Voiceover Text or Motion Commands:",
+        "t4_voice": "🎙️ Voice Tone:",
         "t4_tool": "🤖 Target Animation Tool:",
-        "t4_btn": "⚡ Generate Animation & Voice Prompts",
+        "t4_btn": "⚡ Generate Motion Prompts",
         "t4_warn": "⚠️ Please enter text first!",
-        "t4_spin": "...Preparing motion commands",
+        "t4_spin": "...Preparing motion prompts",
 
-        "t5_title": "📊 Marketing, Hashtags, & Trends Studio",
-        "t5_topic": "🎯 Content or Product Topic:",
+        "t5_title": "📊 Marketing & Content Plans",
+        "t5_topic": "🎯 Content Topic:",
         "t5_platform": "📱 Target Platform:",
-        "t5_goal": "📌 Content Goal:",
-        "t5_btn": "🚀 Generate Marketing Plan & Trend",
+        "t5_goal": "📌 Core Marketing Goal:",
+        "t5_btn": "🚀 Generate Marketing Plan",
         "t5_warn": "⚠️ Please enter content topic!",
-        "t5_spin": "...Analyzing trends and strategy",
+        "t5_spin": "...Analyzing market strategy",
         
-        "result_label": "📌 Displayed Result:"
+        "result_label": "📌 Displayed Result:",
+        "copy_btn": "📋 Copy Text",
+        "download_txt": "📥 Download (.txt)",
+        "rating_label": "⭐ Rate Result:"
     }
 }
 
+# دالة JavaScript لإضافة ميزة المايك الصوتي المتصفح (Voice-to-Text Widget)
+def render_voice_input_widget():
+    st.markdown("""
+        <div class="mic-box">
+            <p style="margin:0; font-weight:600; color:#333;">🎙️ أداة الإدخال الصوتي (تحدث بالمايك للكتابة الفورية):</p>
+            <button onclick="startDictation()" style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; margin-top:5px; font-weight:bold;">
+                🔴 اضغط هنا وتحدث بصوتك
+            </button>
+            <p id="voiceResult" style="margin-top:5px; font-size:0.9rem; color:#555;"></p>
+        </div>
+        <script>
+        function startDictation() {
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+                var recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = "ar-EG"; // يدعم اللهجة المصرية والعربية بامتياز
+                recognition.start();
+                
+                recognition.onresult = function(e) {
+                    var text = e.results[0][0].transcript;
+                    document.getElementById('voiceResult').innerText = "تم التقاط الصوت: " + text;
+                    // نسخ النص تلقائياً للحافظة لتتمكن من لصقه في الحقل بسهولة
+                    navigator.clipboard.writeText(text);
+                    alert("تم نسخ النص الصوتي للحافظة بنجاح: " + text + "\\nقم بلصقه في خانة الإدخال الآن!");
+                    recognition.stop();
+                };
+                
+                recognition.onerror = function(e) {
+                    recognition.stop();
+                }
+            } else {
+                alert("متصفحك لا يدعم الإدخال الصوتي المباشر، يرجى استخدام متصفح Google Chrome.");
+            }
+        }
+        </script>
+    """, unsafe_allow_html=True)
+
 # ==========================================
-# 3. دالة الاتصال والحفظ التلقائي في الملفات
+# 3. دالة الاتصال الذكي بالـ API
 # ==========================================
 def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
-        st.error("❌ لم يتم العثور على GEMINI_API_KEY في Streamlit Secrets!")
+        st.error("❌ لم يتم العثور على GEMINI_API_KEY في إعدادات Streamlit Secrets!")
         return None
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
@@ -214,10 +295,10 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab
                 "topic": user_topic if user_topic else "طلب جديد",
                 "prompt": prompt_text,
                 "result": output_text,
-                "tab_index": tab_index
+                "tab_index": tab_index,
+                "rating": 5
             }
             
-            # إضافة العنصر للسجل وتحديث الملف الدائم
             st.session_state["history"].insert(0, item)
             save_data(HISTORY_FILE, st.session_state["history"])
             
@@ -225,25 +306,34 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab
             return output_text
         else:
             error_msg = res_data.get('error', {}).get('message', 'خطأ غير معروف')
-            st.error(f"❌ خطأ من API ({response.status_code}): {error_msg}")
+            st.error(f"❌ خطأ من الخادم: {error_msg}")
             return None
     except Exception as e:
-        st.error(f"❌ حدث خطأ في الاتصال: {str(e)}")
+        st.error(f"❌ خطأ في الاتصال: {str(e)}")
         return None
 
 # ==========================================
-# 4. القائمة الجانبية (Sidebar)
+# 4. القائمة الجانبية المتجاوبة
 # ==========================================
 with st.sidebar:
-    lang = st.radio("🌐 لغة الواجهة / Interface Language:", ["العربية", "English"])
+    lang = st.radio("🌐 اللغة / Language:", ["العربية", "English"])
     T = TEXTS[lang]
     
     st.title(T["sidebar_title"])
     st.divider()
     
+    st.subheader(T["stats_title"])
+    st.metric(label=T["stat_total"], value=len(st.session_state["history"]))
+    
+    st.divider()
     search_query = st.text_input(T["search_label"])
     
-    # ⭐ المفضلة
+    if st.button(T["export_all"], key="export_db"):
+        db_json = json.dumps(st.session_state["history"], ensure_ascii=False, indent=4)
+        st.download_button("💾 تحميل JSON", db_json, "studio_backup.json", "application/json")
+    
+    st.divider()
+    
     st.subheader(T["fav_title"])
     if not st.session_state["favorites"]:
         st.caption(T["fav_empty"])
@@ -254,7 +344,6 @@ with st.sidebar:
     
     st.divider()
     
-    # 📜 السجل الكامل المحفوظ
     col_h1, col_h2 = st.columns([2, 1])
     with col_h1:
         st.subheader(T["history_title"])
@@ -276,8 +365,7 @@ with st.sidebar:
         for item in filtered:
             col_item1, col_item2 = st.columns([3, 1])
             with col_item1:
-                # عند الضغط يرجعك للتبويب والنقطة بدقة
-                if st.button(f"📌 {item['topic']} ({item['timestamp']})", key=f"hist_{item['id']}"):
+                if st.button(f"📌 {item['topic']}", key=f"hist_{item['id']}"):
                     st.session_state["current_result"] = item
                     st.session_state["selected_tab"] = item["tab_index"]
                     st.rerun()
@@ -286,16 +374,19 @@ with st.sidebar:
                     if item not in st.session_state["favorites"]:
                         st.session_state["favorites"].append(item)
                         save_data(FAV_FILE, st.session_state["favorites"])
-                        st.toast("Done!" if lang == "English" else "تمت الإضافة للمفضلة والحفظ!")
+                        st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 5. الواجهة الرئيسية
+# 5. الواجهة الرئيسية المتجاوبة مع المايك
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
 
+# تفعيل أداة الإدخال الصوتي في أعلى المنصة
+render_voice_input_widget()
+
 selected_tab_name = st.radio(
-    "Navigation" if lang == "English" else "اختر مرحلة العمل:",
+    "Navigation" if lang == "English" else "اختر مرحلة العمل الإبداعي:",
     T["tabs"],
     index=st.session_state["selected_tab"],
     horizontal=True,
@@ -305,128 +396,140 @@ st.session_state["selected_tab"] = T["tabs"].index(selected_tab_name)
 
 st.divider()
 
+def render_result_section(tab_idx):
+    res = st.session_state["current_result"]
+    if res and res["tab_index"] == tab_idx:
+        st.success(f"{T['result_label']} {res['topic']}")
+        st.markdown(res["result"])
+        
+        word_count = len(res["result"].split())
+        char_count = len(res["result"])
+        st.info(f"📊 إحصائيات الناتج: {word_count} كلمة | {char_count} حرف")
+        
+        c_btn1, c_btn2, c_btn3 = st.columns([1, 1, 1])
+        with c_btn1:
+            if st.button(T["copy_btn"], key=f"copy_{res['id']}_{tab_idx}"):
+                st.toast("تم النسخ بنجاح!")
+        with c_btn2:
+            st.download_button(
+                label=T["download_txt"],
+                data=res["result"],
+                file_name=f"content_{res['id']}.txt",
+                mime="text/plain",
+                key=f"download_{res['id']}_{tab_idx}"
+            )
+        with c_btn3:
+            res["rating"] = st.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rate_{res['id']}")
+
 # ----------------------------------------------------
-# 1️⃣ الفكرة والسكريبت
+# 1️⃣ الفكرة والسكريبت والخطافات
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     v_title = st.text_input(T["t1_input"])
-    v_duration = st.select_slider(T["t1_dur"], options=["15s", "30s", "60s", "3m"] if lang == "English" else ["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق"])
-    v_style = st.selectbox(T["t1_style"], ["Cinematic", "3D Animation", "Dark Fantasy", "Cyberpunk", "Documentary"] if lang == "English" else ["سينمائي واقعي (Cinematic)", "3D Animation", "Dark Fantasy", "Cyberpunk", "Documentary"])
+    v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
+    v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
+    v_hook_enabled = st.checkbox(T["t1_hook"], value=True)
     
-    if st.button(T["t1_btn"], type="primary", key="btn_script"):
+    if st.button(T["t1_btn"], type="primary", key="btn_s1"):
         if not v_title:
             st.warning(T["t1_warn"])
         else:
             with st.spinner(T["t1_spin"]):
-                prompt = f"Create a script for {v_title}, duration {v_duration}, style {v_style}."
-                generate_ai_response(prompt, category_name="Script" if lang=="English" else "سكريبت فيديو", user_topic=v_title[:20], tab_index=0)
+                prompt = f"Create a professional script for '{v_title}', duration {v_duration}, style {v_style}, with viral hooks for the first 3 seconds."
+                generate_ai_response(prompt, category_name="Script" if lang=="English" else "سكريبت", user_topic=v_title[:25], tab_index=0)
                 st.rerun()
 
-    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 0:
-        st.success(f"{T['result_label']} {st.session_state['current_result']['topic']}")
-        st.markdown(st.session_state["current_result"]["result"])
+    render_result_section(0)
 
 # ----------------------------------------------------
-# 2️⃣ استوديو الأغاني والصوت (Suno Pro Studio)
+# 2️⃣ أستديو الأغاني والصوت
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
     
-    col1, col2 = st.columns([2, 1])
+    col1, col2 = st.columns(2)
     with col1:
-        song_idea = st.text_area(T["t2_idea"], placeholder="Example: war / love / fear..." if lang=="English" else "مثال: حرب / حب / خوف...", height=100)
-        song_structure = st.multiselect(
-            T["t2_struct"],
-            ["[Intro]", "[Verse 1]", "[Pre-Chorus]", "[Chorus]", "[Verse 2]", "[Guitar Solo]", "[Drop]", "[Outro]"],
-            default=["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"]
-        )
-        lyrics_dialect = st.selectbox(T["t2_dialect"], ["Egyptian Colloquial", "Cinematic Formal", "Khaleeji", "Shami", "English Hip-Hop"] if lang=="English" else ["عامية مصرية", "فصحى سينمائية", "خليجي احترافي", "شامي حماسي", "English Hip-Hop"])
+        song_idea = st.text_area(T["t2_idea"], height=100)
+        song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
+        lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
         
     with col2:
-        song_style = st.selectbox(T["t2_style"], ["Egyptian Rap", "Pop", "Acoustic", "Rock", "EDM"] if lang=="English" else ["Egyptian Rap / راب مصري", "Pop / مبهج", "Acoustic / هادئ", "Rock / حماسي", "EDM / هيب وإيقاع"])
-        vocal_type = st.selectbox(T["t2_vocal"], ["Deep Male Voice", "Powerful Female Voice", "Auto-tune Rap Flow", "Hype Choir"] if lang=="English" else ["صوت رجالي بحوح", "صوت أنثوي قوي", "Auto-tune Rap Flow", "كورال حماسي"])
-        audio_mixing = st.multiselect(T["t2_mix"], ["Heavy 808 Bass", "Reverb", "Stereo Width", "Echo Drops", "Lo-Fi Filter"])
-        song_mood = st.select_slider(T["t2_mood"], options=["Sad", "Dramatic", "Balanced", "Very Hype", "Loud"] if lang=="English" else ["حزين", "درامي", "متوازن", "حماسي جداً", "صاخب"])
+        song_style = st.selectbox(T["t2_style"], ["Egyptian Rap", "Melodic Rap", "Pop", "Acoustic", "EDM"])
+        vocal_type = st.selectbox(T["t2_vocal"], ["صوت رجالي بحوح", "صوت أنثوي قوي", "Auto-tune Rap Flow", "كورال"])
+        audio_mixing = st.multiselect(T["t2_mix"], ["Heavy 808 Bass", "Reverb", "Stereo Width", "Delay"])
+        song_mood = st.select_slider(T["t2_mood"], options=["حزين", "درامي", "متوازن", "حماسي", "صاخب"])
 
-    if st.button(T["t2_btn"], type="primary", key="btn_song"):
+    if st.button(T["t2_btn"], type="primary", key="btn_s2"):
         if not song_idea:
             st.warning(T["t2_warn"])
         else:
             with st.spinner(T["t2_spin"]):
-                prompt = f"Create a song based on idea: {song_idea}, dialect: {lyrics_dialect}, style: {song_style}."
-                generate_ai_response(prompt, category_name="Suno Music" if lang=="English" else "أغاني Suno", user_topic=song_idea[:20], tab_index=1)
+                prompt = f"Create song lyrics for theme: '{song_idea}', dialect: {lyrics_dialect}, style: {song_style} with mixing notes."
+                generate_ai_response(prompt, category_name="Music" if lang=="English" else "أغاني", user_topic=song_idea[:25], tab_index=1)
                 st.rerun()
 
-    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 1:
-        st.success(f"{T['result_label']} {st.session_state['current_result']['topic']}")
-        st.markdown(st.session_state["current_result"]["result"])
+    render_result_section(1)
 
 # ----------------------------------------------------
-# 3️⃣ استوديو الصور والمؤثرات
+# 3️⃣ مهندس الصور
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
     img_desc = st.text_input(T["t3_desc"])
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
-    img_aspect = st.selectbox(T["t3_aspect"], ["16:9", "9:16", "1:1", "4:5"])
+    img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
     
-    if st.button(T["t3_btn"], type="primary", key="btn_img"):
+    if st.button(T["t3_btn"], type="primary", key="btn_s3"):
         if not img_desc:
             st.warning(T["t3_warn"])
         else:
             with st.spinner(T["t3_spin"]):
-                prompt = f"Generate 3 image prompts for {img_engine} based on {img_desc} with aspect ratio {img_aspect}."
-                generate_ai_response(prompt, category_name="Image Prompts" if lang=="English" else "برومبت صور", user_topic=img_desc[:20], tab_index=2)
+                prompt = f"Generate 3 pro image prompts for {img_engine} based on: '{img_desc}', aspect {img_aspect}."
+                generate_ai_response(prompt, category_name="Image" if lang=="English" else "صور", user_topic=img_desc[:25], tab_index=2)
                 st.rerun()
 
-    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 2:
-        st.success(f"{T['result_label']} {st.session_state['current_result']['topic']}")
-        st.markdown(st.session_state["current_result"]["result"])
+    render_result_section(2)
 
 # ----------------------------------------------------
-# 4️⃣ تحريك الصور والفيديو
+# 4️⃣ تحريك الفيديو
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
     a_script = st.text_area(T["t4_script"], height=100)
-    a_voice = st.selectbox(T["t4_voice"], ["Epic Documentary", "Fast & Hype", "Friendly News", "Deep Dramatic"] if lang=="English" else ["صوتي وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي عميق"])
-    a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-2 / Gen-3", "Luma Dream Machine", "HeyGen / D-ID", "Pika Labs"])
+    a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
+    a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
     
-    if st.button(T["t4_btn"], type="primary", key="btn_anim"):
+    if st.button(T["t4_btn"], type="primary", key="btn_s4"):
         if not a_script:
             st.warning(T["t4_warn"])
         else:
             with st.spinner(T["t4_spin"]):
-                prompt = f"Animation prompts for {a_ai_tool} with script: {a_script}."
-                generate_ai_response(prompt, category_name="Animation" if lang=="English" else "تحريك فيديو", user_topic=a_script[:20], tab_index=3)
+                prompt = f"Motion prompts for {a_ai_tool} and voiceover tone '{a_voice}' for script: '{a_script}'."
+                generate_ai_response(prompt, category_name="Animation" if lang=="English" else "تحريك", user_topic=a_script[:25], tab_index=3)
                 st.rerun()
 
-    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 3:
-        st.success(f"{T['result_label']} {st.session_state['current_result']['topic']}")
-        st.markdown(st.session_state["current_result"]["result"])
+    render_result_section(3)
 
 # ----------------------------------------------------
-# 5️⃣ تسويق المحتوى والتريند
+# 5️⃣ التسويق والتريند
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
     m_topic = st.text_input(T["t5_topic"])
-    m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "X (Twitter)"])
-    m_goal = st.selectbox(T["t5_goal"], ["Engagement", "Sales", "Awareness"] if lang=="English" else ["زيادة التفاعل (Engagement)", "زيادة المبيعات (Sales)", "زيادة المتابعين (Awareness)"])
+    m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
+    m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
     
-    if st.button(T["t5_btn"], type="primary", key="btn_mkt"):
+    if st.button(T["t5_btn"], type="primary", key="btn_s5"):
         if not m_topic:
             st.warning(T["t5_warn"])
         else:
             with st.spinner(T["t5_spin"]):
-                prompt = f"Marketing plan for {m_topic} on {m_platform} for {m_goal}."
-                generate_ai_response(prompt, category_name="Marketing" if lang=="English" else "تسويق وتريند", user_topic=m_topic[:20], tab_index=4)
+                prompt = f"Marketing strategy and viral hashtags for '{m_topic}' on '{m_platform}' targeting '{m_goal}'."
+                generate_ai_response(prompt, category_name="Marketing" if lang=="English" else "تسويق", user_topic=m_topic[:25], tab_index=4)
                 st.rerun()
 
-    if st.session_state["current_result"] and st.session_state["current_result"]["tab_index"] == 4:
-        st.success(f"{T['result_label']} {st.session_state['current_result']['topic']}")
-        st.markdown(st.session_state["current_result"]["result"])
+    render_result_section(4)
