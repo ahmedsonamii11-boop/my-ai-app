@@ -8,8 +8,8 @@ from datetime import datetime
 # 1. إعدادات الصفحة وتصميم واجهة المستخدم
 # ==========================================
 str_lit.set_page_config(
-    page_title="Smart Content Studio - Safe Pipeline Pro",
-    page_icon="🎙️",
+    page_title="إبداع - المنظومة المتكاملة لإنتاج المحتوى",
+    page_icon="✨",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -43,16 +43,23 @@ str_lit.markdown("""
         color: #f1f5f9 !important;
         padding: 10px !important;
     }
+    .guide-box {
+        background: rgba(30, 41, 59, 0.5);
+        border: 1px solid rgba(99, 102, 241, 0.3);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 20px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. نظام التخزين الدائم الآمن (لا يحذف الهيستوري أبداً)
+# 2. نظام التخزين الدائم الآمن (محمي تماماً)
 # ==========================================
-HISTORY_FILE = "safe_content_studio_history.json"
-FAV_FILE = "safe_content_studio_favorites.json"
+HISTORY_FILE = "ibda3_studio_history.json"
+FAV_FILE = "ibda3_studio_favorites.json"
 
 def load_persistent_data(file_path):
     if os.path.exists(file_path):
@@ -71,7 +78,6 @@ def save_persistent_data(file_path, data):
     except Exception as e:
         print(f"Error saving data: {e}")
 
-# ضمان عدم ضياع الهيستوري والمفضلة نهائياً عند الـ Refresh
 if "history" not in str_lit.session_state:
     str_lit.session_state["history"] = load_persistent_data(HISTORY_FILE)
 
@@ -81,28 +87,30 @@ if "favorites" not in str_lit.session_state:
 if "current_result" not in str_lit.session_state:
     str_lit.session_state["current_result"] = None
 
-# تهيئة حقول الإدخال للمراحل الستة لمنع تفريغها
 for key in ["t0_val", "t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
     if key not in str_lit.session_state:
         str_lit.session_state[key] = ""
 
 # ==========================================
-# 3. القاموس اللغوي الشامل
+# 3. القاموس اللغوي الشامل (منصة إبداع)
 # ==========================================
 TEXTS = {
     "العربية": {
-        "sidebar_title": "⚡ لوحة التحكم والأرشيف الآمن",
-        "search_label": "🔍 بحث في الأرشيف القديم والجديد:",
+        "sidebar_title": "⚡ لوحة التحكم والأرشيف",
+        "search_label": "🔍 بحث في الأرشيف:",
         "fav_title": "⭐ العناصر المفضلة المحفوظة",
         "fav_empty": "لا توجد مفضلات مسجلة",
-        "history_title": "📜 الأرشيف الدائم (محفوظ ضد الفقدان)",
+        "history_title": "📜 الأرشيف الدائم",
         "history_empty": "الأرشيف فارغ حالياً",
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 المؤشرات",
         "stat_total": "إجمالي العمليات المحفوظة:",
-        "main_title": "🎙️ استوديو المحتوى والخطط الشامل (Safe Pipeline Pro)",
-        "main_caption": "منظومة متكاملة لإنتاج المحتوى والخطط مع حماية تامة وثبات دائم للأرشيف",
+        
+        "main_title": "✨ منصة إبداع | Ibda3 Studio",
+        "main_caption": "المنظومة المتكاملة الذكية لإنتاج المحتوى، الخطط الاستراتيجية، الصور، الفيديوهات والأغاني من مكان واحد",
+        
         "tabs": [
+            "🏠 دليل الاستخدام والبداية",
             "0️⃣ 🗺️ التخطيط الاستراتيجي",
             "1️⃣ 💡 الأفكار والسكريبتات",
             "2️⃣ 🎵 الأغاني والصوت",
@@ -110,6 +118,17 @@ TEXTS = {
             "4️⃣ 🗣️ تحريك الفيديو",
             "5️⃣ 📊 التسويق والإعلانات"
         ],
+        
+        # نصوص دليل الاستخدام
+        "guide_title": "👋 أهلاً بك في منصة إبداع المتكاملة",
+        "guide_desc": "هذه المنصة صممت لتكون رفيقك الذكي والشامل لتحويل أي فكرة بسيطة إلى مشروع احترافي متكامل عبر خطوات مرتبة ومنظمة:",
+        "step_0": "🗺️ الخطوة الأولى (التخطيط الاستراتيجي): ابدأ بكتابة فكرة مشروعك ليتولى الذكاء الاصطناعي تحليل السوق وبناء خطة عمل كاملة وأهداف واضحة.",
+        "step_1": "💡 الخطوة الثانية (الأفكار والسكريبتات): صغ سيناريوهات فيديوهات احترافية وخطافات فيروسية لجذب انتباه الجمهور.",
+        "step_2": "🎵 الخطوة الثالثة (الأغاني والصوت): ابتكر كلمات الأغاني، وحدد النمط الموسيقي والأداء الصوتي المناسب لعملك.",
+        "step_3": "🎨 الخطوة الرابعة (تصميم الصور والهوية): جهز أوامر برمجية دقيقة (Prompts) لأقوى محركات الذكاء الاصطناعي لتصميم صور مشهدية فريدة.",
+        "step_4": "🗣️ الخطوة الخامسة (تحريك الفيديو): حدد حركات الكاميرا والأفاتار لإنتاج مقاطع فيديو متحركة باحترافية عالية.",
+        "step_5": "📊 الخطوة السادسة (التسويق والإعلانات): ابنِ خطة تسويقية متكاملة وميزانية مقترحة لاستهداف المنصات الرقمية المختلفة.",
+        
         "t0_header": "🗺️ المرحلة الأولى: التخطيط الاستراتيجي وإدارة المشروع",
         "t0_input_label": "🎯 ما هو مشروعك أو الفكرة العامة؟",
         "t0_input_placeholder": "اكتب فكرة المشروع بالتفصيل...",
@@ -187,7 +206,7 @@ TEXTS = {
         "rating_label": "⭐ التقييم:"
     },
     "English": {
-        "sidebar_title": "⚡ Safe Control Panel & Archive",
+        "sidebar_title": "⚡ Control Panel & Archive",
         "search_label": "🔍 Search Archive:",
         "fav_title": "⭐ Saved Favorites",
         "fav_empty": "No favorites saved yet",
@@ -196,9 +215,20 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Metrics",
         "stat_total": "Total Saved Tasks:",
-        "main_title": "🎙️ Unified Content Studio (Safe Pipeline Pro)",
-        "main_caption": "End-to-end studio with guaranteed persistent archive protection",
-        "tabs": ["0️⃣ Strategy", "1️⃣ Scripts", "2️⃣ Music", "3️⃣ Images", "4️⃣ Video", "5️⃣ Marketing"],
+        "main_title": "✨ Ibda3 Studio | Content & Strategy Platform",
+        "main_caption": "End-to-end AI studio for strategy, scripts, images, videos, and audio production",
+        
+        "tabs": ["🏠 Guide", "0️⃣ Strategy", "1️⃣ Scripts", "2️⃣ Music", "3️⃣ Images", "4️⃣ Video", "5️⃣ Marketing"],
+        
+        "guide_title": "👋 Welcome to Ibda3 Studio",
+        "guide_desc": "Your ultimate end-to-end platform to turn any idea into a fully-fledged professional project through structured steps:",
+        "step_0": "🗺️ Phase 1 (Strategy): Enter your core idea to generate business plans, market analysis, and KPIs.",
+        "step_1": "💡 Phase 2 (Scripts): Write viral video hooks and engaging professional scripts.",
+        "step_2": "🎵 Phase 3 (Music): Generate song lyrics, music genres, and vocal styles.",
+        "step_3": "🎨 Phase 4 (Images): Engineer expert image prompts for top-tier AI engines.",
+        "step_4": "🗣️ Phase 5 (Video Motion): Direct camera movements and avatar animations.",
+        "step_5": "📊 Phase 6 (Marketing): Formulate complete ad campaigns and budgets.",
+
         "t0_header": "Phase 1: Strategy", "t0_input_label": "Core Idea:", "t0_input_placeholder": "Enter idea...",
         "t0_goal": "Goal:", "t0_goal_opts": ["Startup", "Campaign", "Podcast", "Growth"], "t0_btn": "Build Strategy",
         "t0_warn": "Enter details!", "t0_spin": "Analyzing...",
@@ -229,7 +259,7 @@ def call_gemini(prompt_text, lang_choice):
         return "❌ الخطأ: مفتاح API الخاص بـ Gemini غير موجود في أسرار Streamlit Secrets."
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
     headers = {"Content-Type": "application/json"}
-    system_instruction = f"You are an elite AI Studio Expert. Language: {lang_choice}."
+    system_instruction = f"You are an elite AI Studio Expert for Ibda3 Platform. Language: {lang_choice}."
     payload = {"contents": [{"role": "user", "parts": [{"text": system_instruction + "\n\n" + prompt_text}]}]}
     try:
         response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
@@ -242,7 +272,7 @@ def call_gemini(prompt_text, lang_choice):
         return f"❌ خطأ غير متوقع: {str(e)}"
 
 # ==========================================
-# 5. الشريط الجانبي (منع تام لتأثر الأرشيف)
+# 5. الشريط الجانبي (محمي بالكامل)
 # ==========================================
 with str_lit.sidebar:
     selected_lang = str_lit.radio("🌐 Language / اللغة:", ["العربية", "English"], horizontal=True, key="lang_radio")
@@ -317,8 +347,28 @@ def log_and_save(tab_name, input_val, result_text):
     save_persistent_data(HISTORY_FILE, str_lit.session_state["history"])
     str_lit.session_state["current_result"] = result_text
 
-# تبويب 0: التخطيط
+# ------------------------------------------
+# تبويب 0: دليل الاستخدام والتوجيه (جديد)
+# ------------------------------------------
 with tabs[0]:
+    str_lit.markdown(f"""
+    <div class="guide-box">
+        <h2>{t['guide_title']}</h2>
+        <p style="font-size: 1.1rem; line-height: 1.6;">{t['guide_desc']}</p>
+        <hr style="border-color: rgba(255,255,255,0.1);">
+        <ul>
+            <li style="margin-bottom: 10px;">{t['step_0']}</li>
+            <li style="margin-bottom: 10px;">{t['step_1']}</li>
+            <li style="margin-bottom: 10px;">{t['step_2']}</li>
+            <li style="margin-bottom: 10px;">{t['step_3']}</li>
+            <li style="margin-bottom: 10px;">{t['step_4']}</li>
+            <li style="margin-bottom: 10px;">{t['step_5']}</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+# تبويب 1: التخطيط الاستراتيجي
+with tabs[1]:
     str_lit.subheader(t["t0_header"])
     str_lit.session_state["t0_val"] = str_lit.text_area(t["t0_input_label"], value=str_lit.session_state["t0_val"], placeholder=t["t0_input_placeholder"], key="t0_w")
     goal_0 = str_lit.selectbox(t["t0_goal"], t["t0_goal_opts"], key="t0_g")
@@ -331,8 +381,8 @@ with tabs[0]:
                 log_and_save("Strategic Planning", str_lit.session_state["t0_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 1: الأفكار والسكريبتات
-with tabs[1]:
+# تبويب 2: الأفكار والسكريبتات
+with tabs[2]:
     str_lit.subheader(t["t1_header"])
     str_lit.session_state["t1_val"] = str_lit.text_area(t["t1_input_label"], value=str_lit.session_state["t1_val"], placeholder=t["t1_input_placeholder"], key="t1_w")
     c1, c2, c3 = str_lit.columns(3)
@@ -348,8 +398,8 @@ with tabs[1]:
                 log_and_save("Ideas & Scripts", str_lit.session_state["t1_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 2: الأغاني والصوت
-with tabs[2]:
+# تبويب 3: الأغاني والصوت
+with tabs[3]:
     str_lit.subheader(t["t2_header"])
     str_lit.session_state["t2_val"] = str_lit.text_area(t["t2_input_label"], value=str_lit.session_state["t2_val"], placeholder=t["t2_input_placeholder"], key="t2_w")
     c1, c2, c3 = str_lit.columns(3)
@@ -365,8 +415,8 @@ with tabs[2]:
                 log_and_save("Music & Audio", str_lit.session_state["t2_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 3: الصور والهوية
-with tabs[3]:
+# تبويب 4: الصور والهوية
+with tabs[4]:
     str_lit.subheader(t["t3_header"])
     str_lit.session_state["t3_val"] = str_lit.text_area(t["t3_input_label"], value=str_lit.session_state["t3_val"], placeholder=t["t3_input_placeholder"], key="t3_w")
     c1, c2, c3 = str_lit.columns(3)
@@ -382,8 +432,8 @@ with tabs[3]:
                 log_and_save("Image Prompts", str_lit.session_state["t3_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 4: تحريك الفيديو
-with tabs[4]:
+# تبويب 5: تحريك الفيديو
+with tabs[5]:
     str_lit.subheader(t["t4_header"])
     str_lit.session_state["t4_val"] = str_lit.text_area(t["t4_input_label"], value=str_lit.session_state["t4_val"], placeholder=t["t4_input_placeholder"], key="t4_w")
     c1, c2 = str_lit.columns(2)
@@ -398,8 +448,8 @@ with tabs[4]:
                 log_and_save("Video Motion", str_lit.session_state["t4_val"], res)
                 str_lit.success("تم بنجاح!")
 
-# تبويب 5: التسويق والإعلانات
-with tabs[5]:
+# تبويب 6: التسويق والإعلانات
+with tabs[6]:
     str_lit.subheader(t["t5_header"])
     str_lit.session_state["t5_val"] = str_lit.text_area(t["t5_input_label"], value=str_lit.session_state["t5_val"], placeholder=t["t5_input_placeholder"], key="t5_w")
     c1, c2, c3 = str_lit.columns(3)
@@ -430,7 +480,7 @@ if str_lit.session_state["current_result"]:
         str_lit.download_button(
             label=t["download_txt"],
             data=current_res,
-            file_name=f"Studio_Result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
+            file_name=f"Ibda3_Studio_Result_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt",
             mime="text/plain"
         )
     with col_b:
