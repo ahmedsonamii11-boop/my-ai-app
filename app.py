@@ -63,12 +63,19 @@ str_lit.markdown("""
     .metric-card {
         background: rgba(30, 41, 59, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 20px;
+        padding: 25px;
         border-radius: 18px;
         box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         backdrop-filter: blur(12px);
-        text-align: center;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .feature-box {
+        background: rgba(15, 23, 42, 0.6);
+        border: 1px solid rgba(99, 102, 241, 0.2);
+        padding: 20px;
+        border-radius: 14px;
+        margin-top: 15px;
     }
     
     .enterprise-header {
@@ -141,6 +148,15 @@ TEXTS = {
         
         "d_title": "مرحباً بك في لوحة تحكم الجيل القادم",
         "d_sub": "تتيح لك هذه المنصة التحكم الكامل في جميع أذرع التسويق والإنتاج الفني بجودة تضاهي أكبر الوكالات العالمية.",
+        
+        # تفاصيل لوحة القيادة الجديدة
+        "d_desc_title": "💡 ما هي منصة 'إبداع بريميوم' وكيف تحدث ثورة في عملك؟",
+        "d_desc_text": "تعتبر هذه المنصة نظاماً برمجياً متكاملاً مصمماً خصيصاً للشركات الكبرى، وكالات التسويق، وصناع المحتوى المحترفين الذين يستهدفون جودة استثنائية وعوائد استثمارية ضخمة. نحن ندمج أحدث نماذج الذكاء الاصطناعي (مثل Gemini 1.5) لنقدم لك:",
+        "d_feat_1": "🎯 **التخطيط الاستراتيجي المتقدم:** بناء نماذج العمل، دراسات جدوى، وخرائط طريق للشركات الناشئة.",
+        "d_feat_2": "🎬 **استوديو السكريبتات الفيروسية:** توليد محتوى منصات التواصل الاجتماعي (تيك توك، ريلز، يوتيوب) بنبرات صوت وخطاب دقيقة.",
+        "d_feat_3": "🎵 **الإنتاج الصوتي والموسيقي:** صياغة كلمات الأغاني والهويات الصوتية بلهجات وطابع احترافي.",
+        "d_feat_4": "🎨 **هندسة الهوية البصرية:** كتابة أوامر مخصصة لأقوى محركات الصور (Midjourney, Flux) بأبعادات وتأثيرات سينمائية.",
+        "d_feat_5": "📊 **إدارة الحملات الإعلانية:** هيكلة ميزانيات ضخمة واستهدافات دقيقة لتحقيق أعلى معدلات تحويل (Conversions).",
         
         "btn_gen": "⚡ تنفيذ عملية الإنتاج الذكي",
         "warn": "⚠️ يرجى إدخال البيانات المطلوبة أولاً!",
@@ -248,6 +264,15 @@ TEXTS = {
         
         "d_title": "Welcome to Next-Gen Command Center",
         "d_sub": "Empowering global agencies and enterprises with state-of-the-art AI content generation workflows.",
+        
+        # English Command Center Guide
+        "d_desc_title": "💡 What is 'Ibda3 Enterprise' and How Does it Revolutionize Your Business?",
+        "d_desc_text": "This platform is an all-in-one software ecosystem custom-built for major corporations, marketing agencies, and professional content creators targeting exceptional quality and massive ROI. We integrate state-of-the-art AI models (like Gemini 1.5) to deliver:",
+        "d_feat_1": "🎯 **Advanced Strategic Planning:** Business model canvases, feasibility studies, and startup roadmaps.",
+        "d_feat_2": "🎬 **Viral Scripts Studio:** Social media content generation (TikTok, Reels, YouTube) with precise tonal control.",
+        "d_feat_3": "🎵 **Music & Audio Production:** Song lyrics and sonic branding crafted with professional cultural nuances.",
+        "d_feat_4": "🎨 **Visual Engineering:** Tailored prompts for top image engines (Midjourney, Flux) with cinematic framing.",
+        "d_feat_5": "📊 **Mega Ad Campaigns:** Structuring massive budgets and precise targeting for peak conversions.",
         
         "btn_gen": "⚡ Execute Intelligent Production",
         "warn": "⚠️ Please enter required details first!",
@@ -405,13 +430,25 @@ def log_and_store(tab_name, user_input, output_text):
     str_lit.session_state["current_result"] = output_text
 
 # ------------------------------------------
-# تبويب 0: لوحة القيادة (Command Center)
+# تبويب 0: لوحة القيادة (Command Center) - مع الشرح التفصيلي العملاق
 # ------------------------------------------
 with tabs[0]:
     str_lit.markdown(f"""
     <div class="metric-card">
         <h2>{t['d_title']}</h2>
-        <p>{t['d_sub']}</p>
+        <p style="font-size: 1.1rem; color: #94a3b8; margin-bottom: 20px;">{t['d_sub']}</p>
+        
+        <div class="feature-box">
+            <h3 style="color: #818cf8; margin-bottom: 10px;">{t['d_desc_title']}</h3>
+            <p style="line-height: 1.7; color: #cbd5e1;">{t['d_desc_text']}</p>
+            <ul style="line-height: 1.8; color: #e2e8f0; margin-top: 10px; list-style-type: none; padding: 0;">
+                <li>{t['d_feat_1']}</li>
+                <li>{t['d_feat_2']}</li>
+                <li>{t['d_feat_3']}</li>
+                <li>{t['d_feat_4']}</li>
+                <li>{t['d_feat_5']}</li>
+            </ul>
+        </div>
     </div>
     """, unsafe_allow_html=True)
     
