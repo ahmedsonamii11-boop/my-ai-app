@@ -69,7 +69,7 @@ TEXTS = {
         "stats_title": "📊 لوحة الإحصائيات",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎙️ استوديو المحتوى الذكي (Floating Voice Pro)",
-        "main_caption": "المنظومة الاحترافية المزودة بزر المايك والترددات المدمجة داخل خانة النص",
+        "main_caption": "المنظومة الاحترافية المزودة بزر المايك وزر الـ Stop المخصص للتحكم الكامل",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -80,7 +80,7 @@ TEXTS = {
         ],
         
         "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية (استخدم مايك اليمين للتحدث):",
+        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية:",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
         "t1_style": "🎨 النمط البصري:",
         "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
@@ -133,7 +133,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Executions:",
         "main_title": "🎙️ Smart Content Studio (Floating Voice Pro)",
-        "main_caption": "Professional system with built-in mic and waveforms inside the text box",
+        "main_caption": "Professional system with built-in mic and stop button control",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -144,7 +144,7 @@ TEXTS = {
         ],
         
         "t1_title": "🎬 Idea Generator, Script, & Viral Hooks",
-        "t1_input": "📽️ Video Title or Core Idea (Use right mic to speak):",
+        "t1_input": "📽️ Video Title or Core Idea:",
         "t1_dur": "⏱️ Estimated Duration:",
         "t1_style": "🎨 Visual Style:",
         "t1_btn": "🔥 Execute Script & Hooks",
@@ -189,9 +189,9 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك (مع التحديث الفوري المضمون)
+# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop المخصص
 # ==========================================
-def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك اليمين..."):
+def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك لتسجيل ممتد..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
     js_code = """
@@ -215,8 +215,11 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
                             <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_%s" title="تحدث بالصوت" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_%s" title="بدء التسجيل المستمر" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
+                        </button>
+                        <button type="button" id="stop_btn_%s" title="إيقاف التسجيل" style="background: #3c4043; border: 1px solid #ea4335; color: #ea4335; width: 30px; height: 30px; border-radius: 50%%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                            ⏹️
                         </button>
                     `;
                     
@@ -233,67 +236,98 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                     let recognition = null;
                     let isRec = false;
                     const btn = micDiv.querySelector('#mic_btn_%s');
+                    const stopBtn = micDiv.querySelector('#stop_btn_%s');
                     const waves = micDiv.querySelector('#waves_%s');
 
-                    btn.onclick = function() {
+                    function startRecording() {
                         const SpeechRecognition = window.parent.SpeechRecognition || window.parent.webkitSpeechRecognition;
                         if (!SpeechRecognition) {
                             alert("متصفحك لا يدعم التعرف الصوتي. يرجى استخدام Google Chrome.");
                             return;
                         }
 
-                        if (!isRec) {
-                            recognition = new SpeechRecognition();
-                            recognition.lang = 'ar-EG';
-                            recognition.interimResults = false;
-                            recognition.continuous = false;
+                        recognition = new SpeechRecognition();
+                        recognition.lang = 'ar-EG';
+                        recognition.interimResults = true;
+                        recognition.continuous = true; // تفعيل التسجيل الممتد بدون توقف تلقائي
 
-                            recognition.onstart = function() {
-                                isRec = true;
-                                btn.style.background = '#ea4335';
-                                btn.style.color = '#fff';
-                                btn.style.borderColor = '#ff8580';
-                                btn.style.transform = 'scale(1.1)';
-                                waves.style.display = 'flex';
-                            };
+                        recognition.onstart = function() {
+                            isRec = true;
+                            btn.style.background = '#ea4335';
+                            btn.style.color = '#fff';
+                            btn.style.borderColor = '#ff8580';
+                            btn.style.transform = 'scale(1.1)';
+                            stopBtn.style.display = 'flex';
+                            waves.style.display = 'flex';
+                        };
 
-                            recognition.onresult = function(e) {
-                                let transcript = e.results[0][0].transcript;
-                                const currentVal = ta.value ? ta.value + ' ' + transcript : transcript;
-                                
-                                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
-                                nativeInputValueSetter.call(ta, currentVal);
-                                
-                                ta.dispatchEvent(new Event('input', { bubbles: true }));
-                                ta.dispatchEvent(new Event('change', { bubbles: true }));
-                                ta.blur();
-                                ta.focus();
-                            };
+                        let finalTranscript = ta.value ? ta.value + ' ' : '';
 
-                            recognition.onerror = function() { stopRec(); };
-                            recognition.onend = function() { stopRec(); };
+                        recognition.onresult = function(e) {
+                            let interim = '';
+                            for (let i = e.resultIndex; i < e.results.length; ++i) {
+                                if (e.results[i].isFinal) {
+                                    finalTranscript += e.results[i][0].transcript + ' ';
+                                } else {
+                                    interim += e.results[i][0].transcript;
+                                }
+                            }
+                            const fullText = finalTranscript + interim;
+                            
+                            const setter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
+                            setter.call(ta, fullText);
+                            
+                            ta.dispatchEvent(new Event('input', { bubbles: true }));
+                            ta.dispatchEvent(new Event('change', { bubbles: true }));
+                        };
 
-                            try { recognition.start(); } catch(err) { console.log(err); }
-                        } else {
-                            if (recognition) recognition.stop();
-                            stopRec();
-                        }
-                    };
+                        recognition.onerror = function() { stopRecordingProcess(); };
+                        recognition.onend = function() {
+                            // لو وقف لأي سبب غير مقصود وهو لسه مفعل نعمله إعادة تشغيل لضمان استمراره
+                            if (isRec) {
+                                try { recognition.start(); } catch(err) {}
+                            }
+                        };
 
-                    function stopRec() {
+                        try { recognition.start(); } catch(err) { console.log(err); }
+                    }
+
+                    function stopRecordingProcess() {
                         isRec = false;
+                        if (recognition) {
+                            try { recognition.stop(); } catch(e) {}
+                        }
                         btn.style.background = '#2b2d31';
                         btn.style.color = '#8ab4f8';
                         btn.style.borderColor = '#5f6368';
                         btn.style.transform = 'scale(1.0)';
+                        stopBtn.style.display = 'none';
                         waves.style.display = 'none';
+
+                        // إرسال الأحداث النهائية لضمان قراءة بايثون للنص
+                        ta.dispatchEvent(new Event('input', { bubbles: true }));
+                        ta.dispatchEvent(new Event('change', { bubbles: true }));
+                        ta.blur();
+                        ta.focus();
                     }
+
+                    btn.onclick = function() {
+                        if (!isRec) {
+                            startRecording();
+                        } else {
+                            stopRecordingProcess();
+                        }
+                    };
+
+                    stopBtn.onclick = function() {
+                        stopRecordingProcess();
+                    };
                 }
             }
         });
     })();
     </script>
-    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key)
+    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key, session_key)
 
     st.components.v1.html(js_code, height=0, width=0)
     return st.session_state.get(session_key, "")
@@ -399,7 +433,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 6. الواجهة الرئيسية والتبويبات الخمسة
+# 6. الواجهة الرئيسية والتبويبات
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
@@ -445,7 +479,7 @@ def render_active_result(tab_idx):
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
-    v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك اليمين للتحدث...")
+    v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك للتسجيل المستمر...")
     
     col_a, col_b = st.columns(2)
     with col_a:
@@ -469,7 +503,7 @@ if st.session_state["selected_tab"] == 0:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
-    song_idea = floating_voice_textarea(T['t2_idea'], "t2_val", "اكتب فكرة الأغنية أو تحدث بالمايك...")
+    song_idea = floating_voice_textarea(T['t2_idea'], "t2_val", "اكتب فكرة الأغنية أو استخدم المايك المستمر...")
     
     c1, c2 = st.columns(2)
     with c1:
@@ -493,7 +527,7 @@ elif st.session_state["selected_tab"] == 1:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
-    img_desc = floating_voice_textarea(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل كتابةً أو بالمايك...")
+    img_desc = floating_voice_textarea(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل أو تحدث بالمايك...")
     
     c1, c2 = st.columns(2)
     with c1:
@@ -517,7 +551,7 @@ elif st.session_state["selected_tab"] == 2:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
-    a_script = floating_voice_textarea(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك العائم...")
+    a_script = floating_voice_textarea(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك المستمر...")
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar"])
     
     if st.button(T["t4_btn"], type="primary", key="action_btn_4"):
