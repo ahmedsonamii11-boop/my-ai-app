@@ -392,14 +392,14 @@ PLATFORM_TOOLS = {
 }
 
 # ==========================================
-# 4. محرك استدعاء الذكاء الاصطناعي (محدث ومضمون لكل الأقسام)
+# 4. محرك استدعاء الذكاء الاصطناعي (محدث ومضمون 3.6-flash)
 # ==========================================
 def call_gemini_enterprise(prompt, lang_choice):
     if not API_KEY:
         return "❌ الخطأ: مفتاح API غير موجود في إعدادات المنصة (Streamlit Secrets)."
     
-    # تجربة الموديلات المتاحة تلقائياً لمنع أي خطأ 404
-    models_to_try = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash']
+    # استخدام الموديل الجديد المحدث gemini-3.6-flash كخيار أول أساسي
+    models_to_try = ['gemini-3.6-flash', 'gemini-1.5-flash', 'gemini-1.5-pro']
     
     for model_name in models_to_try:
         try:
@@ -412,7 +412,6 @@ def call_gemini_enterprise(prompt, lang_choice):
         except Exception:
             continue
             
-    # محاولة أخيرة بالطريقة البديلة للـ GenerativeModel في حال فشل الأسماء السابقة
     try:
         for m in genai.list_models():
             if 'generateContent' in m.supported_generation_methods:
@@ -506,7 +505,7 @@ with tabs[0]:
     col1, col2, col3 = str_lit.columns(3)
     col1.metric("العمليات الناجحة / Operations", len(str_lit.session_state["history"]), "+100%")
     col2.metric("العناصر المفضلة / Favorites", len(str_lit.session_state["favorites"]), "Secure")
-    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini Pro/Flash")
+    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini 3.6-Flash")
 
 # ------------------------------------------
 # تبويب 1: التخطيط الاستراتيجي
