@@ -83,17 +83,18 @@ str_lit.markdown("""
 API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# 2. نظام التخزين الدائم المؤمّن
+# 2. نظام التخزين الدائم المؤمّن والزوار
 # ==========================================
 HISTORY_FILE = "ibda3_enterprise_history.json"
 FAV_FILE = "ibda3_enterprise_favorites.json"
+STATS_FILE = "ibda3_visitor_stats.json"
 
 def load_data(path):
     if os.path.exists(path):
         try:
             with open(path, "r", encoding="utf-8") as f:
                 d = json.load(f)
-                return d if isinstance(d, list) else []
+                return d if isinstance(d, (list, dict)) else []
         except: return []
     return []
 
@@ -106,6 +107,21 @@ def save_data(path, data):
 if "history" not in str_lit.session_state: str_lit.session_state["history"] = load_data(HISTORY_FILE)
 if "favorites" not in str_lit.session_state: str_lit.session_state["favorites"] = load_data(FAV_FILE)
 if "current_result" not in str_lit.session_state: str_lit.session_state["current_result"] = None
+
+# نظام تتبع عدد الزيارات الفعلي (مرة لكل جلسة متصفح)
+if "visited" not in str_lit.session_state:
+    str_lit.session_state["visited"] = True
+    stats_data = load_data(STATS_FILE)
+    if not isinstance(stats_data, dict):
+        stats_data = {"total_visits": 0}
+    stats_data["total_visits"] = stats_data.get("total_visits", 0) + 1
+    save_data(STATS_FILE, stats_data)
+
+def get_total_visits():
+    data = load_data(STATS_FILE)
+    if isinstance(data, dict):
+        return data.get("total_visits", 1)
+    return 1
 
 for k in ["t0_v", "t1_v", "t2_v", "t3_v", "t4_v", "t5_v"]:
     if k not in str_lit.session_state: str_lit.session_state[k] = ""
@@ -124,6 +140,8 @@ TEXTS = {
         "clear_history": "🗑️ مسح الذاكرة بالكامل",
         "stats_title": "📊 مؤشرات الأداء الحية (KPIs)",
         "stat_total": "إجمالي الأصول المنتجة:",
+        "visitor_stat_title": "👥 إحصائيات الزوار والتحليلات",
+        "visitor_count_label": "إجمالي زيارات الموقع:",
         
         "main_title": "منصة إبداع | Enterprise AI Suite 🚀",
         "main_caption": "النظام السيبراني المتكامل لإنتاج المحتوى، الخطط الاستراتيجية، وحملات الملايين بالذكاء الاصطناعي",
@@ -141,7 +159,6 @@ TEXTS = {
         "d_title": "مرحباً بك في لوحة تحكم الجيل القادم",
         "d_sub": "تتيح لك هذه المنصة التحكم الكامل في جميع أذرع التسويق والإنتاج الفني بجودة تضاهي أكبر الوكالات العالمية.",
         
-        # تفاصيل لوحة القيادة بالنظام النظيف
         "d_desc_title": "💡 ما هي منصة 'إبداع بريميوم' وكيف تحدث ثورة في عملك؟",
         "d_desc_text": "تعتبر هذه المنصة نظاماً برمجياً متكاملاً مصمماً خصيصاً للشركات الكبرى، وكالات التسويق، وصناع المحتوى المحترفين الذين يستهدفون جودة استثنائية وعوائد استثمارية ضخمة. نحن ندمج أحدث نماذج الذكاء الاصطناعي (مثل Gemini 1.5) لنقدم لك:",
         "d_feat_1": "🎯 **التخطيط الاستراتيجي المتقدم:** بناء نماذج العمل، دراسات جدوى، وخرائط طريق للشركات الناشئة.",
@@ -157,7 +174,6 @@ TEXTS = {
         "download": "📥 تصدير التقرير الاحترافي (.txt)",
         "rate": "⭐ تقييم جودة المخرج:",
 
-        # تفاصيل التبويب 0
         "t0_head": "🗺️ المرحلة الأولى: التخطيط الاستراتيجي المتقدم",
         "t0_label": "🎯 املأ فكرة المشروع أو الشركة الناشئة:",
         "t0_ph": "اكتب تفاصيل المشروع الاستثماري...",
@@ -168,7 +184,6 @@ TEXTS = {
         "t0_market": "🌍 النطاق الجغرافي / السوق:",
         "t0_market_opts": ["مصر والشمال الإفريقي", "دول الخليج العربي", "الشرق الأوسط وشمال إفريقيا (MENA)", "السوق العالمي (Global - English)"],
 
-        # تفاصيل التبويب 1
         "t1_head": "🎬 المرحلة الثانية: صانع الأفكار والسكريبتات الاحترافية",
         "t1_label": "📽️ فكرة الفيديو أو الموضوع الأساسي:",
         "t1_ph": "اكتب فكرة الفيديو باختصار...",
@@ -181,7 +196,6 @@ TEXTS = {
         "t1_target": "🎯 الفئة المستهدفة:",
         "t1_target_opts": ["الجيل الناشئ (Gen Z)", "رواد الأعمال والمستثمرون", "المهنيون والموظفون", "الأسرة وربات البيوت", "المهتمون بالتكنولوجيا والتقنية"],
 
-        # تفاصيل التبويب 2
         "t2_head": "🎵 المرحلة الثالثة: استوديو الأغاني والموسيقى المتطور",
         "t2_label": "💡 موضوع الأغنية أو الرسالة المراد توصيلها:",
         "t2_ph": "اكتب موضوع الكلمات أو القصة...",
@@ -194,7 +208,6 @@ TEXTS = {
         "t2_inst": "🎸 الآلات البارزة:",
         "t2_inst_opts": ["بيتات إلكترونية وثقيلة", "جيتار آكوستيك هادئ", "عود شرقي وإيقاعات", "بيانو كلاسيكي درامي"],
 
-        # تفاصيل التبويب 3
         "t3_head": "🎨 المرحلة الرابعة: هندسة الصور والهوية البصرية",
         "t3_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
         "t3_ph": "صف العناصر، الألوان، والخلفية...",
@@ -207,7 +220,6 @@ TEXTS = {
         "t3_shot": "📷 زاوية الكاميرا:",
         "t3_shot_opts": ["لقطة مقربة جداً (Macro/Close-up)", "عين الطائر (Bird's Eye View)", "لقطة من أسفل لتعظيم الشخصية", "بورتريه احترافي عريض"],
 
-        # تفاصيل التبويب 4
         "t4_head": "🗣️ المرحلة الخامسة: سينما تحريك الفيديو والموشن",
         "t4_label": "📜 وصف الحركة المطلوبة أو تحريك الصورة:",
         "t4_ph": "صف كيف تتحرك الكاميرا أو العناصر...",
@@ -218,7 +230,6 @@ TEXTS = {
         "t4_speed": "⚡ سرعة وتيرة الحركة:",
         "t4_speed_opts": ["بطيء جداً وسينمائي (Cinematic Slow-mo)", "سرعة عادية متوازنة", "حركة سريعة وخاطفة (Dynamic Fast)"],
 
-        # تفاصيل التبويب 5
         "t5_head": "📊 المرحلة السادسة: الإعلانات والتسويق الرقمي",
         "t5_label": "🎯 المنتج أو الخدمة المراد تسويقها:",
         "t5_ph": "اكتب تفاصيل المنتج والجمهور المستهدف...",
@@ -240,6 +251,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear Memory",
         "stats_title": "📊 Live Performance KPIs",
         "stat_total": "Total Generated Assets:",
+        "visitor_stat_title": "👥 Visitor Analytics",
+        "visitor_count_label": "Total Website Visits:",
         
         "main_title": "Ibda3 | Enterprise AI Suite 🚀",
         "main_caption": "Cybernetic End-to-End Platform for Content Production and Strategic Scaling",
@@ -257,7 +270,6 @@ TEXTS = {
         "d_title": "Welcome to Next-Gen Command Center",
         "d_sub": "Empowering global agencies and enterprises with state-of-the-art AI content generation workflows.",
         
-        # English Command Center Guide
         "d_desc_title": "💡 What is 'Ibda3 Enterprise' and How Does it Revolutionize Your Business?",
         "d_desc_text": "This platform is an all-in-one software ecosystem custom-built for major corporations, marketing agencies, and professional content creators targeting exceptional quality and massive ROI. We integrate state-of-the-art AI models (like Gemini 1.5) to deliver:",
         "d_feat_1": "🎯 **Advanced Strategic Planning:** Business model canvases, feasibility studies, and startup roadmaps.",
@@ -273,7 +285,6 @@ TEXTS = {
         "download": "📥 Export Professional Report (.txt)",
         "rate": "⭐ Rate Output Quality:",
 
-        # Tab 0 En
         "t0_head": "Phase 1: Advanced Strategy",
         "t0_label": "Core Project/Startup Idea:",
         "t0_ph": "Enter investment project details...",
@@ -284,7 +295,6 @@ TEXTS = {
         "t0_market": "Target Market:",
         "t0_market_opts": ["Egypt & North Africa", "GCC Countries", "MENA Region", "Global (English)"],
 
-        # Tab 1 En
         "t1_head": "Phase 2: Professional Scripts Studio",
         "t1_label": "Video Idea or Core Topic:",
         "t1_ph": "Enter video concept briefly...",
@@ -297,7 +307,6 @@ TEXTS = {
         "t1_target": "Target Audience:",
         "t1_target_opts": ["Gen Z", "Entrepreneurs & Investors", "Professionals & Employees", "Families & Homemakers", "Tech Enthusiasts"],
 
-        # Tab 2 En
         "t2_head": "Phase 3: Advanced Music Studio",
         "t2_label": "Song Theme or Core Message:",
         "t2_ph": "Enter lyrics theme or story...",
@@ -310,7 +319,6 @@ TEXTS = {
         "t2_inst": "Prominent Instruments:",
         "t2_inst_opts": ["Heavy Electronic Beats", "Acoustic Guitar", "Oriental Oud & Percussion", "Dramatic Classical Piano"],
 
-        # Tab 3 En
         "t3_head": "Phase 4: Visual Identity & Image Engineering",
         "t3_label": "Precise Scene Description:",
         "t3_ph": "Describe elements, colors, and background...",
@@ -323,7 +331,6 @@ TEXTS = {
         "t3_shot": "Camera Shot:",
         "t3_shot_opts": ["Macro / Close-up", "Bird's Eye View", "Low Angle Power Shot", "Wide Professional Portrait"],
 
-        # Tab 4 En
         "t4_head": "Phase 5: Video Motion Cinema",
         "t4_label": "Required Motion & Animation Description:",
         "t4_ph": "Describe camera or element movement...",
@@ -334,7 +341,6 @@ TEXTS = {
         "t4_speed": "Motion Speed:",
         "t4_speed_opts": ["Cinematic Slow-mo", "Balanced Normal Speed", "Dynamic Fast Motion"],
 
-        # Tab 5 En
         "t5_head": "Phase 6: Advanced Mega Marketing Campaigns",
         "t5_label": "Product or Service to Market:",
         "t5_ph": "Enter product details and target audience...",
@@ -374,6 +380,11 @@ with str_lit.sidebar:
     t = TEXTS[selected_lang]
     
     str_lit.markdown(f"### {t['sidebar_title']}")
+    str_lit.markdown("---")
+    
+    # قسم عداد الزوار الجديد والمميز في الـ Sidebar
+    str_lit.markdown(f"#### {t['visitor_stat_title']}")
+    str_lit.metric(label=t["visitor_count_label"], value=get_total_visits())
     str_lit.markdown("---")
     
     str_lit.markdown(f"#### {t['stats_title']}")
@@ -422,7 +433,7 @@ def log_and_store(tab_name, user_input, output_text):
     str_lit.session_state["current_result"] = output_text
 
 # ------------------------------------------
-# تبويب 0: لوحة القيادة (Command Center) - النسخة الاحترافية بالمركدون النظيف
+# تبويب 0: لوحة القيادة (Command Center)
 # ------------------------------------------
 with tabs[0]:
     with str_lit.container():
@@ -569,7 +580,7 @@ with tabs[6]:
             with str_lit.spinner(t["spin"]):
                 prompt = f"Mega Ad Campaign for: '{str_lit.session_state['t5_v']}', Platform: {plat}, Objective: {goal}, Strategy: {strategy}, Budget: ${budget}."
                 res = call_gemini_enterprise(prompt, selected_lang)
-                log_and_store("Mega Campaigns", str_lit.session_state["t5_v"], res)
+                log_and_stats = log_and_store("Mega Campaigns", str_lit.session_state["t5_v"], res)
                 str_lit.success("تم بنجاح!")
 
 # ==========================================
