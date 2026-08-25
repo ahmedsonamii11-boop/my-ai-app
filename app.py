@@ -85,7 +85,7 @@ TEXTS = {
         "t1_style": "🎨 النمط البصري:",
         "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
         "t1_warn": "⚠️ يرجى إدخال عنوان أو فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ توليد السكريبت بواسطة Gemini 3.6 Flash...",
+        "t1_spin": "⚡ جارٍ توليد السكريبت بواسطة Gemini...",
 
         "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي",
         "t2_idea": "💡 فكرة الأغنية أو الموضوع الرئيسي:",
@@ -189,7 +189,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك (مع ربط بايثون الفوري)
+# 3. دالة خانة النص المدمجة مع المايك (مع التحديث الفوري المضمون)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك اليمين..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
@@ -245,8 +245,8 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         if (!isRec) {
                             recognition = new SpeechRecognition();
                             recognition.lang = 'ar-EG';
-                            recognition.interimResults = false;  // منع تكرار الكلمات وجعلها تقرا الجملة كاملة بدقة
-                            recognition.continuous = false;     // إيقاف التسجيل التلقائي بعد انتهاء الجملة لمنع الـ Loop
+                            recognition.interimResults = false;
+                            recognition.continuous = false;
 
                             recognition.onstart = function() {
                                 isRec = true;
@@ -259,16 +259,15 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
 
                             recognition.onresult = function(e) {
                                 let transcript = e.results[0][0].transcript;
-                                ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
+                                const currentVal = ta.value ? ta.value + ' ' + transcript : transcript;
                                 
-                                // إرسال الأحداث لتحديث بايثون وسตรีملت فوراً
+                                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
+                                nativeInputValueSetter.call(ta, currentVal);
+                                
                                 ta.dispatchEvent(new Event('input', { bubbles: true }));
                                 ta.dispatchEvent(new Event('change', { bubbles: true }));
-                                
-                                // إجبار React على مزامنة القيمة مع Streamlit State
-                                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
-                                nativeInputValueSetter.call(ta, ta.value);
-                                ta.dispatchEvent(new Event('input', { bubbles: true }));
+                                ta.blur();
+                                ta.focus();
                             };
 
                             recognition.onerror = function() { stopRec(); };
@@ -297,10 +296,10 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
     """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key)
 
     st.components.v1.html(js_code, height=0, width=0)
-    return val
+    return st.session_state.get(session_key, "")
 
 # ==========================================
-# 4. دالة الاتصال بنموذج Gemini 3.6 Flash
+# 4. دالة الاتصال بنموذج Gemini
 # ==========================================
 def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -400,7 +399,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 6. الواجهة الرئيسية والتبويبات
+# 6. الواجهة الرئيسية والتبويبات الخمسة
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
