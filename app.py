@@ -5,22 +5,59 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة
+# 1. إعدادات الصفحة والتصميم الاحترافي (Suno / AI Style)
 # ==========================================
 st.set_page_config(
-    page_title="استوديو المحتوى الذكي - Floating Mic Pro",
+    page_title="استوديو المحتوى الذكي - Pro Edition",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+# تخصيص الـ CSS العام ليطابق المنصات الاحترافية
+st.markdown("""
+<style>
+    /* تحسين الخطوط والخلفيات العامة */
+    .main {
+        background-color: #0e1117;
+    }
+    /* تصميم الـ Cards الاحترافية */
+    .stApp {
+        color: #e0e0e0;
+    }
+    /* تنسيق الأزرار العصرية */
+    .stButton>button {
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .stButton>button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(138, 180, 248, 0.3);
+    }
+    /* تحسين مظهر حقول الإدخال */
+    .stTextArea textarea, .stTextInput input {
+        border-radius: 10px !important;
+        border: 1px solid #30363d !important;
+        background-color: #161b22 !important;
+        color: #c9d1d9 !important;
+    }
+    /* تفاصيل الـ Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #111418;
+        border-right: 1px solid #21262d;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# نظام الحفظ الدائم
+# نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_float_history.json"
-FAV_FILE = "content_studio_float_favorites.json"
+HISTORY_FILE = "content_studio_float_history_v2.json"
+FAV_FILE = "content_studio_float_favorites_v2.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -61,15 +98,15 @@ TEXTS = {
     "العربية": {
         "sidebar_title": "⚙️ الإدارة والتحكم الشامل",
         "search_label": "🔍 بحث في السجل:",
-        "fav_title": "⭐ المفضلة",
+        "fav_title": "⭐ المفضلة المحفوظة",
         "fav_empty": "لا توجد عناصر مفضلة",
         "history_title": "📜 سجل العمليات (حفظ دائم)",
-        "history_empty": "السجل فارغ",
+        "history_empty": "السجل فارغ حالياً",
         "clear_history": "🗑️ مسح السجل بالكامل",
         "stats_title": "📊 لوحة الإحصائيات",
         "stat_total": "إجمالي الأعمال المُنجزة:",
-        "main_title": "🎙️ استوديو المحتوى الذكي (Floating Voice Pro)",
-        "main_caption": "المنظومة الاحترافية المزودة بزر المايك وزر الـ Stop المخصص للتحكم الكامل",
+        "main_title": "🎙️ استوديو المحتوى الذكي (Pro Suite)",
+        "main_caption": "منظومة إبداعية متكاملة بالذكاء الاصطناعي مع تحكم صوتي كامل وحفظ فوري",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -85,7 +122,7 @@ TEXTS = {
         "t1_style": "🎨 النمط البصري:",
         "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
         "t1_warn": "⚠️ يرجى إدخال عنوان أو فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ توليد السكريبت بواسطة Gemini...",
+        "t1_spin": "⚡ جارٍ توليد السكريبت وحفظه تلقائياً...",
 
         "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي",
         "t2_idea": "💡 فكرة الأغنية أو الموضوع الرئيسي:",
@@ -93,7 +130,7 @@ TEXTS = {
         "t2_style": "🎼 النمط الموسيقي:",
         "t2_btn": "✨ تنفيذ وتوليد الأغنية الكاملة والقوافي",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
-        "t2_spin": "⚡ جارٍ صياغة الكلمات وهندسة المكس...",
+        "t2_spin": "⚡ جارٍ صياغة الكلمات وحفظها...",
 
         "t3_title": "🎨 مهندس برومبتات الصور الاحترافية",
         "t3_desc": "🖼️ وصف الصورة الخيالية بدقة:",
@@ -132,8 +169,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear History",
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Executions:",
-        "main_title": "🎙️ Smart Content Studio (Floating Voice Pro)",
-        "main_caption": "Professional system with built-in mic and stop button control",
+        "main_title": "🎙️ Smart Content Studio (Pro Suite)",
+        "main_caption": "Professional AI system with voice control & persistent auto-save",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -149,7 +186,7 @@ TEXTS = {
         "t1_style": "🎨 Visual Style:",
         "t1_btn": "🔥 Execute Script & Hooks",
         "t1_warn": "⚠️ Please enter video title!",
-        "t1_spin": "⚡ Generating professional script...",
+        "t1_spin": "⚡ Generating & saving professional script...",
 
         "t2_title": "🎵 Music Production & Sound Engineering",
         "t2_idea": "💡 Song Idea or Theme:",
@@ -189,7 +226,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop (باستخدام f-string آمنة تماماً)
+# 3. دالة الإدخال الصوتي المتطورة
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك للتسجيل المستمر..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
@@ -210,15 +247,15 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                     micDiv.style.cssText = "position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 999;";
                     
                     micDiv.innerHTML = `
-                        <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
-                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
-                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
-                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
+                        <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.7); padding: 2px 8px; border-radius: 12px;">
+                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
+                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
+                            <div style="width: 3px; background: #ff4b4b; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
                         </div>
-                        <button type="button" id="mic_btn_{session_key}" title="بدء التسجيل المستمر" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="mic_btn_{session_key}" title="بدء التسجيل المستمر" style="background: #21262d; border: 1px solid #30363d; color: #58a6ff; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
                             🎙️
                         </button>
-                        <button type="button" id="stop_btn_{session_key}" title="إيقاف التسجيل" style="background: #3c4043; border: 1px solid #ea4335; color: #ea4335; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                        <button type="button" id="stop_btn_{session_key}" title="إيقاف التسجيل" style="background: #21262d; border: 1px solid #f85149; color: #f85149; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.2s;">
                             ⏹️
                         </button>
                     `;
@@ -253,9 +290,9 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
 
                         recognition.onstart = function() {{
                             isRec = true;
-                            btn.style.background = '#ea4335';
+                            btn.style.background = '#f85149';
                             btn.style.color = '#fff';
-                            btn.style.borderColor = '#ff8580';
+                            btn.style.borderColor = '#ff7b72';
                             btn.style.transform = 'scale(1.1)';
                             stopBtn.style.display = 'flex';
                             waves.style.display = 'flex';
@@ -296,9 +333,9 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         if (recognition) {{
                             try {{ recognition.stop(); }} catch(e) {{}}
                         }}
-                        btn.style.background = '#2b2d31';
-                        btn.style.color = '#8ab4f8';
-                        btn.style.borderColor = '#5f6368';
+                        btn.style.background = '#21262d';
+                        btn.style.color = '#58a6ff';
+                        btn.style.borderColor = '#30363d';
                         btn.style.transform = 'scale(1.0)';
                         stopBtn.style.display = 'none';
                         waves.style.display = 'none';
@@ -331,7 +368,7 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
     return st.session_state.get(session_key, "")
 
 # ==========================================
-# 4. دالة الاتصال بنموذج Gemini
+# 4. دالة تنفيذ وتخزين العمليات (تأكيد الحفظ الفوري)
 # ==========================================
 def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -360,6 +397,7 @@ def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_in
                 "rating": 5
             }
             
+            # إضافة العنصر في مقدمة السجل والحفظ الفوري في ملف الـ JSON
             st.session_state["history"].insert(0, item)
             save_data(HISTORY_FILE, st.session_state["history"])
             st.session_state["current_result"] = item
@@ -373,7 +411,7 @@ def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_in
         return None
 
 # ==========================================
-# 5. القائمة الجانبية
+# 5. القائمة الجانبية الاحترافية
 # ==========================================
 with st.sidebar:
     lang = st.selectbox("🌐 اللغة / Language:", ["العربية", "English"])
@@ -428,7 +466,7 @@ with st.sidebar:
                     if item not in st.session_state["favorites"]:
                         st.session_state["favorites"].append(item)
                         save_data(FAV_FILE, st.session_state["favorites"])
-                        st.toast("تمت الإضافة للمفضلة!")
+                        st.toast("تمت الإضافة للمفضلة بنجاح!")
 
 # ==========================================
 # 6. الواجهة الرئيسية والتبويبات
