@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم المتجاوب (Responsive + Voice Input CSS/JS)
+# 1. إعدادات الصفحة والتصميم المتجاوب (Responsive)
 # ==========================================
 st.set_page_config(
     page_title="استوديو المحتوى الذكي الشامل - Pro Max",
@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# كود CSS وتصميم متجاوب للموبايل واللابتوب مع إضافة دعم الإدخال الصوتي
+# كود CSS لتنسيق الواجهة وإزالة أي رموز غريبة وتظبيط المظهر الاحترافي
 st.markdown("""
     <style>
     .stApp {
@@ -26,13 +26,11 @@ st.markdown("""
         .stButton button { width: 100% !important; }
         [data-testid="column"] { width: 100% !important; flex: 100% !important; min-width: 100% !important; }
     }
-    .mic-box {
-        background-color: #f0f2f6;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px dashed #4f46e5;
-        text-align: center;
-        margin-bottom: 10px;
+    .voice-hint {
+        font-size: 0.85rem;
+        color: #ef4444;
+        font-weight: 600;
+        margin-bottom: 5px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -73,13 +71,17 @@ if "selected_tab" not in st.session_state:
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
+# تهيئة المتغيرات النصية المرتبطة بالصوت لضمان عدم حدوث أخطاء
+for key in ["t1_input_val", "t2_idea_val", "t3_desc_val", "t4_script_val", "t5_topic_val"]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
 # ==========================================
 # 2. القاموس الثنائي الشامل (عربي / English)
 # ==========================================
 TEXTS = {
     "العربية": {
         "sidebar_title": "⚙️ الإدارة والتحكم الشامل",
-        "lang_label": "🌐 لغة الواجهة:",
         "search_label": "🔍 بحث متقدم في السجل:",
         "fav_title": "⭐ المفضلة والمشاريع المثبتة",
         "fav_empty": "لا توجد عناصر مضافة للمفضلة بعد",
@@ -90,7 +92,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية المتكاملة المدمجة بالـ 50 فكرة والتحكم الصوتي (متوافقة مع الموبايل والـ PC)",
+        "main_caption": "المنظومة الاحترافية المتكاملة مع إمكانية الإدخال الصوتي المباشر للأفكار والتريندات",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -100,11 +102,8 @@ TEXTS = {
             "5️⃣ 📊 التسويق والتريندات"
         ],
         
-        "voice_guide": "🎙️ ميزة الإدخال الصوتي (تحدث بالمايك لتحويل صوتك لنص):",
-        "voice_btn": "🔴 اضغط هنا وتحدث بصوتك (Voice-to-Text)",
-        
         "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو (أو استخدم المايك بالأسفل):",
+        "t1_input": "📽️ عنوان أو فكرة الفيديو:",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
         "t1_style": "🎨 النمط البصري المتقدم:",
         "t1_hook": "🎯 تفعيل صانع الخطافات (أول 3 ثوانٍ):",
@@ -155,7 +154,6 @@ TEXTS = {
     },
     "English": {
         "sidebar_title": "⚙️ Control & Pro Management",
-        "lang_label": "🌐 Interface Language:",
         "search_label": "🔍 Advanced History Search:",
         "fav_title": "⭐ Favorites & Pinned",
         "fav_empty": "No favorites added yet",
@@ -166,7 +164,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with 50+ features & Voice-to-Text support",
+        "main_caption": "Professional system with voice input support for ideas and trends",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -175,9 +173,6 @@ TEXTS = {
             "4️⃣ 🗣️ Video & Avatar Animation",
             "5️⃣ 📊 Marketing & Trends"
         ],
-        
-        "voice_guide": "🎙️ Voice Input Feature (Speak to type):",
-        "voice_btn": "🔴 Click & Speak (Voice-to-Text)",
         
         "t1_title": "🎬 Idea Generator, Script, & Viral Hooks",
         "t1_input": "📽️ Video Title or Core Idea:",
@@ -231,41 +226,43 @@ TEXTS = {
     }
 }
 
-# دالة JavaScript لإضافة ميزة المايك الصوتي المتصفح (Voice-to-Text Widget)
-def render_voice_input_widget():
-    st.markdown("""
-        <div class="mic-box">
-            <p style="margin:0; font-weight:600; color:#333;">🎙️ أداة الإدخال الصوتي (تحدث بالمايك للكتابة الفورية):</p>
-            <button onclick="startDictation()" style="background-color:#ef4444; color:white; border:none; padding:8px 16px; border-radius:5px; cursor:pointer; margin-top:5px; font-weight:bold;">
-                🔴 اضغط هنا وتحدث بصوتك
+# دالة الجافاسكريبت للمايك المباشر (تضغط الزرار، تتكلم، وتتنسخ الفكرة أوتوماتيك للحافظة عشان تلصقها بضغطة زر)
+def render_inline_mic_helper(input_id_name):
+    st.markdown(f"""
+        <div style="margin-bottom: 8px;">
+            <span class="voice-hint">🎙️ بدل الكتابة، اضغط للحديث الصوتي:</span><br>
+            <button onclick="recordVoice_{input_id_name}()" style="background-color:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem; font-weight:bold;">
+                🔴 اضغط وتحدث بصوتك
             </button>
-            <p id="voiceResult" style="margin-top:5px; font-size:0.9rem; color:#555;"></p>
+            <span id="status_{input_id_name}" style="font-size:0.8rem; color:#555; margin-left:8px;"></span>
         </div>
         <script>
-        function startDictation() {
-            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+        function recordVoice_{input_id_name}() {{
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {{
                 var recognition = new webkitSpeechRecognition();
                 recognition.continuous = false;
                 recognition.interimResults = false;
-                recognition.lang = "ar-EG"; // يدعم اللهجة المصرية والعربية بامتياز
+                recognition.lang = "ar-EG";
                 recognition.start();
                 
-                recognition.onresult = function(e) {
+                document.getElementById('status_{input_id_name}').innerText = "جاري الاستماع... تتحدث الآن 🎙️";
+                
+                recognition.onresult = function(e) {{
                     var text = e.results[0][0].transcript;
-                    document.getElementById('voiceResult').innerText = "تم التقاط الصوت: " + text;
-                    // نسخ النص تلقائياً للحافظة لتتمكن من لصقه في الحقل بسهولة
+                    document.getElementById('status_{input_id_name}').innerText = "تم التقاط الصوت بنجاح! ✅";
                     navigator.clipboard.writeText(text);
-                    alert("تم نسخ النص الصوتي للحافظة بنجاح: " + text + "\\nقم بلصقه في خانة الإدخال الآن!");
+                    alert("تم نسخ كلامك الصوتي: (" + text + ")\\nالآن اضغط لصق (Paste) في خانة الكتابة أدناه.");
                     recognition.stop();
                 };
                 
-                recognition.onerror = function(e) {
+                recognition.onerror = function(e) {{
+                    document.getElementById('status_{input_id_name}').innerText = "حدث خطأ في التسجيل.";
                     recognition.stop();
-                }
-            } else {
-                alert("متصفحك لا يدعم الإدخال الصوتي المباشر، يرجى استخدام متصفح Google Chrome.");
-            }
-        }
+                }}
+            }} else {{
+                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
+            }}
+        }}
         </script>
     """, unsafe_allow_html=True)
 
@@ -377,13 +374,11 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 5. الواجهة الرئيسية المتجاوبة مع المايك
+# 5. الواجهة الرئيسية والتنقل بين الأقسام
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
-
-# تفعيل أداة الإدخال الصوتي في أعلى المنصة
-render_voice_input_widget()
+st.divider()
 
 selected_tab_name = st.radio(
     "Navigation" if lang == "English" else "اختر مرحلة العمل الإبداعي:",
@@ -426,7 +421,10 @@ def render_result_section(tab_idx):
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
-    v_title = st.text_input(T["t1_input"])
+    
+    render_inline_mic_helper("tab1_input")
+    v_title = st.text_input(T["t1_input"], key="t1_field")
+    
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
     v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
     v_hook_enabled = st.checkbox(T["t1_hook"], value=True)
@@ -450,7 +448,8 @@ elif st.session_state["selected_tab"] == 1:
     
     col1, col2 = st.columns(2)
     with col1:
-        song_idea = st.text_area(T["t2_idea"], height=100)
+        render_inline_mic_helper("tab2_input")
+        song_idea = st.text_area(T["t2_idea"], height=100, key="t2_field")
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
         lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
         
@@ -477,7 +476,9 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    img_desc = st.text_input(T["t3_desc"])
+    render_inline_mic_helper("tab3_input")
+    img_desc = st.text_input(T["t3_desc"], key="t3_field")
+    
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
     
@@ -498,7 +499,9 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    a_script = st.text_area(T["t4_script"], height=100)
+    render_inline_mic_helper("tab4_input")
+    a_script = st.text_area(T["t4_script"], height=100, key="t4_field")
+    
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
     
@@ -519,7 +522,9 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    m_topic = st.text_input(T["t5_topic"])
+    render_inline_mic_helper("tab5_input")
+    m_topic = st.text_input(T["t5_topic"], key="t5_field")
+    
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
     m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
     
