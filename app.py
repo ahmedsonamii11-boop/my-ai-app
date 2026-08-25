@@ -1,5 +1,5 @@
 import streamlit as str_lit
-import requests
+import google.generativeai as genai
 import json
 import os
 from datetime import datetime
@@ -60,16 +60,6 @@ str_lit.markdown("""
         backdrop-filter: blur(10px);
     }
 
-    .metric-card {
-        background: rgba(30, 41, 59, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        padding: 25px;
-        border-radius: 18px;
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        backdrop-filter: blur(12px);
-        margin-bottom: 20px;
-    }
-    
     .enterprise-header {
         background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
         -webkit-background-clip: text;
@@ -81,6 +71,8 @@ str_lit.markdown("""
 """, unsafe_allow_html=True)
 
 API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
+if API_KEY:
+    genai.configure(api_key=API_KEY)
 
 # ==========================================
 # 2. نظام التخزين الدائم والزوار
@@ -160,12 +152,12 @@ TEXTS = {
         "d_sub": "تتيح لك هذه المنصة التحكم الكامل في جميع أذرع التسويق والإنتاج الفني بجودة تضاهي أكبر الوكالات العالمية.",
         
         "d_desc_title": "💡 ما هي منصة 'إبداع بريميوم' وكيف تحدث ثورة في عملك؟",
-        "d_desc_text": "تعتبر هذه المنصة نظاماً برمجياً متكاملاً مصمماً خصيصاً للشركات الكبرى، وكالات التسويق، وصناع المحتوى المحترفين الذين يستهدفون جودة استثنائية وعوائد استثمارية ضخمة. نحن ندمج أحدث نماذج الذكاء الاصطناعي (مثل Gemini 1.5) لنقدم لك:",
-        "d_feat_1": "🎯 **التخطيط الاستراتيجي المتقدم:** بناء نماذج العمل، دراسات جدوى، وخرائط طريق للشركات الناشئة.",
-        "d_feat_2": "🎬 **استوديو السكريبتات الفيروسية:** توليد محتوى منصات التواصل الاجتماعي (تيك توك، ريلز، يوتيوب) بنبرات صوت وخطاب دقيقة.",
-        "d_feat_3": "🎵 **الإنتاج الصوتي والموسيقي:** صياغة كلمات الأغاني والهويات الصوتية بلهجات وطابع احترافي.",
-        "d_feat_4": "🎨 **هندسة الهوية البصرية:** كتابة أوامر مخصصة لأقوى محركات الصور (Midjourney, Flux) بأبعادات وتأثيرات سينمائية.",
-        "d_feat_5": "📊 **إدارة الحملات الإعلانية:** هيكلة ميزانيات ضخمة واستستهدافات دقيقة لتحقيق أعلى معدلات تحويل (Conversions).",
+        "d_desc_text": "تعتبر هذه المنصة نظاماً برمجياً متكاملاً مصمماً خصيصاً للشركات الكبرى، وكالات التسويق، وصناع المحتوى المحترفين الذين يستهدفون جودة استثنائية وعوائد استثمارية ضخمة.",
+        "d_feat_1": "🎯 **التخطيط الاستراتيجي المتقدم**",
+        "d_feat_2": "🎬 **استوديو السكريبتات الفيروسية**",
+        "d_feat_3": "🎵 **الإنتاج الصوتي والموسيقي وكتابة الأغاني**",
+        "d_feat_4": "🎨 **هندسة الهوية البصرية**",
+        "d_feat_5": "📊 **إدارة الحملات الإعلانية**",
         
         "btn_gen": "⚡ تنفيذ عملية الإنتاج الذكي",
         "warn": "⚠️ يرجى إدخال البيانات المطلوبة أولاً!",
@@ -198,8 +190,8 @@ TEXTS = {
         "t1_target_opts": ["الجيل الناشئ (Gen Z)", "رواد الأعمال والمستثمرون", "المهنيون والموظفون", "الأسرة وربات البيوت", "المهتمون بالتكنولوجيا والتقنية"],
 
         "t2_head": "🎵 المرحلة الثالثة: استوديو الأغاني والموسيقى المتطور",
-        "t2_label": "💡 موضوع الأغنية أو الرسالة المراد توصيلها:",
-        "t2_ph": "اكتب موضوع الكلمات أو القصة...",
+        "t2_label": "💡 موضوع الأغنية أو الرسالة المراد توصيلها (اكتب فكرة الأغنية بالكامل هنا):",
+        "t2_ph": "اكتب قصة الأغنية أو المعنى المراد توصيله لكي يقوم الذكاء الاصطناعي بتأليف الكلمات والـ Prompts الخاصة بها...",
         "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
         "t2_dialect_opts": ["عامية مصرية عصرية", "فصحى فخمة", "خليجي طربي", "لبناني/شامي دافئ", "إنجليزي بوب عالمي"],
         "t2_genre": "🎼 النمط الموسيقي:",
@@ -272,12 +264,12 @@ TEXTS = {
         "d_sub": "Empowering global agencies and enterprises with state-of-the-art AI content generation workflows.",
         
         "d_desc_title": "💡 What is 'Ibda3 Enterprise' and How Does it Revolutionize Your Business?",
-        "d_desc_text": "This platform is an all-in-one software ecosystem custom-built for major corporations, marketing agencies, and professional content creators targeting exceptional quality and massive ROI. We integrate state-of-the-art AI models (like Gemini 1.5) to deliver:",
-        "d_feat_1": "🎯 **Advanced Strategic Planning:** Business model canvases, feasibility studies, and startup roadmaps.",
-        "d_feat_2": "🎬 **Viral Scripts Studio:** Social media content generation (TikTok, Reels, YouTube) with precise tonal control.",
-        "d_feat_3": "🎵 **Music & Audio Production:** Song lyrics and sonic branding crafted with professional cultural nuances.",
-        "d_feat_4": "🎨 **Visual Engineering:** Tailored prompts for top image engines (Midjourney, Flux) with cinematic framing.",
-        "d_feat_5": "📊 **Mega Ad Campaigns:** Structuring massive budgets and precise targeting for peak conversions.",
+        "d_desc_text": "This platform is an all-in-one software ecosystem custom-built for major corporations, marketing agencies, and professional content creators.",
+        "d_feat_1": "🎯 **Advanced Strategic Planning**",
+        "d_feat_2": "🎬 **Viral Scripts Studio**",
+        "d_feat_3": "🎵 **Music & Audio Production**",
+        "d_feat_4": "🎨 **Visual Engineering**",
+        "d_feat_5": "📊 **Mega Ad Campaigns**",
         
         "btn_gen": "⚡ Execute Intelligent Production",
         "warn": "⚠️ Please enter required details first!",
@@ -400,22 +392,20 @@ PLATFORM_TOOLS = {
 }
 
 # ==========================================
-# 4. محرك استدعاء الذكاء الاصطناعي المؤسسي
+# 4. محرك استدعاء الذكاء الاصطناعي (محدث وثابت)
 # ==========================================
 def call_gemini_enterprise(prompt, lang_choice):
     if not API_KEY:
         return "❌ الخطأ: مفتاح API غير موجود في إعدادات المنصة (Streamlit Secrets)."
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
-    headers = {"Content-Type": "application/json"}
-    sys_inst = f"You are an elite enterprise AI Architect for 'Ibda3 Enterprise Suite', producing world-class, exhaustive, highly professional business and creative assets. Language: {lang_choice}."
-    payload = {"contents": [{"role": "user", "parts": [{"text": sys_inst + "\n\n" + prompt}]}]}
     try:
-        r = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
-        if r.status_code == 200:
-            return r.json()["candidates"][0]["content"]["parts"][0]["text"]
-        return f"❌ خطأ في الاتصال: {r.status_code}"
+        # استخدام مكتبة google.generativeai الرسمية والمستقرة
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        sys_inst = f"You are an elite enterprise AI Architect for 'Ibda3 Enterprise Suite', producing world-class, exhaustive, highly professional business and creative assets. Language: {lang_choice}."
+        full_prompt = sys_inst + "\n\n" + prompt
+        response = model.generate_content(full_prompt)
+        return response.text
     except Exception as e:
-        return f"❌ خطأ تقني: {str(e)}"
+        return f"❌ خطأ تقني في الاتصال: {str(e)}"
 
 # ==========================================
 # 5. الشريط الجانبي وتغيير اللغة الفوري
@@ -484,12 +474,9 @@ with tabs[0]:
     with str_lit.container():
         str_lit.markdown(f"## {t['d_title']}")
         str_lit.write(t['d_sub'])
-        
         str_lit.markdown("---")
-        
         str_lit.markdown(f"### {t['d_desc_title']}")
         str_lit.write(t['d_desc_text'])
-        
         str_lit.markdown(f"""
         * {t['d_feat_1']}
         * {t['d_feat_2']}
@@ -497,12 +484,11 @@ with tabs[0]:
         * {t['d_feat_4']}
         * {t['d_feat_5']}
         """)
-    
     str_lit.markdown("---")
     col1, col2, col3 = str_lit.columns(3)
     col1.metric("العمليات الناجحة / Operations", len(str_lit.session_state["history"]), "+100%")
     col2.metric("العناصر المفضلة / Favorites", len(str_lit.session_state["favorites"]), "Secure")
-    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini 1.5 Cluster")
+    col3.metric("الذكاء الاصطناعي / AI Status", "Active", "Gemini 1.5 Flash")
 
 # ------------------------------------------
 # تبويب 1: التخطيط الاستراتيجي
@@ -561,7 +547,7 @@ with tabs[3]:
         if not str_lit.session_state["t2_v"].strip(): str_lit.warning(t["warn"])
         else:
             with str_lit.spinner(t["spin"]):
-                prompt = f"Pro Song Lyrics and Music Production Guide for: '{str_lit.session_state['t2_v']}', Dialect: {dialect}, Genre: {genre}, Vocal: {vocal}, Instruments: {inst}."
+                prompt = f"Write professional and catchy song lyrics, structure (Verse, Chorus, Bridge), and provide optimized AI music generation prompts (for Suno/Udio) based on this topic/story: '{str_lit.session_state['t2_v']}'. Dialect/Flavor: {dialect}, Genre: {genre}, Vocal style: {vocal}, Instruments: {inst}."
                 res = call_gemini_enterprise(prompt, selected_lang)
                 log_and_store("Music Studio", str_lit.session_state["t2_v"], res)
                 str_lit.success("تم بنجاح!")
@@ -638,13 +624,11 @@ if str_lit.session_state["current_result"]:
     res_box = str_lit.session_state["current_result"]
     str_lit.markdown(res_box)
     
-    # عرض دليل المواقع والمنصات المرتبطة بالخدمة تحت النتيجة مباشرة
     tools_list = str_lit.session_state.get("current_tools", [])
     if tools_list:
         str_lit.markdown("---")
         str_lit.markdown(f"### {t['tools_title']}")
         
-        # عمل جدول أو كروت منظمة للمواقع بالأسماء واللينكات وحالة الدفع
         cols = str_lit.columns(len(tools_list)) if len(tools_list) <= 4 else str_lit.columns(2)
         for i, tool_item in enumerate(tools_list):
             col_idx = i % len(cols)
