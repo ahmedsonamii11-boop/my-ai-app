@@ -69,8 +69,8 @@ API_KEY = st.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v6_history.json"
-FAV_FILE = "content_studio_ultimate_v6_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v7_history.json"
+FAV_FILE = "content_studio_ultimate_v7_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -100,9 +100,18 @@ if "selected_tab" not in st.session_state:
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
-for k in ["t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
+# تهيئة الحقول الخاصة بكل تابة لمنع فقدان البيانات عند التنقل
+default_states = {
+    "t1_val": "", "t1_dur": 0, "t1_style": 0, "t1_target": 0,
+    "t2_val": "", "t2_dialect": 0, "t2_style": 0, "t2_vocal": 0,
+    "t3_val": "", "t3_engine": 0, "t3_aspect": 0, "t3_light": 0,
+    "t4_val": "", "t4_tool": 0, "t4_cam": 0,
+    "t5_val": "", "t5_plat": 0, "t5_goal": 0
+}
+
+for k, val in default_states.items():
     if k not in st.session_state:
-        st.session_state[k] = ""
+        st.session_state[k] = val
 
 # ==========================================
 # 2. القاموس الشامل والموسّع
@@ -118,8 +127,8 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v6)",
-        "main_caption": "منظومة ذكاء اصطناعي موسعة مع خيارات تفصيلية ضخمة لكل المجالات",
+        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v7)",
+        "main_caption": "منظومة ذكاء اصطناعي موسعة مع حفظ كامل لحالة الحقول أثناء التنقل",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
@@ -129,7 +138,7 @@ TEXTS = {
             "5️⃣ 📊 استراتيجيات التسويق"
         ],
         
-        "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية (أكثر من 10 خيارات متقدمة)",
+        "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية",
         "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
         "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو املِها بالمايك...",
         "t1_dur": "⏱️ مدة الفيديو:",
@@ -154,7 +163,7 @@ TEXTS = {
         "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
         "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت بخيارات متقدمة...",
 
-        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي (10+ خيارات)",
+        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي",
         "t2_input_label": "💡 فكرة الأغنية أو موضوع الكلمات:",
         "t2_input_placeholder": "اكتب موضوع الأغنية والجو العام المطلوب...",
         "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
@@ -178,7 +187,7 @@ TEXTS = {
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
         "t2_spin": "⚡ جارٍ صياغة الكلمات والهندسة الصوتية...",
 
-        "t3_header": "🎨 مهندس برومبتات الصور (10+ محركات وأبعاد وإضاءات)",
+        "t3_header": "🎨 مهندس برومبتات الصور",
         "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
         "t3_input_placeholder": "صف تفاصيل الصورة، العناصر، والألوان بدقة...",
         "t3_engine": "🎯 محرك الذكاء الاصطناعي:",
@@ -203,7 +212,7 @@ TEXTS = {
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة أولاً!",
         "t3_spin": "⚡ جارٍ هندسة البرومبت وتجهيز المقاسات القياسية...",
 
-        "t4_header": "🗣️ محرك تحريك الفيديو والأفاتار (10+ أدوات وحركات كاميرا)",
+        "t4_header": "🗣️ محرك تحريك الفيديو والأفاتار",
         "t4_input_label": "📜 النص الإلقائي أو وصف الحركة البصرية:",
         "t4_input_placeholder": "اكتب تفاصيل حركة الكاميرا أو النص الإلقائي...",
         "t4_tool": "🤖 أداة التحريك المستهدفة:",
@@ -222,7 +231,7 @@ TEXTS = {
         "t4_warn": "⚠️ يرجى إدخال النص أو تفاصيل الحركة أولاً!",
         "t4_spin": "⚡ جارٍ إعداد سيناريو الحركة والفيديوهات...",
 
-        "t5_header": "📊 استوديو التسويق والخطط الاستراتيجية (10+ منصات وأهداف)",
+        "t5_header": "📊 استوديو التسويق والخطط الاستراتيجية",
         "t5_input_label": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
         "t5_input_placeholder": "اكتب تفاصيل المشروع أو المنتج المراد وضع خطة له...",
         "t5_plat": "📱 المنصة المستهدفة:",
@@ -257,8 +266,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v6)",
-        "main_caption": "Expanded AI suite with massive option lists across all content categories",
+        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v7)",
+        "main_caption": "Expanded AI suite with state persistence across tabs",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
@@ -268,7 +277,7 @@ TEXTS = {
             "5️⃣ 📊 Marketing Strategies"
         ],
         
-        "t1_header": "🎬 Professional Script & Viral Hooks Generator (10+ Advanced Options)",
+        "t1_header": "🎬 Professional Script & Viral Hooks Generator",
         "t1_input_label": "📽️ Video Title or Core Idea:",
         "t1_input_placeholder": "Enter video idea or use continuous mic...",
         "t1_dur": "⏱️ Estimated Duration:",
@@ -291,7 +300,7 @@ TEXTS = {
         "t1_warn": "⚠️ Please enter the video idea first!",
         "t1_spin": "⚡ Generating professional script with advanced options...",
 
-        "t2_header": "🎵 Music Production & Advanced Sound Engineering (10+ Options)",
+        "t2_header": "🎵 Music Production & Advanced Sound Engineering",
         "t2_input_label": "💡 Song Idea or Theme:",
         "t2_input_placeholder": "Enter song theme and lyrics details...",
         "t2_dialect": "🗣️ Dialect / Cultural Flavor:",
@@ -313,7 +322,7 @@ TEXTS = {
         "t2_warn": "⚠️ Please enter the song idea first!",
         "t2_spin": "⚡ Crafting lyrics and audio layout...",
 
-        "t3_header": "🎨 Pro Image Prompt Engineer (10+ Engines, Ratios & Lightings)",
+        "t3_header": "🎨 Pro Image Prompt Engineer",
         "t3_input_label": "🖼️ Describe your scene precisely:",
         "t3_input_placeholder": "Describe details, colors, and lighting...",
         "t3_engine": "🎯 AI Image Engine:",
@@ -337,7 +346,7 @@ TEXTS = {
         "t3_warn": "⚠️ Please enter image description first!",
         "t3_spin": "⚡ Engineering visual prompts & resolutions...",
 
-        "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts (10+ Tools & Cameras)",
+        "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts",
         "t4_input_label": "📜 Voiceover Text or Motion Description:",
         "t4_input_placeholder": "Enter text or camera motion details...",
         "t4_tool": "🤖 Target Animation Tool:",
@@ -355,7 +364,7 @@ TEXTS = {
         "t4_warn": "⚠️ Please enter text or motion description first!",
         "t4_spin": "⚡ Preparing advanced motion commands...",
 
-        "t5_header": "📊 Marketing Studio & Strategic Planning (10+ Platforms & Goals)",
+        "t5_header": "📊 Marketing Studio & Strategic Planning",
         "t5_input_label": "🎯 Content Topic or Product to Market:",
         "t5_input_placeholder": "Enter product details or marketing scope...",
         "t5_plat": "📱 Target Publishing Platform:",
@@ -666,11 +675,11 @@ if st.session_state["selected_tab"] == 0:
     
     col_a, col_b, col_c = st.columns(3)
     with col_a:
-        v_duration = st.selectbox(T['t1_dur'], T['t1_dur_opts'])
+        v_duration = st.selectbox(T['t1_dur'], T['t1_dur_opts'], key="t1_dur")
     with col_b:
-        v_style = st.selectbox(T['t1_style'], T['t1_style_opts'])
+        v_style = st.selectbox(T['t1_style'], T['t1_style_opts'], key="t1_style")
     with col_c:
-        v_target = st.selectbox(T['t1_target'], T['t1_target_opts'])
+        v_target = st.selectbox(T['t1_target'], T['t1_target_opts'], key="t1_target")
     
     if st.button(T['t1_btn'], type="primary", key="action_btn_1"):
         if not v_title.strip():
@@ -692,11 +701,11 @@ elif st.session_state["selected_tab"] == 1:
     
     c1, c2, c3 = st.columns(3)
     with c1:
-        lyrics_dialect = st.selectbox(T['t2_dialect'], T['t2_dialect_opts'])
+        lyrics_dialect = st.selectbox(T['t2_dialect'], T['t2_dialect_opts'], key="t2_dialect")
     with c2:
-        song_style = st.selectbox(T['t2_style'], T['t2_style_opts'])
+        song_style = st.selectbox(T['t2_style'], T['t2_style_opts'], key="t2_style")
     with c3:
-        vocal_type = st.selectbox(T['t2_vocal'], T['t2_vocal_opts'])
+        vocal_type = st.selectbox(T['t2_vocal'], T['t2_vocal_opts'], key="t2_vocal")
 
     if st.button(T['t2_btn'], type="primary", key="action_btn_2"):
         if not song_idea.strip():
@@ -718,11 +727,11 @@ elif st.session_state["selected_tab"] == 2:
     
     c1, c2, c3 = st.columns(3)
     with c1:
-        img_engine = st.selectbox(T['t3_engine'], T['t3_engine_opts'])
+        img_engine = st.selectbox(T['t3_engine'], T['t3_engine_opts'], key="t3_engine")
     with c2:
-        img_aspect = st.selectbox(T['t3_aspect'], T['t3_aspect_opts'])
+        img_aspect = st.selectbox(T['t3_aspect'], T['t3_aspect_opts'], key="t3_aspect")
     with c3:
-        img_lighting = st.selectbox(T['t3_light'], T['t3_light_opts'])
+        img_lighting = st.selectbox(T['t3_light'], T['t3_light_opts'], key="t3_light")
 
     if st.button(T['t3_btn'], type="primary", key="action_btn_3"):
         if not img_desc.strip():
@@ -744,9 +753,9 @@ elif st.session_state["selected_tab"] == 3:
     
     c1, c2 = st.columns(2)
     with c1:
-        a_ai_tool = st.selectbox(T['t4_tool'], T['t4_tool_opts'])
+        a_ai_tool = st.selectbox(T['t4_tool'], T['t4_tool_opts'], key="t4_tool")
     with c2:
-        camera_motion = st.selectbox(T['t4_cam'], T['t4_cam_opts'])
+        camera_motion = st.selectbox(T['t4_cam'], T['t4_cam_opts'], key="t4_cam")
 
     if st.button(T['t4_btn'], type="primary", key="action_btn_4"):
         if not a_script.strip():
@@ -768,12 +777,14 @@ elif st.session_state["selected_tab"] == 4:
     
     c1, c2 = st.columns(2)
     with c1:
-        m_platform = st.selectbox(T['t5_plat'], T['t5_plat_opts'])
+        m_platform = st.selectbox(T['t5_plat'], T['t5_plat_opts'], key="t5_plat")
     with c2:
-        m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'])
+        m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'], key="t5_goal")
 
     if st.button(T['t5_btn'], type="primary", key="action_btn_5"):
-        if not m_topic.strip():
+        if not m_topic.storage if hasattr(m_topic, 'storage') else not m_topic.strip(): # Fallback check
+            st.warning(T['t5_warn'])
+        elif not m_topic.strip():
             st.warning(T['t5_warn'])
         else:
             with st.spinner(T['t5_spin']):
