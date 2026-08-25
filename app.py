@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. إعدادات الصفحة والتصميم التجاري الفاخر
 # ==========================================
 str_lit.set_page_config(
-    page_title="Smart Content Studio - Ultimate Pro Suite v10",
+    page_title="Smart Content Studio - Ultimate Pro Suite v11",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -69,8 +69,8 @@ API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v10_history.json"
-FAV_FILE = "content_studio_ultimate_v10_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v11_history.json"
+FAV_FILE = "content_studio_ultimate_v11_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -97,6 +97,9 @@ if "favorites" not in str_lit.session_state:
 if "current_result" not in str_lit.session_state:
     str_lit.session_state["current_result"] = None
 
+if "last_lang" not in str_lit.session_state:
+    str_lit.session_state["last_lang"] = "العربية"
+
 # تهيئة جميع الحقول لمنع فقدان الحالة
 default_states = {
     "t1_val": "", "t1_dur": 0, "t1_style": 0, "t1_target": 0, "t1_extra": [],
@@ -111,7 +114,7 @@ for k, val in default_states.items():
         str_lit.session_state[k] = val
 
 # ==========================================
-# 2. القاموس الشامل (مدمج داخلياً بكل الإضافات الذكية)
+# 2. القاموس الشامل (عربي / إنجليزي)
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -124,8 +127,8 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري المدمج (Ultimate Pro Suite v10)",
-        "main_caption": "منظومة ذكاء اصطناعي شاملة مع المايك العائم المطور وميزات الدمج",
+        "main_title": "🎙️ استوديو المحتوى التجاري المدمج (Ultimate Pro Suite v11)",
+        "main_caption": "منظومة ذكاء اصطناعي شاملة مع دعم التبديل التام للغة والنتائج",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
@@ -273,8 +276,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Integrated Commercial Content Studio (Ultimate Pro Suite v10)",
-        "main_caption": "Expanded AI suite with floating mic and advanced integration features",
+        "main_title": "🎙️ Integrated Commercial Content Studio (Ultimate Pro Suite v11)",
+        "main_caption": "Expanded AI suite with full dynamic language switching for interface & results",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
@@ -408,7 +411,26 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة الإدخال الصوتي المتطورة (المايك العائم)
+# 3. دالة الترجمة الفورية للنتائج عند تبديل اللغة
+# ==========================================
+def translate_text(text, target_language):
+    if not API_KEY or not text:
+        return text
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
+    headers = {'Content-Type': 'application/json'}
+    target_lang_name = "Arabic" if target_language == "العربية" else "English"
+    payload = {"contents": [{"parts": [{"text": f"Translate the following professional content accurately into {target_lang_name}. Keep all markdown formatting intact:\n\n{text}"}]}]}
+    try:
+        response = requests.post(url, json=payload, headers=headers)
+        if response.status_code == 200:
+            res_data = response.json()
+            return res_data['candidates'][0]['content']['parts'][0]['text']
+    except:
+        pass
+    return text
+
+# ==========================================
+# 4. دالة الإدخال الصوتي المتطورة (المايك العائم)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder):
     val = str_lit.text_area(label, value=str_lit.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
@@ -542,16 +564,18 @@ def floating_voice_textarea(label, session_key, placeholder):
     return str_lit.session_state.get(session_key, "")
 
 # ==========================================
-# 4. دالة التنفيذ والتخزين
+# 5. دالة التنفيذ والتخزين
 # ==========================================
-def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_index=0):
+def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_index=0, lang_choice="العربية"):
     if not API_KEY:
         str_lit.error("❌ GEMINI_API_KEY is missing in Secrets!")
         return None
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
     headers = {'Content-Type': 'application/json'}
-    payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
+    
+    output_lang_instr = " Write the response in Arabic." if lang_choice == "العربية" else " Write the response in English."
+    payload = {"contents": [{"parts": [{"text": prompt_text + output_lang_instr}]}]}
 
     try:
         response = requests.post(url, json=payload, headers=headers)
@@ -584,10 +608,27 @@ def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_i
         return None
 
 # ==========================================
-# 5. القائمة الجانبية (Sidebar)
+# 6. القائمة الجانبية (Sidebar) ومعالجة تغيير اللغة
 # ==========================================
 with str_lit.sidebar:
     lang = str_lit.selectbox("🌐 Language / اللغة:", ["العربية", "English"])
+    
+    # فحص ما إذا تم تغيير اللغة لترجمة النتائج الحالية والأرشيف فوراً
+    if lang != str_lit.session_state["last_lang"]:
+        str_lit.session_state["last_lang"] = lang
+        # ترجمة النتيجة المعروضة حالياً فوراً
+        if str_lit.session_state["current_result"]:
+            with str_lit.spinner("Translating current result..."):
+                str_lit.session_state["current_result"]["result"] = translate_text(str_lit.session_state["current_result"]["result"], lang)
+        # ترجمة الأرشيف والمفضلة لتتطابق مع اللغة الجديدة
+        for hist_item in str_lit.session_state["history"]:
+            hist_item["result"] = translate_text(hist_item["result"], lang)
+        for fav_item in str_lit.session_state["favorites"]:
+            fav_item["result"] = translate_text(fav_item["result"], lang)
+        save_data(HISTORY_FILE, str_lit.session_state["history"])
+        save_data(FAV_FILE, str_lit.session_state["favorites"])
+        str_lit.rerun()
+
     T = TEXTS[lang]
     
     str_lit.title(T["sidebar_title"])
@@ -641,7 +682,7 @@ with str_lit.sidebar:
                         str_lit.rerun()
 
 # ==========================================
-# 6. الواجهة الرئيسية واستعراض التابات الخمسة المدمجة
+# 7. الواجهة الرئيسية واستعراض التابات الخمسة
 # ==========================================
 str_lit.title(T["main_title"])
 str_lit.caption(T["main_caption"])
@@ -672,7 +713,7 @@ with tabs[0]:
             with str_lit.spinner(T["t1_spin"]):
                 extras_text = ", ".join(t1_extra) if t1_extra else "None"
                 prompt = f"Act as a professional scriptwriter and content strategist. Create a comprehensive video script and viral hooks for:\nTopic: {t1_input}\nDuration: {t1_dur}\nVisual Style: {t1_style}\nTarget Audience: {t1_target}\nAlso include these requested advanced integrations: {extras_text}."
-                execute_ai_action(prompt, category_name="Scripts", user_topic=t1_input, tab_index=0)
+                execute_ai_action(prompt, category_name="Scripts", user_topic=t1_input, tab_index=0, lang_choice=lang)
 
 # --- Tab 2: استوديو الأغاني والصوت ---
 with tabs[1]:
@@ -697,7 +738,7 @@ with tabs[1]:
             with str_lit.spinner(T["t2_spin"]):
                 extras_text = ", ".join(t2_extra) if t2_extra else "None"
                 prompt = f"Act as a professional songwriter and audio producer. Write full song lyrics with structure and Suno AI tags for:\nIdea: {t2_input}\nDialect: {t2_dialect}\nGenre: {t2_style}\nVocal Style: {t2_vocal}\nAlso include: {extras_text}."
-                execute_ai_action(prompt, category_name="Music", user_topic=t2_input, tab_index=1)
+                execute_ai_action(prompt, category_name="Music", user_topic=t2_input, tab_index=1, lang_choice=lang)
 
 # --- Tab 3: تصميم الصور والبرومبتات ---
 with tabs[2]:
@@ -722,7 +763,7 @@ with tabs[2]:
             with str_lit.spinner(T["t3_spin"]):
                 extras_text = ", ".join(t3_extra) if t3_extra else "None"
                 prompt = f"Act as an expert AI prompt engineer. Create optimized image generation prompts for:\nScene: {t3_input}\nEngine: {t3_engine}\nAspect Ratio: {t3_aspect}\nLighting: {t3_light}\nAlso include: {extras_text}."
-                execute_ai_action(prompt, category_name="Image Prompts", user_topic=t3_input, tab_index=2)
+                execute_ai_action(prompt, category_name="Image Prompts", user_topic=t3_input, tab_index=2, lang_choice=lang)
 
 # --- Tab 4: تحريك الفيديو والأفاتار ---
 with tabs[3]:
@@ -745,7 +786,7 @@ with tabs[3]:
             with str_lit.spinner(T["t4_spin"]):
                 extras_text = ", ".join(t4_extra) if t4_extra else "None"
                 prompt = f"Act as a professional video motion director. Generate advanced animation and camera movement commands for:\nInput: {t4_input}\nTool: {t4_tool}\nCamera Motion: {t4_cam}\nAlso include: {extras_text}."
-                execute_ai_action(prompt, category_name="Video Motion", user_topic=t4_input, tab_index=3)
+                execute_ai_action(prompt, category_name="Video Motion", user_topic=t4_input, tab_index=3, lang_choice=lang)
 
 # --- Tab 5: استراتيجيات التسويق ---
 with tabs[4]:
@@ -770,17 +811,17 @@ with tabs[4]:
             with str_lit.spinner(T["t5_spin"]):
                 extras_text = ", ".join(t5_extra) if t5_extra else "None"
                 prompt = f"Act as a senior digital marketing strategist. Create a full growth and marketing campaign strategy for:\nProduct: {t5_input}\nPlatform: {t5_plat}\nGoal: {t5_goal}\nBudget: ${t5_budget}\nAlso include: {extras_text}."
-                execute_ai_action(prompt, category_name="Marketing", user_topic=t5_input, tab_index=4)
+                execute_ai_action(prompt, category_name="Marketing", user_topic=t5_input, tab_index=4, lang_choice=lang)
 
 # ==========================================
-# 7. عرض النتيجة الحالية (Current Result Dashboard)
+# 8. عرض النتيجة الحالية
 # ==========================================
 if str_lit.session_state["current_result"]:
     str_lit.divider()
     res = str_lit.session_state["current_result"]
     
     str_lit.subheader(T["result_label"])
-    str_lit.info(f"📌 **الموضوع:** {res['topic']} | 📂 **القسم:** {res['category']} | ⏱️ **الوقت:** {res['timestamp']}")
+    str_lit.info(f"📌 **الموضوع / Topic:** {res['topic']} | 📂 **القسم / Category:** {res['category']} | ⏱️ **الوقت:** {res['timestamp']}")
     
     str_lit.markdown(res["result"])
     
