@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. إعدادات الصفحة والتصميم التجاري الفاخر
 # ==========================================
 str_lit.set_page_config(
-    page_title="Smart Content Studio - Ultimate Pro Suite v8",
+    page_title="Smart Content Studio - Ultimate Pro Suite v9",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -69,8 +69,8 @@ API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v8_history.json"
-FAV_FILE = "content_studio_ultimate_v8_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v9_history.json"
+FAV_FILE = "content_studio_ultimate_v9_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -94,21 +94,16 @@ if "history" not in str_lit.session_state:
 if "favorites" not in str_lit.session_state:
     str_lit.session_state["favorites"] = load_data(FAV_FILE)
 
-if "selected_tab" not in str_lit.session_state:
-    str_lit.session_state["selected_tab"] = 0
-
 if "current_result" not in str_lit.session_state:
     str_lit.session_state["current_result"] = None
 
-# تهيئة الحقول الخاصة بكل تابة أساسية وإضافية لمنع فقدان البيانات
+# تهيئة جميع الحقول لمنع فقدان الحالة
 default_states = {
-    "t1_val": "", "t1_dur": 0, "t1_style": 0, "t1_target": 0,
-    "t2_val": "", "t2_dialect": 0, "t2_style": 0, "t2_vocal": 0,
-    "t3_val": "", "t3_engine": 0, "t3_aspect": 0, "t3_light": 0,
-    "t4_val": "", "t4_tool": 0, "t4_cam": 0,
-    "t5_val": "", "t5_plat": 0, "t5_goal": 0,
-    # الحقول الإضافية للـ 50 فكرة (ترجمة، تحليل عاطفي، ميزانية، إلخ)
-    "ex_trans_lang": 0, "ex_ad_budget": 1000, "ex_goal_smart": ""
+    "t1_val": "", "t1_dur": 0, "t1_style": 0, "t1_target": 0, "t1_extra": [],
+    "t2_val": "", "t2_dialect": 0, "t2_style": 0, "t2_vocal": 0, "t2_extra": [],
+    "t3_val": "", "t3_engine": 0, "t3_aspect": 0, "t3_light": 0, "t3_extra": [],
+    "t4_val": "", "t4_tool": 0, "t4_cam": 0, "t4_extra": [],
+    "t5_val": "", "t5_plat": 0, "t5_goal": 0, "t5_budget": 1000, "t5_extra": []
 }
 
 for k, val in default_states.items():
@@ -116,7 +111,7 @@ for k, val in default_states.items():
         str_lit.session_state[k] = val
 
 # ==========================================
-# 2. القاموس الشامل والموسّع (يدعم الـ 50 فكرة والأساسيات)
+# 2. القاموس الشامل (مدمج داخلياً بكل الإضافات الذكية)
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -129,18 +124,27 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v8)",
-        "main_caption": "منظومة ذكاء اصطناعي شاملة مع 50 ميزة احترافية وحفظ كامل للحالة",
+        "main_title": "🎙️ استوديو المحتوى التجاري المدمج (Ultimate Pro Suite v9)",
+        "main_caption": "منظومة ذكاء اصطناعي شاملة مع كافة الميزات مدمجة بسلاسة داخل كل قسم",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
-            "2️⃣ 🎵 استوديو الأغاني والصوت",
-            "3️⃣ 🎨 تصميم الصور والبرومبتات",
-            "4️⃣ 🗣️ تحريك الفيديو والأفاتار",
-            "5️⃣ 📊 استراتيجيات التسويق",
-            "6️⃣ 🤖 أدوات الذكاء الاصطناعي المتقدمة (الـ 50 ميزة)"
+            "2️⃣ 🎵 الأغاني والصوت",
+            "3️⃣ 🎨 تصميم الصور",
+            "4️⃣ 🗣️ تحريك الفيديو",
+            "5️⃣ 📊 استراتيجيات التسويق"
         ],
         
+        "extra_features_label": "✨ إضافات الذكاء الاصطناعي المتقدمة (اختر ما تريد دمجه في هذا الناتج):",
+        "extra_options": [
+            "توليد عناوين فيروسية جذابة (Viral Titles)",
+            "استخراج هاشتاغات تريند مخصصة (Smart Hashtags)",
+            "تحليل النبرة العاطفية ونسبة النجاح (Sentiment & Success Analysis)",
+            "اقتراح أفكار صور مصغرة CTR Thumbnails",
+            "ترجمة ملخصة لأهم النقاط للإنجليزية",
+            "إعادة صياغة ذكية لتويتر/لينكد إن"
+        ],
+
         "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية",
         "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
         "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو املِها بالمايك...",
@@ -162,9 +166,9 @@ TEXTS = {
             "العامة والمهتمين بالترفيه", "الأطفال والعائلات (Family Friendly)", "المهتمون بالتطوير الذاتي والمالي", 
             "عشاق الألعاب والـ Gaming", "المهتمون بالصحة والرياضة والفتنس", "المستثمرون وأصحاب رأس المال", "صناع المحتوى والمؤثرون"
         ],
-        "t1_btn": "🔥 توليد السكريبت والخطافات الاحترافية",
+        "t1_btn": "🔥 توليد السكريبت والإضافات الذكية",
         "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت بخيارات متقدمة...",
+        "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت الشامل...",
 
         "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي",
         "t2_input_label": "💡 فكرة الأغنية أو موضوع الكلمات:",
@@ -186,7 +190,7 @@ TEXTS = {
             "صوت روبوتي مدمج أوتوتيون (Auto-Tune / Robotic)", "جوقة جماعية حماسية (Choir/Harmonies)", "صوت أطفال نقي وبریء", 
             "أداء راب سريع وحاد (Fast Rap Delivery)", "همس درامي عاطفي (Whisper Vocal)", "صوت إلكتروني مجهول (Voiceless/Vocoder)", "أداء طربي أصيل بعرب صوته قوية"
         ],
-        "t2_btn": "✨ توليد الكلمات وتجهيز قالب الأغنية",
+        "t2_btn": "✨ توليد الكلمات وتجهيز القالب الصوتي",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
         "t2_spin": "⚡ جارٍ صياغة الكلمات والهندسة الصوتية...",
 
@@ -249,36 +253,15 @@ TEXTS = {
             "جذب زيارات للموقع أو القناة (Traffic Generation)", "جمع ليدز وتسجيلات عملاء (Lead Generation)", "إطلاق منتج جديد في السوق (Product Launch)", 
             "إعادة استهداف العملاء القدامى (Retargeting)", "تحسين السمعة وبناء الثقة (Trust & PR)", "زيادة تحميل التطبيقات (App Installs)", "بناء مجتمع ولاء دائم (Community Loyalty)"
         ],
-        "t5_btn": "🚀 تنفيذ الخطة الاستراتيجية",
+        "t5_budget": "💰 الميزانية التقريبية المقترحة ($):",
+        "t5_btn": "🚀 تنفيذ الخطة الاستراتيجية والإعلانية",
         "t5_warn": "⚠️ يرجى إدخال تفاصيل المنتج أو المحتوى أولاً!",
-        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الاستراتيجية التسويقية...",
-
-        # ميزات الـ 50 فكرة (التاب السادسة المضافة لتطبيق الأفكار بكفاءة عالية)
-        "t6_header": "🤖 مركز الذكاء الاصطناعي المتقدم (تنفيذ الـ 50 ميزة)",
-        "t6_desc": "هنا يمكنك تطبيق أحدث ميزات الذكاء الاصطناعي المتقدمة (الترجمة متعددة اللغات، تحليل النبرة العاطفية، حاسبة ميزانية الإعلانات، توليد الأهداف الذكية، وغيرها الكثير) بضغطة زر واحدة!",
-        "t6_input_label": "📝 النص أو الفكرة المراد معالجتها بالذكاء الاصطناعي:",
-        "t6_input_placeholder": "اكتب النص أو فكرة المشروع لتطبيق الأدوات المتقدمة...",
-        "t6_features_label": "⚙️ اختر الأداة المتقدمة للتنفيذ:",
-        "t6_feature_opts": [
-            "1. ترجمة فورية متعددة اللغات (Multi-language Auto-Translate)",
-            "2. تحليل النبرة العاطفية ونسبة النجاح (Sentiment & Success Analysis)",
-            "3. توليد هاشتاغات تريند مخصصة (Smart Hashtag Engine)",
-            "4. اقتراح صور مصغرة عالية الضغط CTR Thumbnails",
-            "5. آلة العناوين الفيروسية الجذابة (Viral Titles Machine)",
-            "6. إعادة صياغة المحتوى لـ LinkedIn & Twitter",
-            "7. تدقيق نحوي وإملائي ذكي",
-            "8. حاسبة ميزانية الإعلانات و ROAS",
-            "9. بناء نموذج الشخصية المستهدفة Persona Builder",
-            "10. تخطيط التقويم الأسبوعي للمحتوى (Content Calendar)"
-        ],
-        "t6_btn": "⚡ تنفيذ الأداة الذكية المختارة",
-        "t6_warn": "⚠️ يرجى إدخال النص المراد معالجته أولاً!",
+        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الخطة التسويقية...",
 
         "result_label": "🚀 النتيجة الاحترافية المنفذة:",
         "copy_btn": "📋 نسخ النص للحافظة",
         "download_txt": "📥 تحميل كملف نصي (.txt)",
-        "rating_label": "⭐ تقييم النتيجة:",
-        "stats_res": "📊 إحصائيات الناتج:"
+        "rating_label": "⭐ تقييم النتيجة:"
     },
     "English": {
         "sidebar_title": "⚡ Commercial Control Panel",
@@ -290,18 +273,27 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v8)",
-        "main_caption": "Expanded AI suite with 50 pro features and state persistence",
+        "main_title": "🎙️ Integrated Commercial Content Studio (Ultimate Pro Suite v9)",
+        "main_caption": "Expanded AI suite with advanced features seamlessly integrated into each section",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
             "2️⃣ 🎵 Suno Music Studio",
             "3️⃣ 🎨 Pro Image Prompts",
             "4️⃣ 🗣️ Video & Avatar Motion",
-            "5️⃣ 📊 Marketing Strategies",
-            "6️⃣ 🤖 Advanced AI Suite (50 Features)"
+            "5️⃣ 📊 Marketing Strategies"
         ],
         
+        "extra_features_label": "✨ Advanced AI Add-ons (Select elements to include in output):",
+        "extra_options": [
+            "Viral Catchy Titles",
+            "Smart Trend Hashtags",
+            "Sentiment & Success Analysis",
+            "CTR Thumbnail Ideas",
+            "English Executive Summary",
+            "LinkedIn / Twitter Repurposing"
+        ],
+
         "t1_header": "🎬 Professional Script & Viral Hooks Generator",
         "t1_input_label": "📽️ Video Title or Core Idea:",
         "t1_input_placeholder": "Enter video idea or use continuous mic...",
@@ -321,7 +313,7 @@ TEXTS = {
             "Gen Z & Youth", "Entrepreneurs & Professionals", "Techies & Coders", "General Entertainment", 
             "Family & Kids Friendly", "Self-Improvement & Finance Seekers", "Gamers & Esports", "Health & Fitness Enthusiasts", "Investors & Capital Owners", "Content Creators & Influencers"
         ],
-        "t1_btn": "🔥 Generate Script & Hooks",
+        "t1_btn": "🔥 Generate Script & Smart Add-ons",
         "t1_warn": "⚠️ Please enter the video idea first!",
         "t1_spin": "⚡ Generating professional script with advanced options...",
 
@@ -343,7 +335,7 @@ TEXTS = {
             "Deep Baritone Male", "Energetic Tenor", "Warm Female Soprano", "Auto-Tune / Robotic", 
             "Group Choir / Harmonies", "Pure Kids Vocals", "Fast Sharp Rap Delivery", "Emotional Whisper", "Vocoder / Electronic Voice", "Traditional Tarab Vocal"
         ],
-        "t2_btn": "✨ Generate Full Song & Layout",
+        "t2_btn": "✨ Generate Full Song & Sound Layout",
         "t2_warn": "⚠️ Please enter the song idea first!",
         "t2_spin": "⚡ Crafting lyrics and audio layout...",
 
@@ -403,40 +395,20 @@ TEXTS = {
             "Sales Conversion", "Brand Awareness", "Engagement & Shares", "Traffic Generation", 
             "Lead Generation", "Product Launch", "Retargeting", "Trust & PR Improvement", "App Installs", "Community Loyalty"
         ],
-        "t5_btn": "🚀 Execute Strategic Marketing Plan",
+        "t5_budget": "💰 Estimated Ad Budget ($):",
+        "t5_btn": "🚀 Execute Strategic Plan",
         "t5_warn": "⚠️ Please enter content topic first!",
-        "t5_spin": "⚡ Analyzing market strategy and hashtags...",
-
-        "t6_header": "🤖 Advanced AI Suite (50 Features Implementation)",
-        "t6_desc": "Apply advanced AI tools (Multi-language translation, sentiment analysis, ad budget calculators, smart goals, etc.) with a single click!",
-        "t6_input_label": "📝 Text or Idea for Advanced AI Processing:",
-        "t6_input_placeholder": "Enter text or project idea to process...",
-        "t6_features_label": "⚙️ Choose Advanced Tool:",
-        "t6_feature_opts": [
-            "1. Multi-language Auto-Translate",
-            "2. Sentiment & Success Analysis",
-            "3. Smart Hashtag Engine",
-            "4. CTR Thumbnails Ideas Generator",
-            "5. Viral Titles Machine",
-            "6. LinkedIn & Twitter Content Repurposing",
-            "7. Grammar & Spelling Checker",
-            "8. Ad Budget & ROAS Calculator",
-            "9. Persona Builder",
-            "10. Weekly Content Calendar"
-        ],
-        "t6_btn": "⚡ Execute Smart AI Tool",
-        "t6_warn": "⚠️ Please enter text to process first!",
+        "t5_spin": "⚡ Analyzing market strategy and campaign...",
 
         "result_label": "🚀 Professional Execution Result:",
         "copy_btn": "📋 Copy to Clipboard",
         "download_txt": "📥 Download as Text (.txt)",
-        "rating_label": "⭐ Rate Result:",
-        "stats_res": "📊 Output Statistics:"
+        "rating_label": "⭐ Rate Result:"
     }
 }
 
 # ==========================================
-# 3. دالة الإدخال الصوتي المتطورة (لجميع حقول النص)
+# 3. دالة الإدخال الصوتي المتطورة
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder):
     val = str_lit.text_area(label, value=str_lit.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
@@ -570,7 +542,7 @@ def floating_voice_textarea(label, session_key, placeholder):
     return str_lit.session_state.get(session_key, "")
 
 # ==========================================
-# 4. دالة تنفيذ وتخزين العمليات الفورية
+# 4. دالة التنفيذ والتخزين
 # ==========================================
 def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_index=0):
     if not API_KEY:
@@ -660,7 +632,6 @@ with str_lit.sidebar:
             with c1:
                 if str_lit.button(f"📌 {item['topic'][:18]}", key=f"hist_{item['id']}"):
                     str_lit.session_state["current_result"] = item
-                    str_lit.session_state["selected_tab"] = item.get("tab_index", 0)
                     str_lit.rerun()
             with c2:
                 if str_lit.button("⭐", key=f"fav_{item['id']}"):
@@ -670,7 +641,7 @@ with str_lit.sidebar:
                         str_lit.rerun()
 
 # ==========================================
-# 6. الواجهة الرئيسية واستعراض التابات
+# 6. الواجهة الرئيسية واستعراض التابات الخمسة المدمجة
 # ==========================================
 str_lit.title(T["main_title"])
 str_lit.caption(T["main_caption"])
@@ -691,12 +662,16 @@ with tabs[0]:
     with col3:
         t1_target = str_lit.selectbox(T["t1_target"], T["t1_target_opts"], key="t1_target")
         
+    str_lit.write("")
+    t1_extra = str_lit.multiselect(T["extra_features_label"], T["extra_options"], key="t1_extra")
+        
     if str_lit.button(T["t1_btn"], key="btn_t1"):
         if not t1_input.strip():
             str_lit.warning(T["t1_warn"])
         else:
             with str_lit.spinner(T["t1_spin"]):
-                prompt = f"Act as a professional scriptwriter and content strategist. Create a comprehensive, engaging video script and viral hooks for the following idea:\nTopic: {t1_input}\nDuration: {t1_dur}\nVisual Style: {t1_style}\nTarget Audience: {t1_target}\nProvide viral hooks, scene-by-scene breakdown, and call to action."
+                extras_text = ", ".join(t1_extra) if t1_extra else "None"
+                prompt = f"Act as a professional scriptwriter and content strategist. Create a comprehensive video script and viral hooks for:\nTopic: {t1_input}\nDuration: {t1_dur}\nVisual Style: {t1_style}\nTarget Audience: {t1_target}\nAlso include these requested advanced integrations: {extras_text}."
                 execute_ai_action(prompt, category_name="Scripts", user_topic=t1_input, tab_index=0)
 
 # --- Tab 2: استوديو الأغاني والصوت ---
@@ -712,12 +687,16 @@ with tabs[1]:
     with col3:
         t2_vocal = str_lit.selectbox(T["t2_vocal"], T["t2_vocal_opts"], key="t2_vocal")
         
+    str_lit.write("")
+    t2_extra = str_lit.multiselect(T["extra_features_label"], T["extra_options"], key="t2_extra")
+        
     if str_lit.button(T["t2_btn"], key="btn_t2"):
         if not t2_input.strip():
             str_lit.warning(T["t2_warn"])
         else:
             with str_lit.spinner(T["t2_spin"]):
-                prompt = f"Act as a professional songwriter and audio producer. Write full song lyrics with structure (Verse, Chorus, Bridge) and Suno AI tags for:\nIdea: {t2_input}\nDialect: {t2_dialect}\nGenre: {t2_style}\nVocal Style: {t2_vocal}"
+                extras_text = ", ".join(t2_extra) if t2_extra else "None"
+                prompt = f"Act as a professional songwriter and audio producer. Write full song lyrics with structure and Suno AI tags for:\nIdea: {t2_input}\nDialect: {t2_dialect}\nGenre: {t2_style}\nVocal Style: {t2_vocal}\nAlso include: {extras_text}."
                 execute_ai_action(prompt, category_name="Music", user_topic=t2_input, tab_index=1)
 
 # --- Tab 3: تصميم الصور والبرومبتات ---
@@ -733,12 +712,16 @@ with tabs[2]:
     with col3:
         t3_light = str_lit.selectbox(T["t3_light"], T["t3_light_opts"], key="t3_light")
         
+    str_lit.write("")
+    t3_extra = str_lit.multiselect(T["extra_features_label"], T["extra_options"], key="t3_extra")
+        
     if str_lit.button(T["t3_btn"], key="btn_t3"):
         if not t3_input.strip():
             str_lit.warning(T["t3_warn"])
         else:
             with str_lit.spinner(T["t3_spin"]):
-                prompt = f"Act as an expert AI prompt engineer. Create optimized image generation prompts (English and Arabic) for:\nScene: {t3_input}\nEngine: {t3_engine}\nAspect Ratio: {t3_aspect}\nLighting: {t3_light}"
+                extras_text = ", ".join(t3_extra) if t3_extra else "None"
+                prompt = f"Act as an expert AI prompt engineer. Create optimized image generation prompts for:\nScene: {t3_input}\nEngine: {t3_engine}\nAspect Ratio: {t3_aspect}\nLighting: {t3_light}\nAlso include: {extras_text}."
                 execute_ai_action(prompt, category_name="Image Prompts", user_topic=t3_input, tab_index=2)
 
 # --- Tab 4: تحريك الفيديو والأفاتار ---
@@ -752,12 +735,16 @@ with tabs[3]:
     with col2:
         t4_cam = str_lit.selectbox(T["t4_cam"], T["t4_cam_opts"], key="t4_cam")
         
+    str_lit.write("")
+    t4_extra = str_lit.multiselect(T["extra_features_label"], T["extra_options"], key="t4_extra")
+        
     if str_lit.button(T["t4_btn"], key="btn_t4"):
         if not t4_input.strip():
             str_lit.warning(T["t4_warn"])
         else:
             with str_lit.spinner(T["t4_spin"]):
-                prompt = f"Act as a professional video motion director. Generate advanced animation and camera movement commands for:\nInput: {t4_input}\nTool: {t4_tool}\nCamera Motion: {t4_cam}"
+                extras_text = ", ".join(t4_extra) if t4_extra else "None"
+                prompt = f"Act as a professional video motion director. Generate advanced animation and camera movement commands for:\nInput: {t4_input}\nTool: {t4_tool}\nCamera Motion: {t4_cam}\nAlso include: {extras_text}."
                 execute_ai_action(prompt, category_name="Video Motion", user_topic=t4_input, tab_index=3)
 
 # --- Tab 5: استراتيجيات التسويق ---
@@ -765,35 +752,25 @@ with tabs[4]:
     str_lit.header(T["t5_header"])
     t5_input = floating_voice_textarea(T["t5_input_label"], "t5_val", T["t5_input_placeholder"])
     
-    col1, col2 = str_lit.columns(2)
+    col1, col2, col3 = str_lit.columns(3)
     with col1:
         t5_plat = str_lit.selectbox(T["t5_plat"], T["t5_plat_opts"], key="t5_plat")
     with col2:
         t5_goal = str_lit.selectbox(T["t5_goal"], T["t5_goal_opts"], key="t5_goal")
+    with col3:
+        t5_budget = str_lit.number_input(T["t5_budget"], min_value=50, max_value=500000, value=1000, step=50, key="t5_budget")
+        
+    str_lit.write("")
+    t5_extra = str_lit.multiselect(T["extra_features_label"], T["extra_options"], key="t5_extra")
         
     if str_lit.button(T["t5_btn"], key="btn_t5"):
         if not t5_input.strip():
             str_lit.warning(T["t5_warn"])
         else:
             with str_lit.spinner(T["t5_spin"]):
-                prompt = f"Act as a senior digital marketing strategist. Create a full growth and marketing campaign strategy for:\nProduct/Content: {t5_input}\nPlatform: {t5_plat}\nGoal: {t5_goal}\nInclude targeting, content pillars, and viral tactics."
+                extras_text = ", ".join(t5_extra) if t5_extra else "None"
+                prompt = f"Act as a senior digital marketing strategist. Create a full growth and marketing campaign strategy for:\nProduct: {t5_input}\nPlatform: {t5_plat}\nGoal: {t5_goal}\nBudget: ${t5_budget}\nAlso include: {extras_text}."
                 execute_ai_action(prompt, category_name="Marketing", user_topic=t5_input, tab_index=4)
-
-# --- Tab 6: أدوات الذكاء الاصطناعي المتقدمة (تطبيق الـ 50 ميزة) ---
-with tabs[5]:
-    str_lit.header(T["t6_header"])
-    str_lit.write(T["t6_desc"])
-    
-    t6_input = floating_voice_textarea(T["t6_input_label"], "t6_val", T["t6_input_placeholder"])
-    t6_feature = str_lit.selectbox(T["t6_features_label"], T["t6_feature_opts"], key="t6_feat_sel")
-    
-    if str_lit.button(T["t6_btn"], key="btn_t6"):
-        if not t6_input.strip():
-            str_lit.warning(T["t6_warn"])
-        else:
-            with str_lit.spinner("⚡ تنفيذ الأداة المتقدمة بالذكاء الاصطناعي..."):
-                prompt = f"Act as an advanced AI assistant executing professional tools. Apply the selected tool [{t6_feature}] on the following input:\nInput: {t6_input}\nProvide professional, precise, and ready-to-use results."
-                execute_ai_action(prompt, category_name="Advanced AI Suite", user_topic=t6_input, tab_index=5)
 
 # ==========================================
 # 7. عرض النتيجة الحالية (Current Result Dashboard)
