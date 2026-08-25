@@ -71,7 +71,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية مع شريط التحدث الصوتي الذكي والموجات الحية",
+        "main_caption": "المنظومة الاحترافية مع شريط التحدث الصوتي المتزامن",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -143,7 +143,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with advanced voice input & live waves",
+        "main_caption": "Professional system with synchronized voice input",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -206,9 +206,9 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. مكون شريط الصوت الذكي مع الموجات وزرار الإيقاف
+# 3. مكون شريط الصوت المدمج بالخانة السفلية
 # ==========================================
-def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك أو اضغط المايك وتحدث..."):
+def gemini_voice_box(label_text, session_key, placeholder="اكتب فكرتك أو اضغط المايك وتحدث..."):
     st.markdown(f"<label style='font-weight:600; color:#e2e8f0; font-size:1rem; margin-bottom: 8px; display:block;'>{label_text}</label>", unsafe_allow_html=True)
     
     current_val = st.session_state.get(session_key, "")
@@ -224,45 +224,56 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
                 background-color: transparent;
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }}
-            .gemini-container {{
+            .gemini-box-container {{
                 display: flex;
                 flex-direction: column;
-                gap: 8px;
-            }}
-            .gemini-bar {{
-                display: flex;
-                align-items: center;
                 background-color: #1e1f22;
                 border: 2px solid #444746;
-                border-radius: 35px;
-                padding: 10px 20px;
-                gap: 15px;
+                border-radius: 16px;
+                padding: 12px 16px;
+                gap: 10px;
                 box-shadow: 0 4px 15px rgba(0,0,0,0.4);
                 transition: border-color 0.3s;
             }}
-            .gemini-bar:focus-within {{
+            .gemini-box-container:focus-within {{
                 border-color: #8ab4f8;
             }}
-            .gemini-input {{
+            .gemini-textarea {{
                 background: transparent;
                 border: none;
                 color: #e3e3e3;
                 width: 100%;
                 outline: none;
                 font-size: 1.05rem;
+                resize: vertical;
+                min-height: 60px;
+                font-family: inherit;
+            }}
+            .toolbar {{
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                border-top: 1px solid #333538;
+                padding-top: 8px;
+            }}
+            .tools-left, .tools-right {{
+                display: flex;
+                align-items: center;
+                gap: 10px;
             }}
             .icon-btn {{
                 background: transparent;
                 border: none;
                 color: #c4c7c5;
                 cursor: pointer;
-                font-size: 1.3rem;
+                font-size: 1.2rem;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                padding: 8px;
-                border-radius: 50%;
+                padding: 6px 12px;
+                border-radius: 20px;
                 transition: background 0.2s, color 0.2s;
+                gap: 6px;
             }}
             .icon-btn:hover {{
                 background: rgba(255, 255, 255, 0.12);
@@ -274,20 +285,27 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
             .stop-btn {{
                 color: #ea4335;
                 display: none;
+                background: rgba(234, 67, 53, 0.15);
             }}
             .send-btn {{
-                color: #8ab4f8;
+                background: #8ab4f8;
+                color: #1e1f22;
+                font-weight: bold;
+                border-radius: 20px;
+                padding: 6px 16px;
             }}
-            /* تصميم الموجات الصوتية */
+            .send-btn:hover {{
+                background: #aecbfa;
+            }}
             .waveform {{
                 display: none;
                 align-items: center;
-                gap: 4px;
-                height: 20px;
-                padding: 0 10px;
+                gap: 3px;
+                height: 18px;
+                padding: 0 8px;
             }}
             .wave-bar {{
-                width: 4px;
+                width: 3px;
                 background-color: #ea4335;
                 border-radius: 2px;
                 animation: waveAnim 1s infinite ease-in-out;
@@ -298,40 +316,44 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
             .wave-bar:nth-child(5) {{ animation-delay: 0.3s; }}
 
             @keyframes waveAnim {{
-                0%, 100% {{ height: 5px; }}
-                50% {{ height: 20px; }}
+                0%, 100% {{ height: 4px; }}
+                50% {{ height: 18px; }}
             }}
         </style>
     </head>
     <body>
-        <div class="gemini-container">
-            <div class="gemini-bar">
-                <!-- زر بدء التسجيل بالمايك -->
-                <button type="button" class="icon-btn mic-btn" id="micBtn" title="تحدث بصوتك" onclick="startRecording()">
-                    🎤
-                </button>
-                
-                <!-- زر إيقاف التسجيل -->
-                <button type="button" class="icon-btn stop-btn" id="stopBtn" title="إيقاف التسجيل" onclick="stopRecording()">
-                    ⏹️
-                </button>
+        <div class="gemini-box-container">
+            <!-- خانة الكتابة الكبيرة الحقيقية -->
+            <textarea class="gemini-textarea" id="mainTextArea" placeholder="{placeholder}" oninput="syncVal(this.value)">{current_val}</textarea>
+            
+            <div class="toolbar">
+                <div class="tools-left">
+                    <!-- زر المايك -->
+                    <button type="button" class="icon-btn mic-btn" id="micBtn" onclick="startRecording()">
+                        🎤 <span>تحدث بصوتك</span>
+                    </button>
+                    
+                    <!-- زر الإيقاف -->
+                    <button type="button" class="icon-btn stop-btn" id="stopBtn" onclick="stopRecording()">
+                        ⏹️ <span>إيقاف المايك</span>
+                    </button>
 
-                <!-- موجات الصوت التفاعلية -->
-                <div class="waveform" id="waveContainer">
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
-                    <div class="wave-bar"></div>
+                    <!-- الموجات الصوتية -->
+                    <div class="waveform" id="waveContainer">
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                        <div class="wave-bar"></div>
+                    </div>
                 </div>
-                
-                <!-- خانة إدخال النص الأساسية -->
-                <input type="text" class="gemini-input" id="textInput" value="{current_val}" placeholder="{placeholder}" oninput="sendVal(this.value)" />
-                
-                <!-- زر إرسال النتيجة -->
-                <button type="button" class="icon-btn send-btn" title="إرسال الفكرة" onclick="triggerAction()">
-                    ➔
-                </button>
+
+                <div class="tools-right">
+                    <!-- زر الإرسال السريع -->
+                    <button type="button" class="icon-btn send-btn" onclick="triggerAction()">
+                        إرسال ➔
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -339,18 +361,19 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
         let recognition = null;
         let isRecording = false;
 
-        function sendVal(val) {{
-            const hiddenBox = window.parent.document.querySelector('input[data-baseweb="input"][aria-label*="{session_key}"]') || 
+        function syncVal(val) {{
+            const hiddenBox = window.parent.document.querySelector('textarea[data-baseweb="textarea"][aria-label*="{session_key}"]') || 
                               window.parent.document.getElementById('hidden_{session_key}');
             if (hiddenBox) {{
                 hiddenBox.value = val;
                 hiddenBox.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                hiddenBox.dispatchEvent(new Event('change', {{ bubbles: true }}));
             }}
         }}
 
         function startRecording() {{
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
+                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام متصفح Google Chrome.");
                 return;
             }}
             
@@ -358,19 +381,19 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
             recognition = new SpeechRecognition();
             recognition.lang = 'ar-EG';
             recognition.interimResults = true;
-            recognition.continuous = true; // استمرار التسجيل حتى الضغط على إيقاف
+            recognition.continuous = true;
             
             const micBtn = document.getElementById('micBtn');
             const stopBtn = document.getElementById('stopBtn');
             const waveContainer = document.getElementById('waveContainer');
-            const textInput = document.getElementById('textInput');
+            const mainTextArea = document.getElementById('mainTextArea');
             
             recognition.onstart = function() {{
                 isRecording = true;
                 micBtn.style.display = 'none';
                 stopBtn.style.display = 'flex';
                 waveContainer.style.display = 'flex';
-                textInput.placeholder = "جاري الاستماع... تحدث براحتك 🎙️";
+                mainTextArea.placeholder = "جاري الاستماع... تحدث براحتك 🎙️";
             }};
             
             recognition.onresult = function(event) {{
@@ -379,8 +402,8 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
                     transcript += event.results[i][0].transcript;
                 }}
                 if (transcript.trim() !== '') {{
-                    textInput.value = textInput.value + ' ' + transcript;
-                    sendVal(textInput.value);
+                    mainTextArea.value = mainTextArea.value + ' ' + transcript;
+                    syncVal(mainTextArea.value);
                 }}
             }};
             
@@ -406,12 +429,12 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
             const micBtn = document.getElementById('micBtn');
             const stopBtn = document.getElementById('stopBtn');
             const waveContainer = document.getElementById('waveContainer');
-            const textInput = document.getElementById('textInput');
+            const mainTextArea = document.getElementById('mainTextArea');
             
             micBtn.style.display = 'flex';
             stopBtn.style.display = 'none';
             waveContainer.style.display = 'none';
-            textInput.placeholder = "{placeholder}";
+            mainTextArea.placeholder = "{placeholder}";
         }}
 
         function triggerAction() {{
@@ -428,9 +451,9 @@ def gemini_voice_bar(label_text, session_key, placeholder="اكتب فكرتك �
     </body>
     </html>
     """
-    components.html(html_code, height=90)
+    components.html(html_code, height=130)
     
-    hidden_val = st.text_input("", value=current_val, key=f"hidden_{session_key}", label_visibility="collapsed")
+    hidden_val = st.text_area("", value=current_val, key=f"hidden_{session_key}", label_visibility="collapsed")
     if hidden_val != current_val:
         st.session_state[session_key] = hidden_val
     return st.session_state[session_key]
@@ -591,15 +614,15 @@ def render_result_section(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    # مكان شريط الإدخال تحت العنوان مباشرة وبمكان خانة الكتابة القديمة
-    v_title = gemini_voice_bar(T['t1_input'], "t1_input_val", "اكتب أو اضغط المايك وتحدث براحتك...")
+    # خانة الإدخال الصوتية والتحريرية في المكان الأساسي تحت العنوان مباشرة
+    v_title = gemini_voice_box(T['t1_input'], "t1_input_val", "اكتب أو اضغط على 'تحدث بصوتك' ليسجل كلامك هنا مباشرة...")
     
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
     v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
     v_hook_enabled = st.checkbox(T["t1_hook"], value=True)
     
     if st.button(T["t1_btn"], type="primary", key="btn_s1"):
-        if not v_title:
+        if not v_title.strip():
             st.warning(T["t1_warn"])
         else:
             with st.spinner(T["t1_spin"]):
@@ -617,7 +640,7 @@ elif st.session_state["selected_tab"] == 1:
     
     col1, col2 = st.columns(2)
     with col1:
-        song_idea = gemini_voice_bar(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث بالمايك...")
+        song_idea = gemini_voice_box(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث بالمايك هنا...")
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
         lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
         
@@ -628,7 +651,7 @@ elif st.session_state["selected_tab"] == 1:
         song_mood = st.select_slider(T["t2_mood"], options=["حزين", "درامي", "متوازن", "حماسي", "صاخب"])
 
     if st.button(T["t2_btn"], type="primary", key="btn_s2"):
-        if not song_idea:
+        if not song_idea.strip():
             st.warning(T["t2_warn"])
         else:
             with st.spinner(T["t2_spin"]):
@@ -644,13 +667,13 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    img_desc = gemini_voice_bar(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم المايك...")
+    img_desc = gemini_voice_box(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم زر المايك...")
     
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
     
     if st.button(T["t3_btn"], type="primary", key="btn_s3"):
-        if not img_desc:
+        if not img_desc.strip():
             st.warning(T["t3_warn"])
         else:
             with st.spinner(T["t3_spin"]):
@@ -666,13 +689,13 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    a_script = gemini_voice_bar(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك...")
+    a_script = gemini_voice_box(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث عبر المايك هنا...")
     
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
     
     if st.button(T["t4_btn"], type="primary", key="btn_s4"):
-        if not a_script:
+        if not a_script.strip():
             st.warning(T["t4_warn"])
         else:
             with st.spinner(T["t4_spin"]):
@@ -688,13 +711,13 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    m_topic = gemini_voice_bar(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
+    m_topic = gemini_voice_box(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
     
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
     m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
     
     if st.button(T["t5_btn"], type="primary", key="btn_s5"):
-        if not m_topic:
+        if not m_topic.strip():
             st.warning(T["t5_warn"])
         else:
             with st.spinner(T["t5_spin"]):
