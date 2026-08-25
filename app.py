@@ -29,12 +29,11 @@ st.markdown("""
         backdrop-filter: blur(10px);
     }
 
-    /* كروت العمل الرئيسية لتكون بارزة ومختلفة عن الخلفية */
     div.block-container {
         padding-top: 2rem;
     }
 
-    /* تحسين الأزرار الرئيسية (Call to Action) بلون نيون جذاب جداً */
+    /* تحسين الأزرار الرئيسية */
     .stButton>button {
         border-radius: 12px;
         font-weight: 700;
@@ -51,7 +50,7 @@ st.markdown("""
         box-shadow: 0 6px 25px rgba(129, 140, 248, 0.6);
     }
 
-    /* حقول الإدخال والـ Textarea بشكل تجاري أنيق وفخم */
+    /* حقول الإدخال */
     .stTextArea textarea, .stTextInput input, .stSelectbox select {
         border-radius: 12px !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -65,14 +64,6 @@ st.markdown("""
         box-shadow: 0 0 15px rgba(99, 102, 241, 0.3) !important;
     }
 
-    /* تحسين شكل الـ Radio Tabs لتصبح أزرار تنقل عصرية */
-    .stRadio [data-baseweb="radio"] {
-        background-color: rgba(30, 41, 59, 0.5);
-        border-radius: 10px;
-        padding: 5px;
-    }
-
-    /* العناوين الكبرى */
     h1, h2, h3 {
         color: #ffffff;
         font-family: 'Segoe UI', sans-serif;
@@ -86,8 +77,8 @@ API_KEY = st.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v4_history.json"
-FAV_FILE = "content_studio_ultimate_v4_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v5_history.json"
+FAV_FILE = "content_studio_ultimate_v5_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -122,7 +113,7 @@ for k in ["t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
         st.session_state[k] = ""
 
 # ==========================================
-# 2. القاموس الشامل للغتين (Arabic & English)
+# 2. القاموس الشامل والموسّع بـ 10+ عناصر لكل قائمة
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -135,8 +126,8 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite)",
-        "main_caption": "منظومة ذكاء اصطناعي متكاملة ومترجمة بالكامل لإدارة وإنتاج المحتوى الاحترافي",
+        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v5)",
+        "main_caption": "منظومة ذكاء اصطناعي موسعة مع خيارات تفصيلية ضخمة لكل المجالات",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
@@ -147,82 +138,213 @@ TEXTS = {
         ],
         
         # Tab 1
-        "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية مع خطافات فيرال",
+        "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية (أكثر من 10 خيارات متقدمة)",
         "t1_input_label": "📽️ عنوان أو فكرة الفيديو الأساسية:",
         "t1_input_placeholder": "اكتب فكرة الفيديو بالتفصيل أو املِها بالمايك...",
         "t1_dur": "⏱️ مدة الفيديو:",
-        "t1_dur_opts": ["15 ثانية (Shorts/Reels)", "30 ثانية", "60 ثانية (TikTok/Reels)", "3 دقائق (YouTube Standard)", "10+ دقائق (Documentary/Long)"],
-        "t1_style": "🎨 النمط البصري:",
-        "t1_style_opts": ["سينمائي واقعي (Cinematic)", "وثائقي تشويقي (Documentary)", "كوميدي ساخر (Sarcastic/Comedy)", "تعليمي تفاعلي (Educational)", "حماسي تحفيزي (Motivational)"],
+        "t1_dur_opts": [
+            "10 ثوانٍ (Ultra Short)", 
+            "15 ثانية (Shorts/Reels)", 
+            "30 ثانية (Standard Promo)", 
+            "60 ثانية (TikTok/Reels Full)", 
+            "90 ثانية (Deep Hook)", 
+            "3 دقائق (YouTube Standard)", 
+            "5 دقائق (Mini Documentary)", 
+            "10 دقائق (Full Tutorial)", 
+            "15+ دقيقة (Masterclass)", 
+            "حلقة بودكاست كاملة (30+ دقيقة)"
+        ],
+        "t1_style": "🎨 النمط البصري والأسلوب:",
+        "t1_style_opts": [
+            "سينمائي واقعي (Cinematic)", 
+            "وثائقي تشويقي (Documentary)", 
+            "كوميدي ساخر (Sarcastic/Comedy)", 
+            "تعليمي تفاعلي (Educational)", 
+            "حماسي تحفيزي (Motivational)", 
+            "غامض ومثير للفضول (Mystery/Suspense)", 
+            "قصصي سردي درامي (Storytelling)", 
+            "تقني وموضوعي (Tech/Professional)", 
+            "مباشر وعفوي (Vlog Style)", 
+            "تسويقي مبيعات مباشر (Direct Response Sales)"
+        ],
         "t1_target": "🎯 الجمهور المستهدف:",
-        "t1_target_opts": ["الشباب والمراهقين (Gen Z)", "رواد الأعمال والمهنيين", "العامة والمهتمين بالترفيه", "الأطفال والعائلات"],
+        "t1_target_opts": [
+            "الشباب والمراهقين (Gen Z)", 
+            "رواد الأعمال والمهنيين (Entrepreneurs)", 
+            "المبرمجون وعشاق التقنية (Techies)", 
+            "العامة والمهتمين بالترفيه", 
+            "الأطفال والعائلات (Family Friendly)", 
+            "المهتمون بالتطوير الذاتي والمالي", 
+            "عشاق الألعاب والـ Gaming", 
+            "المهتمون بالصحة والرياضة والفتنس", 
+            "المستثمرون وأصحاب رأس المال", 
+            "صناع المحتوى والمؤثرون"
+        ],
         "t1_btn": "🔥 توليد السكريبت والخطافات الاحترافية",
         "t1_warn": "⚠️ يرجى إدخال فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت بواسطة الذكاء الاصطناعي...",
+        "t1_spin": "⚡ جارٍ معالجة وتوليد السكريبت بخيارات متقدمة...",
 
         # Tab 2
-        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي",
+        "t2_header": "🎵 صناعة الأغاني، الهندسة الصوتية ومكتبة القوافي (10+ خيارات)",
         "t2_input_label": "💡 فكرة الأغنية أو موضوع الكلمات:",
         "t2_input_placeholder": "اكتب موضوع الأغنية والجو العام المطلوب...",
         "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
-        "t2_dialect_opts": ["عامية مصرية عصرية", "فصحى بلاغية", "خليجي طربي", "مغربي / شمال إفريقي", "إنجليزي غربي (English)"],
+        "t2_dialect_opts": [
+            "عامية مصرية عصرية", 
+            "فصحى بلاغية فصيحة", 
+            "خليجي طربي أصيل", 
+            "مغربي / شمال إفريقي سريع", 
+            "لبناني / شامي ناعم", 
+            "عراقي رومانسي حزين", 
+            "خليجي بوب حديث", 
+            "إنجليزي أمريكي (US Pop)", 
+            "إنجليزي بريطاني (UK Rap)", 
+            "مزيج عربي إنجليزي (Arabic/English Fusion)"
+        ],
         "t2_style": "🎼 النمط الموسيقي:",
-        "t2_style_opts": ["مهرجانات / شعبي سريع (Mahraganat)", "راب / هيب هوب أندرجراوند (Rap/Hip-Hop)", "بوب عربي رومانسي (Pop)", "أكوستيك هادئ جيتار (Acoustic)", "إي دي إم إلكتروني راقص (EDM/Dance)", "لوفي تشิล هادئ (Lo-Fi Beats)"],
+        "t2_style_opts": [
+            "مهرجانات / شعبي سريع (Mahraganat)", 
+            "راب / هيب هوب أندرجراوند (Rap/Hip-Hop)", 
+            "بوب عربي رومانسي (Pop)", 
+            "أكوستيك هادئ جيتار (Acoustic)", 
+            "إي دي إم إلكتروني راقص (EDM/Dance)", 
+            "لوفي تشิล هادئ (Lo-Fi Beats)", 
+            "تكنو / ترانس حماسي (Techno/Trance)", 
+            "روك كلاسيكي قوي (Rock)", 
+            "جاز كافيه هادئ (Jazz)", 
+            "أوبرا / كلاسيكيات أوركسترالية (Orchestral)"
+        ],
         "t2_vocal": "🎙️ أداء صوت المغني:",
-        "t2_vocal_opts": ["صوت رجالي قوي وعميق (Deep Baritone)", "صوت شبابي حماسي ومرن (Energetic Tenor)", "صوت نسائي ناعم ودافئ (Warm Soprano)", "صوت روبوتي مدمج أوتوتيون (Auto-Tune / Robotic)", "جوقة جماعية حماسية (Choir/Harmonies)"],
+        "t2_vocal_opts": [
+            "صوت رجالي قوي وعميق (Deep Baritone)", 
+            "صوت شبابي حماسي ومرن (Energetic Tenor)", 
+            "صوت نسائي ناعم ودافئ (Warm Soprano)", 
+            "صوت روبوتي مدمج أوتوتيون (Auto-Tune / Robotic)", 
+            "جوقة جماعية حماسية (Choir/Harmonies)", 
+            "صوت أطفال نقي وبریء", 
+            "أداء راب سريع وحاد (Fast Rap Delivery)", 
+            "همس درامي عاطفي (Whisper Vocal)", 
+            "صوت إلكتروني مجهول (Voiceless/Vocoder)", 
+            "أداء طربي أصيل بعرب صوته قوية"
+        ],
         "t2_btn": "✨ توليد الكلمات وتجهيز قالب الأغنية",
         "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
         "t2_spin": "⚡ جارٍ صياغة الكلمات والهندسة الصوتية...",
 
         # Tab 3
-        "t3_header": "🎨 مهندس برومبتات الصور مع تحديد المقاسات والمنصات",
+        "t3_header": "🎨 مهندس برومبتات الصور (10+ محركات وأبعاد وإضاءات)",
         "t3_input_label": "🖼️ وصف المشهد المراد تصميمه بدقة:",
         "t3_input_placeholder": "صف تفاصيل الصورة، العناصر، والألوان بدقة...",
         "t3_engine": "🎯 محرك الذكاء الاصطناعي:",
-        "t3_engine_opts": ["Midjourney v6 (أعلى جودة وسينمائية)", "Flux.1 (واقعية مذهلة وتفاصيل دقيقة)", "DALL-E 3 (فهم عميق للنصوص)", "Stable Diffusion XL (تحكم حر كامل)"],
+        "t3_engine_opts": [
+            "Midjourney v6 (أعلى جودة وسينمائية)", 
+            "Flux.1 (واقعية مذهلة وتفاصيل دقيقة)", 
+            "DALL-E 3 (فهم عميق للنصوص)", 
+            "Stable Diffusion XL (تحكم حر كامل)", 
+            "Adobe Firefly v3 (تصميم تجاري احترافي)", 
+            "Leonardo AI (إضاءات وفنتازيا)", 
+            "Ideogram 2.0 (أفضل دمج للنصوص داخل الصور)", 
+            "BlueWillow (تنوع وسرعة)", 
+            "Kandinsky 3.0 (فنون تشكيلية ورسوم)", 
+            "DeepAI Classic (ستايل فني قديم)"
+        ],
         "t3_aspect": "📐 الأبعاد والمنصة المستهدفة:",
         "t3_aspect_opts": [
-            "9:16 (مناسب لـ TikTok / YouTube Shorts / Instagram Reels)", 
-            "16:9 (مناسب لـ YouTube Videos / Desktop Wallpaper)", 
-            "1:1 (مناسب لـ Instagram / Facebook Post)", 
-            "4:5 (مناسب لـ Portrait Feed / IG Carousel)", 
-            "21:9 (مناسب لـ Ultra-Wide Cinematic Banners)"
+            "9:16 (TikTok / YouTube Shorts / Reels)", 
+            "16:9 (YouTube Videos / Desktop)", 
+            "1:1 (Instagram / Facebook Post)", 
+            "4:5 (Portrait Feed / Carousel)", 
+            "21:9 (Ultra-Wide Cinematic Banner)", 
+            "3:2 (Photography Standard)", 
+            "2:3 (Pinterest Pin)", 
+            "4:3 (Classic TV / Presentation)", 
+            "5:4 (Art Print)", 
+            "مخصص احترافي (Custom Pro Grid)"
         ],
         "t3_light": "💡 نمط الإضاءة:",
         "t3_light_opts": [
-            "إضاءة استوديو سينمائية (Cinematic Studio Lighting)", 
-            "إضاءة نيون سايبربانك (Cyberpunk Neon Glow)", 
-            "إضاءة شمس طبيعية ساحرة (Golden Hour Natural)", 
-            "مظلم درامي غامض (Dark Moody Atmosphere)", 
-            "ألوان زاهية نابضة بالحياة (Vibrant & Pop Art)"
+            "إضاءة استوديو سينمائية (Cinematic Studio)", 
+            "إضاءة نيون سايبربانك (Cyberpunk Neon)", 
+            "إضاءة شمس طبيعية ساحرة (Golden Hour)", 
+            "مظلم درامي غامض (Dark Moody)", 
+            "ألوان زاهية نابضة بالحياة (Vibrant Pop)", 
+            "إضاءة ليلية مقمرة (Moonlight Glow)", 
+            "إضاءة حجرية متحفية (Museum Spotlight)", 
+            "إضاءة ريترو قديمة (Retro Vintage)", 
+            "إضاءة بيضاء ناصعة ساطعة (High Key Bright)", 
+            "إضاءة فخمة داكنة (Dark Luxury)"
         ],
         "t3_btn": "🎨 توليد الأوامر البرمجية للصور",
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة أولاً!",
         "t3_spin": "⚡ جارٍ هندسة البرومبت وتجهيز المقاسات القياسية...",
 
         # Tab 4
-        "t4_header": "🗣️ محرك تحريك الفيديو، الأفاتار والـ Motion Prompts",
+        "t4_header": "🗣️ محرك تحريك الفيديو والأفاتار (10+ أدوات وحركات كاميرا)",
         "t4_input_label": "📜 النص الإلقائي أو وصف الحركة البصرية:",
         "t4_input_placeholder": "اكتب تفاصيل حركة الكاميرا أو النص الإلقائي...",
         "t4_tool": "🤖 أداة التحريك المستهدفة:",
-        "t4_tool_opts": ["Runway Gen-3 (حركة سينمائية واقعية)", "Luma Dream Machine (حركات ديناميكية سريعة)", "HeyGen Avatar (أفاتار ناطق احترافي)", "Pika Labs (تأثيرات بصرية وموشن جرافيك)"],
+        "t4_tool_opts": [
+            "Runway Gen-3 Alpha (سينمائية واقعية)", 
+            "Luma Dream Machine (حركات ديناميكية)", 
+            "HeyGen Avatar (أفاتار ناطق احترافي)", 
+            "Pika Labs 2.0 (تأثيرات بصرية وموشن)", 
+            "Sora OpenAI (واقعية مطلقة)", 
+            "Kling AI (حركات فيزيائية معقدة)", 
+            "Minimax Video (تحريك سلس وسريع)", 
+            "Stable Video Diffusion (SVD)", 
+            "AnimateDiff (رسوم متحركة متقدمة)", 
+            "D-ID Studio (محادثات وجوه ناطقة)"
+        ],
         "t4_cam": "🎥 حركة الكاميرا:",
-        "t4_cam_opts": ["زوم إن بطيء (Slow Zoom In)", "حركة بانورامية جانبية (Pan Right/Left)", "تتبع الحركة (Dynamic Tracking Shot)", "لقطة ثابتة مع تفاصيل حية (Static with Ambient Motion)"],
+        "t4_cam_opts": [
+            "زوم إن بطيء (Slow Zoom In)", 
+            "زوم أوت درامي (Dramatic Zoom Out)", 
+            "حركة بانورامية يميناً ويساراً (Pan Right/Left)", 
+            "تتبع الحركة الديناميكي (Dynamic Tracking)", 
+            "لقطة ثابتة مع تفاصيل حية (Static Ambient)", 
+            "دوران 360 درجة حول العنصر (Orbit 360)", 
+            "حركة طائرة درونز علوية (Drone FPV Flyover)", 
+            "اهتزاز خفيف يدوي (Handheld Cam Shake)", 
+            "انتقال سريع فجائي (Fast Whip Pan)", 
+            "هبوط تدريجي للأرض (Crane Down)"
+        ],
         "t4_btn": "⚡ توليد أوامر التحريك",
         "t4_warn": "⚠️ يرجى إدخال النص أو تفاصيل الحركة أولاً!",
-        "t4_spin": "⚡ جارٍ إعداد سيناريو الحركة...",
+        "t4_spin": "⚡ جارٍ إعداد سيناريو الحركة والفيديوهات...",
 
         # Tab 5
-        "t5_header": "📊 استوديو التسويق ووضع الخطط الاستراتيجية",
+        "t5_header": "📊 استوديو التسويق والخطط الاستراتيجية (10+ منصات وأهداف)",
         "t5_input_label": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
         "t5_input_placeholder": "اكتب تفاصيل المشروع أو المنتج المراد وضع خطة له...",
         "t5_plat": "📱 المنصة المستهدفة:",
-        "t5_plat_opts": ["TikTok (تريندات وفيديوهات قصيرة سريعة)", "Instagram Reels & Stories (بناء براند وبصريات)", "YouTube Shorts & Long (محتوى تعليمي وترفيهي متكامل)", "LinkedIn (تسويق احترافي وبزنس)", "Facebook Community (تفاعل جماهيري واسع)"],
+        "t5_plat_opts": [
+            "TikTok (تريندات وفيديوهات قصيرة)", 
+            "Instagram Reels & Stories (براند وبصريات)", 
+            "YouTube Shorts & Long (تعليمي وترفيهي)", 
+            "LinkedIn (تسويق احترافي وبزنس B2B)", 
+            "Facebook Community (تفاعل جماهيري واسع)", 
+            "X / Twitter (حملات تويتات ونقاشات)", 
+            "Snapchat Spotlight (إعلانات جيل صاعد)", 
+            "Pinterest Boards (أفكار وتسوق بصري)", 
+            "WhatsApp Business (رسائل تسويقية مباشرة)", 
+            "Podcast Networks (منصات البودكاست الصوتية)"
+        ],
         "t5_goal": "🎯 هدف الحملة:",
-        "t5_goal_opts": ["زيادة المبيعات والتحويلات (Sales Conversion)", "بناء الوعي بالعلامة التجارية (Brand Awareness)", "زيادة التفاعل والمشاركات (Engagement & Shares)", "جذب زيارات للموقع أو القناة (Traffic Generation)"],
+        "t5_goal_opts": [
+            "زيادة المبيعات والتحويلات (Sales Conversion)", 
+            "بناء الوعي بالعلامة التجارية (Brand Awareness)", 
+            "زيادة التفاعل والمشاركات (Engagement & Shares)", 
+            "جذب زيارات للموقع أو القناة (Traffic Generation)", 
+            "جمع ليدز وتسجيلات عملاء (Lead Generation)", 
+            "إطلاق منتج جديد في السوق (Product Launch)", 
+            "إعادة استهداف العملاء القدامى (Retargeting)", 
+            "تحسين السمعة وبناء الثقة (Trust & PR)", 
+            "زيادة تحميل التطبيقات (App Installs)", 
+            "بناء مجتمع ولاء دائم (Community Loyalty)"
+        ],
         "t5_btn": "🚀 تنفيذ الخطة الاستراتيجية",
         "t5_warn": "⚠️ يرجى إدخال تفاصيل المنتج أو المحتوى أولاً!",
-        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الاستراتيجية...",
+        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الاستراتيجية التسويقية...",
 
         # General Result UI
         "result_label": "🚀 النتيجة الاحترافية المنفذة:",
@@ -241,8 +363,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite)",
-        "main_caption": "Fully localized professional AI suite for enterprise content creation and management",
+        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v5)",
+        "main_caption": "Expanded AI suite with massive option lists across all content categories",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
@@ -253,46 +375,128 @@ TEXTS = {
         ],
         
         # Tab 1
-        "t1_header": "🎬 Professional Script & Viral Hooks Generator",
+        "t1_header": "🎬 Professional Script & Viral Hooks Generator (10+ Advanced Options)",
         "t1_input_label": "📽️ Video Title or Core Idea:",
         "t1_input_placeholder": "Enter video idea or use continuous mic...",
         "t1_dur": "⏱️ Estimated Duration:",
-        "t1_dur_opts": ["15 Seconds (Shorts/Reels)", "30 Seconds", "60 Seconds (TikTok/Reels)", "3 Minutes (YouTube Standard)", "10+ Minutes (Documentary/Long)"],
-        "t1_style": "🎨 Visual Style:",
-        "t1_style_opts": ["Cinematic Realism", "Documentary & Suspense", "Sarcastic / Comedy", "Educational & Interactive", "Motivational & High-Energy"],
+        "t1_dur_opts": [
+            "10 Seconds (Ultra Short)", 
+            "15 Seconds (Shorts/Reels)", 
+            "30 Seconds (Standard Promo)", 
+            "60 Seconds (TikTok/Reels Full)", 
+            "90 Seconds (Deep Hook)", 
+            "3 Minutes (YouTube Standard)", 
+            "5 Minutes (Mini Documentary)", 
+            "10 Minutes (Full Tutorial)", 
+            "15+ Minutes (Masterclass)", 
+            "Full Podcast Episode (30+ Min)"
+        ],
+        "t1_style": "🎨 Visual Style & Tone:",
+        "t1_style_opts": [
+            "Cinematic Realism", 
+            "Documentary & Suspense", 
+            "Sarcastic / Comedy", 
+            "Educational & Interactive", 
+            "Motivational & High-Energy", 
+            "Mystery & Curiosity", 
+            "Storytelling & Drama", 
+            "Tech & Professional", 
+            "Vlog Style", 
+            "Direct Response Sales"
+        ],
         "t1_target": "🎯 Target Audience:",
-        "t1_target_opts": ["Gen Z & Youth", "Entrepreneurs & Professionals", "General Entertainment", "Families & Kids"],
+        "t1_target_opts": [
+            "Gen Z & Youth", 
+            "Entrepreneurs & Professionals", 
+            "Techies & Coders", 
+            "General Entertainment", 
+            "Family & Kids Friendly", 
+            "Self-Improvement & Finance Seekers", 
+            "Gamers & Esports", 
+            "Health & Fitness Enthusiasts", 
+            "Investors & Capital Owners", 
+            "Content Creators & Influencers"
+        ],
         "t1_btn": "🔥 Generate Script & Hooks",
         "t1_warn": "⚠️ Please enter the video idea first!",
-        "t1_spin": "⚡ Generating professional script & hooks...",
+        "t1_spin": "⚡ Generating professional script with advanced options...",
 
         # Tab 2
-        "t2_header": "🎵 Music Production & Advanced Sound Engineering",
+        "t2_header": "🎵 Music Production & Advanced Sound Engineering (10+ Options)",
         "t2_input_label": "💡 Song Idea or Theme:",
         "t2_input_placeholder": "Enter song theme and lyrics details...",
         "t2_dialect": "🗣️ Dialect / Cultural Flavor:",
-        "t2_dialect_opts": ["Modern Egyptian Slang", "Classical Arabic (Fusha)", "Khaleeji Traditional", "North African / Moroccan", "Western English"],
+        "t2_dialect_opts": [
+            "Modern Egyptian Slang", 
+            "Classical Arabic (Fusha)", 
+            "Khaleeji Traditional", 
+            "North African / Fast Moroccan", 
+            "Lebanese / Levantine Smooth", 
+            "Iraqi Sad Romantic", 
+            "Modern Khaleeji Pop", 
+            "US Pop English", 
+            "UK Rap English", 
+            "Arabic/English Fusion"
+        ],
         "t2_style": "🎼 Music Genre:",
-        "t2_style_opts": ["Fast Mahraganat / Street", "Underground Rap / Hip-Hop", "Romantic Arabic Pop", "Acoustic Guitar", "EDM / Dance", "Lo-Fi Beats"],
+        "t2_style_opts": [
+            "Fast Mahraganat / Street", 
+            "Underground Rap / Hip-Hop", 
+            "Romantic Arabic Pop", 
+            "Acoustic Guitar", 
+            "EDM / Dance", 
+            "Lo-Fi Beats", 
+            "Techno / Trance", 
+            "Classic Rock", 
+            "Cafe Jazz", 
+            "Orchestral Opera"
+        ],
         "t2_vocal": "🎙️ Vocal Performance:",
-        "t2_vocal_opts": ["Deep Baritone Male", "Energetic Tenor", "Warm Female Soprano", "Auto-Tune / Robotic", "Group Choir / Harmonies"],
+        "t2_vocal_opts": [
+            "Deep Baritone Male", 
+            "Energetic Tenor", 
+            "Warm Female Soprano", 
+            "Auto-Tune / Robotic", 
+            "Group Choir / Harmonies", 
+            "Pure Kids Vocals", 
+            "Fast Sharp Rap Delivery", 
+            "Emotional Whisper", 
+            "Vocoder / Electronic Voice", 
+            "Traditional Tarab Vocal"
+        ],
         "t2_btn": "✨ Generate Full Song & Layout",
         "t2_warn": "⚠️ Please enter the song idea first!",
         "t2_spin": "⚡ Crafting lyrics and audio layout...",
 
         # Tab 3
-        "t3_header": "🎨 Pro Image Prompt Engineer & Platform Resolution",
+        "t3_header": "🎨 Pro Image Prompt Engineer (10+ Engines, Ratios & Lightings)",
         "t3_input_label": "🖼️ Describe your scene precisely:",
         "t3_input_placeholder": "Describe details, colors, and lighting...",
         "t3_engine": "🎯 AI Image Engine:",
-        "t3_engine_opts": ["Midjourney v6 (Highest Cinematic Quality)", "Flux.1 (Stunning Realism & Details)", "DALL-E 3 (Deep Prompt Understanding)", "Stable Diffusion XL (Full Control)"],
+        "t3_engine_opts": [
+            "Midjourney v6 (Highest Cinematic Quality)", 
+            "Flux.1 (Stunning Realism & Details)", 
+            "DALL-E 3 (Deep Prompt Understanding)", 
+            "Stable Diffusion XL (Full Control)", 
+            "Adobe Firefly v3 (Commercial Pro)", 
+            "Leonardo AI (Lighting & Fantasy)", 
+            "Ideogram 2.0 (Best Text Integration)", 
+            "BlueWillow (Variety & Speed)", 
+            "Kandinsky 3.0 (Artistic & Painting)", 
+            "DeepAI Classic"
+        ],
         "t3_aspect": "📐 Platform Resolution & Aspect Ratio:",
         "t3_aspect_opts": [
-            "9:16 (Best for TikTok / YouTube Shorts / Instagram Reels)", 
-            "16:9 (Best for YouTube Videos / Desktop Wallpaper)", 
-            "1:1 (Best for Instagram / Facebook Post)", 
-            "4:5 (Best for Portrait Feed / IG Carousel)", 
-            "21:9 (Best for Ultra-Wide Cinematic Banners)"
+            "9:16 (TikTok / YouTube Shorts / Reels)", 
+            "16:9 (YouTube Videos / Desktop)", 
+            "1:1 (Instagram / Facebook Post)", 
+            "4:5 (Portrait Feed / Carousel)", 
+            "21:9 (Ultra-Wide Cinematic Banner)", 
+            "3:2 (Photography Standard)", 
+            "2:3 (Pinterest Pin)", 
+            "4:3 (Classic TV / Presentation)", 
+            "5:4 (Art Print)", 
+            "Custom Pro Grid"
         ],
         "t3_light": "💡 Lighting Style:",
         "t3_light_opts": [
@@ -300,42 +504,84 @@ TEXTS = {
             "Cyberpunk Neon Glow", 
             "Golden Hour Natural Sunlight", 
             "Dark Moody Atmosphere", 
-            "Vibrant & Pop Art"
+            "Vibrant & Pop Art", 
+            "Moonlight Glow", 
+            "Museum Spotlight", 
+            "Retro Vintage", 
+            "High Key Bright", 
+            "Dark Luxury"
         ],
         "t3_btn": "🎨 Generate Pro Image Prompts",
         "t3_warn": "⚠️ Please enter image description first!",
         "t3_spin": "⚡ Engineering visual prompts & resolutions...",
 
         # Tab 4
-        "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts",
+        "t4_header": "🗣️ Video Engine, Avatar & Motion Prompts (10+ Tools & Cameras)",
         "t4_input_label": "📜 Voiceover Text or Motion Description:",
         "t4_input_placeholder": "Enter text or camera motion details...",
         "t4_tool": "🤖 Target Animation Tool:",
-        "t4_tool_opts": ["Runway Gen-3 (Cinematic Motion)", "Luma Dream Machine (Dynamic Motion)", "HeyGen Avatar (Speaking Professional Avatar)", "Pika Labs (VFX & Motion Graphics)"],
+        "t4_tool_opts": [
+            "Runway Gen-3 Alpha (Realistic Cinematic)", 
+            "Luma Dream Machine (Dynamic Motion)", 
+            "HeyGen Avatar (Professional Speaker)", 
+            "Pika Labs 2.0 (VFX & Motion Graphics)", 
+            "Sora OpenAI (Absolute Realism)", 
+            "Kling AI (Complex Physics)", 
+            "Minimax Video (Smooth & Fast)", 
+            "Stable Video Diffusion (SVD)", 
+            "AnimateDiff (Advanced Animation)", 
+            "D-ID Studio (Talking Faces)"
+        ],
         "t4_cam": "🎥 Camera Movement:",
-        "t4_cam_opts": ["Slow Zoom In", "Pan Right/Left", "Dynamic Tracking Shot", "Static with Ambient Motion"],
+        "t4_cam_opts": [
+            "Slow Zoom In", 
+            "Dramatic Zoom Out", 
+            "Pan Right/Left", 
+            "Dynamic Tracking Shot", 
+            "Static with Ambient Motion", 
+            "Orbit 360 Degree", 
+            "Drone FPV Flyover", 
+            "Handheld Cam Shake", 
+            "Fast Whip Pan", 
+            "Crane Down"
+        ],
         "t4_btn": "⚡ Generate Motion Prompts",
         "t4_warn": "⚠️ Please enter text or motion description first!",
         "t4_spin": "⚡ Preparing advanced motion commands...",
 
         # Tab 5
-        "t5_header": "📊 Marketing Studio & Strategic Planning",
+        "t5_header": "📊 Marketing Studio & Strategic Planning (10+ Platforms & Goals)",
         "t5_input_label": "🎯 Content Topic or Product to Market:",
         "t5_input_placeholder": "Enter product details or marketing scope...",
         "t5_plat": "📱 Target Publishing Platform:",
-        "t5_plat_opts": ["TikTok (Trends & Short Videos)", "Instagram Reels & Stories (Brand Building)", "YouTube Shorts & Long (Educational & Entertainment)", "LinkedIn (Professional Business)", "Facebook Community (Mass Audience Engagement)"],
+        "t5_plat_opts": [
+            "TikTok (Trends & Short Videos)", 
+            "Instagram Reels & Stories (Brand Building)", 
+            "YouTube Shorts & Long (Educational & Ent.)", 
+            "LinkedIn (Professional B2B)", 
+            "Facebook Community (Mass Audience)", 
+            "X / Twitter (Discussions & Threads)", 
+            "Snapchat Spotlight", 
+            "Pinterest Boards (Visual Commerce)", 
+            "WhatsApp Business (Direct Messaging)", 
+            "Podcast Networks"
+        ],
         "t5_goal": "🎯 Campaign Goal:",
-        "t5_goal_opts": ["Sales Conversion", "Brand Awareness", "Engagement & Shares", "Traffic Generation"],
+        "t5_goal_opts": [
+            "Sales Conversion", 
+            "Brand Awareness", 
+            "Engagement & Shares", 
+            "Traffic Generation", 
+            "Lead Generation", 
+            "Product Launch", 
+            "Retargeting", 
+            "Trust & PR Improvement", 
+            "App Installs", 
+            "Community Loyalty"
+        ],
         "t5_btn": "🚀 Execute Strategic Marketing Plan",
         "t5_warn": "⚠️ Please enter content topic first!",
-        "t5_spin": "⚡ Analyzing market strategy and hashtags...",
-
-        # General Result UI
-        "result_label": "🚀 Executed Professional Result:",
-        "copy_btn": "📋 Copy Text",
-        "download_txt": "📥 Download (.txt)",
-        "rating_label": "⭐ Rate Result:",
-        "stats_res": "📊 Output Stats:"
+        "t5_spin": "⚡ Analyzing market strategy and hashtags..."
     }
 }
 
