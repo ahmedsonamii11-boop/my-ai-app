@@ -5,27 +5,19 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم الاحترافي (Suno / AI Style)
+# 1. إعدادات الصفحة والتصميم الاحترافي (Pro Dark Suite)
 # ==========================================
 st.set_page_config(
-    page_title="استوديو المحتوى الذكي - Pro Edition",
+    page_title="استوديو المحتوى الذكي - Ultimate Pro",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# تخصيص الـ CSS العام ليطابق المنصات الاحترافية
 st.markdown("""
 <style>
-    /* تحسين الخطوط والخلفيات العامة */
-    .main {
-        background-color: #0e1117;
-    }
-    /* تصميم الـ Cards الاحترافية */
-    .stApp {
-        color: #e0e0e0;
-    }
-    /* تنسيق الأزرار العصرية */
+    .main { background-color: #0e1117; }
+    .stApp { color: #e0e0e0; }
     .stButton>button {
         border-radius: 12px;
         font-weight: 600;
@@ -36,14 +28,12 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(138, 180, 248, 0.3);
     }
-    /* تحسين مظهر حقول الإدخال */
-    .stTextArea textarea, .stTextInput input {
+    .stTextArea textarea, .stTextInput input, .stSelectbox select {
         border-radius: 10px !important;
         border: 1px solid #30363d !important;
         background-color: #161b22 !important;
         color: #c9d1d9 !important;
     }
-    /* تفاصيل الـ Sidebar */
     [data-testid="stSidebar"] {
         background-color: #111418;
         border-right: 1px solid #21262d;
@@ -56,8 +46,8 @@ API_KEY = st.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_float_history_v2.json"
-FAV_FILE = "content_studio_float_favorites_v2.json"
+HISTORY_FILE = "content_studio_ultimate_history.json"
+FAV_FILE = "content_studio_ultimate_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -105,54 +95,16 @@ TEXTS = {
         "clear_history": "🗑️ مسح السجل بالكامل",
         "stats_title": "📊 لوحة الإحصائيات",
         "stat_total": "إجمالي الأعمال المُنجزة:",
-        "main_title": "🎙️ استوديو المحتوى الذكي (Pro Suite)",
-        "main_caption": "منظومة إبداعية متكاملة بالذكاء الاصطناعي مع تحكم صوتي كامل وحفظ فوري",
+        "main_title": "🎙️ استوديو المحتوى الذكي (Ultimate Pro Suite)",
+        "main_caption": "منظومة إبداعية احترافية موسعة بالكامل مع تحكم صوتي متطور وخيارات غير محدودة",
         
         "tabs": [
-            "1️⃣ 💡 فكرة وسكريبت والخطافات",
-            "2️⃣ 🎵 أستديو الأغاني والصوت",
-            "3️⃣ 🎨 مهندس الصور الاحترافي",
-            "4️⃣ 🗣️ تحريك الفيديو والأفاتار",
-            "5️⃣ 📊 التسويق والتريندات"
+            "1️⃣ 💡 الفكرة والسكريبت والخطافات",
+            "2️⃣ 🎵 أستديو الأغاني والصوت الاحترافي",
+            "3️⃣ 🎨 مهندس الصور والريزوليوشن القياسي",
+            "4️⃣ 🗣️ تحريك الفيديو والأفاتار المتقدم",
+            "5️⃣ 📊 التسويق وخطط المحتوى الاستراتيجية"
         ],
-        
-        "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية:",
-        "t1_dur": "⏱️ مدة الفيديو التقديرية:",
-        "t1_style": "🎨 النمط البصري:",
-        "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
-        "t1_warn": "⚠️ يرجى إدخال عنوان أو فكرة الفيديو أولاً!",
-        "t1_spin": "⚡ جارٍ توليد السكريبت وحفظه تلقائياً...",
-
-        "t2_title": "🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي",
-        "t2_idea": "💡 فكرة الأغنية أو الموضوع الرئيسي:",
-        "t2_dialect": "🗣️ اللهجة أو الطابع الثقافي:",
-        "t2_style": "🎼 النمط الموسيقي:",
-        "t2_btn": "✨ تنفيذ وتوليد الأغنية الكاملة والقوافي",
-        "t2_warn": "⚠️ يرجى إدخال فكرة الأغنية أولاً!",
-        "t2_spin": "⚡ جارٍ صياغة الكلمات وحفظها...",
-
-        "t3_title": "🎨 مهندس برومبتات الصور الاحترافية",
-        "t3_desc": "🖼️ وصف الصورة الخيالية بدقة:",
-        "t3_engine": "🎯 محرك الذكاء الاصطناعي للصور:",
-        "t3_aspect": "📐 أبعاد ومقاسات الصورة:",
-        "t3_btn": "🎨 تنفيذ وتوليد برومبتات الصور",
-        "t3_warn": "⚠️ يرجى إدخال وصف الصورة المطلوب!",
-        "t3_spin": "⚡ جارٍ هندسة الأوامر البصرية...",
-
-        "t4_title": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور لحركة",
-        "t4_script": "📜 النص الإلقائي أو أوامر الحركة الأساسية:",
-        "t4_tool": "🤖 أداة التحريك والأفاتار المستهدفة:",
-        "t4_btn": "⚡ تنفيذ برومبتات التحريك",
-        "t4_warn": "⚠️ يرجى إدخال النص أولاً!",
-        "t4_spin": "⚡ جارٍ إعداد أوامر الـ Animation...",
-
-        "t5_title": "📊 استوديو التسويق، خطط المحتوى، والتريندات",
-        "t5_topic": "🎯 موضوع المحتوى أو المنتج المراد تسويقه:",
-        "t5_platform": "📱 المنصة المستهدفة للنشر:",
-        "t5_btn": "🚀 تنفيذ الخطة التسويقية والتريند",
-        "t5_warn": "⚠️ يرجى إدخال موضوع المحتوى!",
-        "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الهاشتاجات...",
         
         "result_label": "🚀 النتيجة الفورية المنجزة:",
         "copy_btn": "📋 نسخ النص للحافظة",
@@ -169,54 +121,16 @@ TEXTS = {
         "clear_history": "🗑️ Clear History",
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Executions:",
-        "main_title": "🎙️ Smart Content Studio (Pro Suite)",
-        "main_caption": "Professional AI system with voice control & persistent auto-save",
+        "main_title": "🎙️ Smart Content Studio (Ultimate Pro Suite)",
+        "main_caption": "Expanded professional AI suite with voice control & rich custom options",
         
         "tabs": [
-            "1️⃣ 💡 Idea, Script & Hooks",
-            "2️⃣ 🎵 Suno Music & Audio",
-            "3️⃣ 🎨 Image Prompt Engineer",
-            "4️⃣ 🗣️ Video & Avatar Animation",
-            "5️⃣ 📊 Marketing & Trends"
+            "1️⃣ 💡 Ideas, Scripts & Hooks",
+            "2️⃣ 🎵 Pro Suno Music & Audio",
+            "3️⃣ 🎨 Image Prompts & Resolutions",
+            "4️⃣ 🗣️ Advanced Video & Avatar",
+            "5️⃣ 📊 Marketing & Strategies"
         ],
-        
-        "t1_title": "🎬 Idea Generator, Script, & Viral Hooks",
-        "t1_input": "📽️ Video Title or Core Idea:",
-        "t1_dur": "⏱️ Estimated Duration:",
-        "t1_style": "🎨 Visual Style:",
-        "t1_btn": "🔥 Execute Script & Hooks",
-        "t1_warn": "⚠️ Please enter video title!",
-        "t1_spin": "⚡ Generating & saving professional script...",
-
-        "t2_title": "🎵 Music Production & Sound Engineering",
-        "t2_idea": "💡 Song Idea or Theme:",
-        "t2_dialect": "🗣️ Dialect:",
-        "t2_style": "🎼 Main Music Style:",
-        "t2_btn": "✨ Execute Full Song",
-        "t2_warn": "⚠️ Please enter the song idea!",
-        "t2_spin": "⚡ Crafting lyrics...",
-
-        "t3_title": "🎨 Professional Image Prompt Engineer",
-        "t3_desc": "🖼️ Describe your imagined image:",
-        "t3_engine": "🎯 AI Image Engine:",
-        "t3_aspect": "📐 Aspect Ratio:",
-        "t3_btn": "🎨 Execute Pro Prompts",
-        "t3_warn": "⚠️ Please enter image description!",
-        "t3_spin": "⚡ Engineering visual prompts...",
-
-        "t4_title": "Video Engine & Avatar Animation",
-        "t4_script": "📜 Voiceover Text or Motion Commands:",
-        "t4_tool": "🤖 Target Animation Tool:",
-        "t4_btn": "⚡ Execute Motion Prompts",
-        "t4_warn": "⚠️ Please enter text first!",
-        "t4_spin": "⚡ Preparing motion prompts...",
-
-        "t5_title": "📊 Marketing & Content Plans",
-        "t5_topic": "🎯 Content Topic:",
-        "t5_platform": "📱 Target Platform:",
-        "t5_btn": "🚀 Execute Marketing Plan",
-        "t5_warn": "⚠️ Please enter content topic!",
-        "t5_spin": "⚡ Analyzing market strategy...",
         
         "result_label": "🚀 Executed Result:",
         "copy_btn": "📋 Copy Text",
@@ -368,7 +282,7 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
     return st.session_state.get(session_key, "")
 
 # ==========================================
-# 4. دالة تنفيذ وتخزين العمليات (تأكيد الحفظ الفوري)
+# 4. دالة تنفيذ وتخزين العمليات الفورية
 # ==========================================
 def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -397,7 +311,6 @@ def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_in
                 "rating": 5
             }
             
-            # إضافة العنصر في مقدمة السجل والحفظ الفوري في ملف الـ JSON
             st.session_state["history"].insert(0, item)
             save_data(HISTORY_FILE, st.session_state["history"])
             st.session_state["current_result"] = item
@@ -411,7 +324,7 @@ def execute_ai_action(prompt_text, category_name="عام", user_topic="", tab_in
         return None
 
 # ==========================================
-# 5. القائمة الجانبية الاحترافية
+# 5. القائمة الجانبية
 # ==========================================
 with st.sidebar:
     lang = st.selectbox("🌐 اللغة / Language:", ["العربية", "English"])
@@ -469,7 +382,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة بنجاح!")
 
 # ==========================================
-# 6. الواجهة الرئيسية والتبويبات
+# 6. الواجهة الرئيسية والتبويبات الموسعة
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
@@ -511,110 +424,138 @@ def render_active_result(tab_idx):
             res["rating"] = st.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rt_{res['id']}")
 
 # ----------------------------------------------------
-# 1️⃣ فكرة وسكريبت والخطافات
+# 1️⃣ فكرة وسكريبت والخطافات (موسع)
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
-    st.markdown(f"### {T['t1_title']}")
-    v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك للتسجيل المستمر...")
+    st.markdown("### 🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator الاحترافي")
+    v_title = floating_voice_textarea("📽️ عنوان أو فكرة الفيديو الأساسية:", "t1_val", "اكتب فكرة الفيديو أو املِها بالمايك...")
     
-    col_a, col_b = st.columns(2)
+    col_a, col_b, col_c = st.columns(3)
     with col_a:
-        v_duration = st.selectbox(T["t1_dur"], ["30 ثانية", "60 ثانية", "3 دقائق"])
+        v_duration = st.selectbox("⏱️ مدة الفيديو التقديرية:", ["15 ثانية (Shorts/Reels)", "30 ثانية", "60 ثانية (TikTok/Reels)", "3 دقائق (YouTube Standard)", "10+ دقائق (Documentary/Long)"])
     with col_b:
-        v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "وثائقي", "كوميدي ساخر"])
+        v_style = st.selectbox("🎨 النمط البصري والإلقائي:", ["سينمائي واقعي (Cinematic)", "وثائقي تشويقي (Documentary)", "كوميدي ساخر (Sarcastic/Comedy)", "تعليمي تفاعلي (Educational)", "حماسي تحفيزي (Motivational)"])
+    with col_c:
+        v_target = st.selectbox("🎯 الجمهور المستهدف:", ["الشباب والمراهقين (Gen Z)", "رواد الأعمال والمهنيين", "العامة والمهتمين بالترفيه", "الأطفال والعائلات"])
     
-    if st.button(T["t1_btn"], type="primary", key="action_btn_1"):
+    if st.button("🔥 تنفيذ وتوليد السكريبت والخطافات", type="primary", key="action_btn_1"):
         if not v_title.strip():
-            st.warning(T["t1_warn"])
+            st.warning("⚠️ يرجى إدخال عنوان أو فكرة الفيديو أولاً!")
         else:
-            with st.spinner(T["t1_spin"]):
-                prompt = f"Create a professional script for '{v_title}', duration {v_duration}, style {v_style}, with viral hooks for the first 3 seconds."
+            with st.spinner("⚡ جارٍ توليد سكريبت احترافي وخطافات فيرال..."):
+                prompt = f"Create a pro video script for '{v_title}', duration: {v_duration}, style: {v_style}, target audience: {v_target}, with viral hooks for the first 3 seconds, scene descriptions, and call-to-action."
                 execute_ai_action(prompt, category_name="Script", user_topic=v_title[:25], tab_index=0)
                 st.rerun()
 
     render_active_result(0)
 
 # ----------------------------------------------------
-# 2️⃣ أستديو الأغاني والصوت
+# 2️⃣ أستديو الأغاني والصوت الاحترافي (موسع بالكامل)
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 1:
-    st.markdown(f"### {T['t2_title']}")
-    song_idea = floating_voice_textarea(T['t2_idea'], "t2_val", "اكتب فكرة الأغنية أو استخدم المايك المستمر...")
+    st.markdown("### 🎵 صناعة الأغاني، الهندسة الصوتية، ومكتبة القوافي المتقدمة")
+    song_idea = floating_voice_textarea("💡 فكرة الأغنية أو الموضوع الرئيسي:", "t2_val", "اكتب موضوع الأغنية أو تفاصيل الكلمات المطلوبة...")
     
-    c1, c2 = st.columns(2)
+    c1, c2, c3 = st.columns(3)
     with c1:
-        lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى", "خليجي"])
+        lyrics_dialect = st.selectbox("🗣️ اللهجة أو الطابع الثقافي:", ["عامية مصرية عصرية", "فصحى بلاغية", "خليجي طربي", "مغربي / شمال إفريقي", "إنجليزي غربي (English)"])
     with c2:
-        song_style = st.selectbox(T["t2_style"], ["Rap", "Pop", "Acoustic", "EDM"])
+        song_style = st.selectbox("🎼 النمط الموسيقي (Music Genre):", ["مهرجانات / شعبي سريع (Mahraganat)", "راب / هيب هوب أندرجراوند (Rap/Hip-Hop)", "بوب عربي رومانسي (Pop)", "أكوستيك هادئ جيتار (Acoustic)", "إي دي إم إلكتروني راقص (EDM/Dance)", "لوفي تشิล هادئ (Lo-Fi Beats)"])
+    with c3:
+        vocal_type = st.selectbox("🎙️ صوت المغني والأداء (Vocal Profile):", ["صوت رجالي قوي وعميق (Deep Baritone)", "صوت شبابي حماسي ومرن (Energetic Tenor)", "صوت نسائي ناعم ودافئ (Warm Soprano)", "صوت روبوتي مدمج أوتوتيون (Auto-Tune / Robotic)", "جوقة جماعية حماسية (Choir/Harmonies)"])
 
-    if st.button(T["t2_btn"], type="primary", key="action_btn_2"):
+    if st.button("✨ تنفيذ وتوليد الأغنية الكاملة والقوافي", type="primary", key="action_btn_2"):
         if not song_idea.strip():
-            st.warning(T["t2_warn"])
+            st.warning("⚠️ يرجى إدخال فكرة الأغنية أولاً!")
         else:
-            with st.spinner(T["t2_spin"]):
-                prompt = f"Create song lyrics and rhyme dictionary for theme: '{song_idea}', dialect: {lyrics_dialect}, style: {song_style}."
+            with st.spinner("⚡ جارٍ صياغة الكلمات، هندسة المكس، وتحديد البرومبتات الصوتية..."):
+                prompt = f"Create full song lyrics with structure (Verse, Chorus, Bridge, Outro), dialect: {lyrics_dialect}, music style: {song_style}, vocal profile: {vocal_type}, for theme: '{song_idea}'. Include Suno AI prompt tags and rhyme dictionary."
                 execute_ai_action(prompt, category_name="Music", user_topic=song_idea[:25], tab_index=1)
                 st.rerun()
 
     render_active_result(1)
 
 # ----------------------------------------------------
-# 3️⃣ مهندس الصور الاحترافي
+# 3️⃣ مهندس الصور والريزوليوشن القياسي (موسع بالكامل)
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 2:
-    st.markdown(f"### {T['t3_title']}")
-    img_desc = floating_voice_textarea(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل أو تحدث بالمايك...")
+    st.markdown("### 🎨 مهندس برومبتات الصور الاحترافية مع تحديد المقاسات والمنصات")
+    img_desc = floating_voice_textarea("🖼️ وصف الصورة الخيالية أو المشهد بدقة:", "t3_val", "صف تفاصيل الصورة والألوان والإضاءة بدقة...")
     
-    c1, c2 = st.columns(2)
+    c1, c2, c3 = st.columns(3)
     with c1:
-        img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "DALL-E 3"])
+        img_engine = st.selectbox("🎯 محرك الذكاء الاصطناعي للصور:", ["Midjourney v6 (أعلى جودة وسينمائية)", "Flux.1 (واقعية مذهلة وتفاصيل دقيقة)", "DALL-E 3 (فهم عميق للنصوص)", "Stable Diffusion XL (تحكم حر كامل)"])
     with c2:
-        img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع"])
-    
-    if st.button(T["t3_btn"], type="primary", key="action_btn_3"):
+        img_aspect = st.selectbox("📐 الأبعاد والريزوليوشن المناسب للمنصة:", [
+            "9:16 (مناسب لـ TikTok / YouTube Shorts / Instagram Reels)", 
+            "16:9 (مناسب لـ YouTube Videos / Desktop Wallpaper)", 
+            "1:1 (مناسب لـ Instagram / Facebook Post)", 
+            "4:5 (مناسب لـ Portrait Feed / IG Carousel)", 
+            "21:9 (مناسب لـ Ultra-Wide Cinematic Banners)"
+        ])
+    with c3:
+        img_lighting = st.selectbox("💡 نمط الإضاءة والجودة:", [
+            "إضاءة استوديو سينمائية (Cinematic Studio Lighting)", 
+            "إضاءة نيون سايبربانك (Cyberpunk Neon Glow)", 
+            "إضاءة شمس طبيعية ساحرة (Golden Hour Natural)", 
+            "مظلم درامي غامض (Dark Moody Atmosphere)", 
+            "ألوان زاهية نابضة بالحياة (Vibrant & Pop Art)"
+        ])
+
+    if st.button("🎨 تنفيذ وتوليد برومبتات الصور الاحترافية", type="primary", key="action_btn_3"):
         if not img_desc.strip():
-            st.warning(T["t3_warn"])
+            st.warning("⚠️ يرجى إدخال وصف الصورة المطلوب!")
         else:
-            with st.spinner(T["t3_spin"]):
-                prompt = f"Generate 3 pro image prompts for {img_engine} based on: '{img_desc}', aspect ratio {img_aspect}."
+            with st.spinner("⚡ جارٍ هندسة الأوامر وتجهيز المقاسات المخصصة..."):
+                prompt = f"Generate 3 pro image generation prompts for engine: {img_engine}, based on description: '{img_desc}', aspect ratio: {img_aspect}, lighting/mood: {img_lighting}. Provide English prompts ready to copy."
                 execute_ai_action(prompt, category_name="Image", user_topic=img_desc[:25], tab_index=2)
                 st.rerun()
 
     render_active_result(2)
 
 # ----------------------------------------------------
-# 4️⃣ تحريك الفيديو والأفاتار
+# 4️⃣ تحريك الفيديو والأفاتار المتقدم (موسع)
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 3:
-    st.markdown(f"### {T['t4_title']}")
-    a_script = floating_voice_textarea(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك المستمر...")
-    a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar"])
+    st.markdown("### 🗣️ محرك الفيديو، الأفاتار، وتحويل الصور لحركة (Motion Prompts)")
+    a_script = floating_voice_textarea("📜 النص الإلقائي أو وصف الحركة البصرية:", "t4_val", "اكتب النص أو تفاصيل الحركة المطلوبة للكاميرا والأفاتار...")
     
-    if st.button(T["t4_btn"], type="primary", key="action_btn_4"):
+    c1, c2 = st.columns(2)
+    with c1:
+        a_ai_tool = st.selectbox("🤖 أداة التحريك والأفاتار المستهدفة:", ["Runway Gen-3 (حركة سينمائية واقعية)", "Luma Dream Machine (حركات ديناميكية سريعة)", "HeyGen Avatar (أفاتار ناطق احترافي)", "Pika Labs (تأثيرات بصرية وموشن جرافيك)"])
+    with c2:
+        camera_motion = st.selectbox("🎥 حركة الكاميرا (Camera Movement):", ["زوم إن بطيء (Slow Zoom In)", "حركة بانورامية جانبية (Pan Right/Left)", "تتبع الحركة (Dynamic Tracking Shot)", "لقطة ثابتة مع تفاصيل حية (Static with Ambient Motion)"])
+
+    if st.button("⚡ تنفيذ برومبتات التحريك", type="primary", key="action_btn_4"):
         if not a_script.strip():
-            st.warning(T["t4_warn"])
+            st.warning("⚠️ يرجى إدخال النص أو الحركة أولاً!")
         else:
-            with st.spinner(T["t4_spin"]):
-                prompt = f"Motion and animation prompts for {a_ai_tool} based on script: '{a_script}'."
+            with st.spinner("⚡ جارٍ إعداد أوامر الحركة المتقدمة..."):
+                prompt = f"Generate advanced motion and animation prompts for tool: {a_ai_tool}, camera movement: {camera_motion}, based on input script/desc: '{a_script}'."
                 execute_ai_action(prompt, category_name="Animation", user_topic=a_script[:25], tab_index=3)
                 st.rerun()
 
     render_active_result(3)
 
 # ----------------------------------------------------
-# 5️⃣ التسويق والتريندات
+# 5️⃣ التسويق وخطط المحتوى الاستراتيجية (موسع)
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 4:
-    st.markdown(f"### {T['t5_title']}")
-    m_topic = floating_voice_textarea(T['t5_topic'], "t5_val", "اكتب أو تحدث بموضوع الحملة التسويقية...")
-    m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "LinkedIn"])
+    st.markdown("### 📊 استوديو التسويق، خطط المحتوى، والتريندات الاستراتيجية")
+    m_topic = floating_voice_textarea("🎯 موضوع المحتوى أو المنتج المراد تسويقه:", "t5_val", "اكتب تفاصيل المنتج أو المشروع المراد وضع خطة له...")
     
-    if st.button(T["t5_btn"], type="primary", key="action_btn_5"):
+    c1, c2 = st.columns(2)
+    with c1:
+        m_platform = st.selectbox("📱 المنصة المستهدفة للنشر:", ["TikTok (تريندات وفيديوهات قصيرة سريعة)", "Instagram Reels & Stories (بناء براند وبصريات)", "YouTube Shorts & Long (محتوى تعليمي وترفيهي متكامل)", "LinkedIn (تسويق احترافي وبزنس)", "Facebook Community (تفاعل جماهيري واسع)"])
+    with c2:
+        m_goal = st.selectbox("🎯 هدف الحملة التسويقية:", ["زيادة المبيعات والتحويلات (Sales Conversion)", "بناء الوعي بالعلامة التجارية (Brand Awareness)", "زيادة التفاعل والمشاركات (Engagement & Shares)", "جذب زيارات للموقع أو القناة (Traffic Generation)"])
+
+    if st.button("🚀 تنفيذ الخطة التسويقية والتريند", type="primary", key="action_btn_5"):
         if not m_topic.strip():
-            st.warning(T["t5_warn"])
+            st.warning("⚠️ يرجى إدخال موضوع المحتوى أولاً!")
         else:
-            with st.spinner(T["t5_spin"]):
-                prompt = f"Create a marketing strategy and viral hashtags for '{m_topic}' on platform '{m_platform}'."
+            with st.spinner("⚡ جارٍ تحليل السوق، وضع استراتيجية النشر واستخراج الهاشتاجات..."):
+                prompt = f"Create a comprehensive marketing strategy, content calendar outline, viral hashtags, and growth tactics for topic/product: '{m_topic}', target platform: {m_platform}, main goal: {m_goal}."
                 execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)
                 st.rerun()
 
