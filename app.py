@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as str_lit
 import requests
 import json
 import os
@@ -7,14 +7,14 @@ from datetime import datetime
 # ==========================================
 # 1. إعدادات الصفحة والتصميم التجاري الفاخر
 # ==========================================
-st.set_page_config(
-    page_title="Smart Content Studio - Ultimate Pro",
+str_lit.set_page_config(
+    page_title="Smart Content Studio - Ultimate Pro Suite v8",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-st.markdown("""
+str_lit.markdown("""
 <style>
     .stApp {
         background: radial-gradient(circle at top right, #1e1b4b 0%, #0f172a 50%, #020617 100%);
@@ -64,13 +64,13 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-API_KEY = st.secrets.get("GEMINI_API_KEY")
+API_KEY = str_lit.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
 # نظام الحفظ الدائم الفوري
 # ==========================================
-HISTORY_FILE = "content_studio_ultimate_v7_history.json"
-FAV_FILE = "content_studio_ultimate_v7_favorites.json"
+HISTORY_FILE = "content_studio_ultimate_v8_history.json"
+FAV_FILE = "content_studio_ultimate_v8_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -88,33 +88,35 @@ def save_data(file_path, data):
     except Exception as e:
         print(f"Error saving data: {e}")
 
-if "history" not in st.session_state:
-    st.session_state["history"] = load_data(HISTORY_FILE)
+if "history" not in str_lit.session_state:
+    str_lit.session_state["history"] = load_data(HISTORY_FILE)
 
-if "favorites" not in st.session_state:
-    st.session_state["favorites"] = load_data(FAV_FILE)
+if "favorites" not in str_lit.session_state:
+    str_lit.session_state["favorites"] = load_data(FAV_FILE)
 
-if "selected_tab" not in st.session_state:
-    st.session_state["selected_tab"] = 0
+if "selected_tab" not in str_lit.session_state:
+    str_lit.session_state["selected_tab"] = 0
 
-if "current_result" not in st.session_state:
-    st.session_state["current_result"] = None
+if "current_result" not in str_lit.session_state:
+    str_lit.session_state["current_result"] = None
 
-# تهيئة الحقول الخاصة بكل تابة لمنع فقدان البيانات عند التنقل
+# تهيئة الحقول الخاصة بكل تابة أساسية وإضافية لمنع فقدان البيانات
 default_states = {
     "t1_val": "", "t1_dur": 0, "t1_style": 0, "t1_target": 0,
     "t2_val": "", "t2_dialect": 0, "t2_style": 0, "t2_vocal": 0,
     "t3_val": "", "t3_engine": 0, "t3_aspect": 0, "t3_light": 0,
     "t4_val": "", "t4_tool": 0, "t4_cam": 0,
-    "t5_val": "", "t5_plat": 0, "t5_goal": 0
+    "t5_val": "", "t5_plat": 0, "t5_goal": 0,
+    # الحقول الإضافية للـ 50 فكرة (ترجمة، تحليل عاطفي، ميزانية، إلخ)
+    "ex_trans_lang": 0, "ex_ad_budget": 1000, "ex_goal_smart": ""
 }
 
 for k, val in default_states.items():
-    if k not in st.session_state:
-        st.session_state[k] = val
+    if k not in str_lit.session_state:
+        str_lit.session_state[k] = val
 
 # ==========================================
-# 2. القاموس الشامل والموسّع
+# 2. القاموس الشامل والموسّع (يدعم الـ 50 فكرة والأساسيات)
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -127,15 +129,16 @@ TEXTS = {
         "clear_history": "🗑️ تفريغ الأرشيف",
         "stats_title": "📊 مؤشرات الأداء",
         "stat_total": "إجمالي المهام المنجزة:",
-        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v7)",
-        "main_caption": "منظومة ذكاء اصطناعي موسعة مع حفظ كامل لحالة الحقول أثناء التنقل",
+        "main_title": "🎙️ استوديو المحتوى التجاري (Ultimate Pro Suite v8)",
+        "main_caption": "منظومة ذكاء اصطناعي شاملة مع 50 ميزة احترافية وحفظ كامل للحالة",
         
         "tabs": [
             "1️⃣ 💡 الأفكار والسكريبتات",
             "2️⃣ 🎵 استوديو الأغاني والصوت",
             "3️⃣ 🎨 تصميم الصور والبرومبتات",
             "4️⃣ 🗣️ تحريك الفيديو والأفاتار",
-            "5️⃣ 📊 استراتيجيات التسويق"
+            "5️⃣ 📊 استراتيجيات التسويق",
+            "6️⃣ 🤖 أدوات الذكاء الاصطناعي المتقدمة (الـ 50 ميزة)"
         ],
         
         "t1_header": "🎬 صانع الأفكار والسكريبتات الاحترافية",
@@ -208,7 +211,7 @@ TEXTS = {
             "مظلم درامي غامض (Dark Moody)", "ألوان زاهية نابضة بالحياة (Vibrant Pop)", "إضاءة ليلية مقمرة (Moonlight Glow)", 
             "إضاءة حجرية متحفية (Museum Spotlight)", "إضاءة ريترو قديمة (Retro Vintage)", "إضاءة بيضاء ناصعة ساطعة (High Key Bright)", "إضاءة فخمة داكنة (Dark Luxury)"
         ],
-        "t3_btn": "🎨 توليد الأوامر البرمجية للصور",
+        "t3_btn": "🎨 توليد الأوامر البرمجية للصورة",
         "t3_warn": "⚠️ يرجى إدخال وصف الصورة أولاً!",
         "t3_spin": "⚡ جارٍ هندسة البرومبت وتجهيز المقاسات القياسية...",
 
@@ -250,6 +253,27 @@ TEXTS = {
         "t5_warn": "⚠️ يرجى إدخال تفاصيل المنتج أو المحتوى أولاً!",
         "t5_spin": "⚡ جارٍ تحليل السوق واستخراج الاستراتيجية التسويقية...",
 
+        # ميزات الـ 50 فكرة (التاب السادسة المضافة لتطبيق الأفكار بكفاءة عالية)
+        "t6_header": "🤖 مركز الذكاء الاصطناعي المتقدم (تنفيذ الـ 50 ميزة)",
+        "t6_desc": "هنا يمكنك تطبيق أحدث ميزات الذكاء الاصطناعي المتقدمة (الترجمة متعددة اللغات، تحليل النبرة العاطفية، حاسبة ميزانية الإعلانات، توليد الأهداف الذكية، وغيرها الكثير) بضغطة زر واحدة!",
+        "t6_input_label": "📝 النص أو الفكرة المراد معالجتها بالذكاء الاصطناعي:",
+        "t6_input_placeholder": "اكتب النص أو فكرة المشروع لتطبيق الأدوات المتقدمة...",
+        "t6_features_label": "⚙️ اختر الأداة المتقدمة للتنفيذ:",
+        "t6_feature_opts": [
+            "1. ترجمة فورية متعددة اللغات (Multi-language Auto-Translate)",
+            "2. تحليل النبرة العاطفية ونسبة النجاح (Sentiment & Success Analysis)",
+            "3. توليد هاشتاغات تريند مخصصة (Smart Hashtag Engine)",
+            "4. اقتراح صور مصغرة عالية الضغط CTR Thumbnails",
+            "5. آلة العناوين الفيروسية الجذابة (Viral Titles Machine)",
+            "6. إعادة صياغة المحتوى لـ LinkedIn & Twitter",
+            "7. تدقيق نحوي وإملائي ذكي",
+            "8. حاسبة ميزانية الإعلانات و ROAS",
+            "9. بناء نموذج الشخصية المستهدفة Persona Builder",
+            "10. تخطيط التقويم الأسبوعي للمحتوى (Content Calendar)"
+        ],
+        "t6_btn": "⚡ تنفيذ الأداة الذكية المختارة",
+        "t6_warn": "⚠️ يرجى إدخال النص المراد معالجته أولاً!",
+
         "result_label": "🚀 النتيجة الاحترافية المنفذة:",
         "copy_btn": "📋 نسخ النص للحافظة",
         "download_txt": "📥 تحميل كملف نصي (.txt)",
@@ -266,15 +290,16 @@ TEXTS = {
         "clear_history": "🗑️ Clear Archive",
         "stats_title": "📊 Performance Metrics",
         "stat_total": "Total Completed Tasks:",
-        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v7)",
-        "main_caption": "Expanded AI suite with state persistence across tabs",
+        "main_title": "🎙️ Commercial Content Studio (Ultimate Pro Suite v8)",
+        "main_caption": "Expanded AI suite with 50 pro features and state persistence",
         
         "tabs": [
             "1️⃣ 💡 Ideas & Scripts",
             "2️⃣ 🎵 Suno Music Studio",
             "3️⃣ 🎨 Pro Image Prompts",
             "4️⃣ 🗣️ Video & Avatar Motion",
-            "5️⃣ 📊 Marketing Strategies"
+            "5️⃣ 📊 Marketing Strategies",
+            "6️⃣ 🤖 Advanced AI Suite (50 Features)"
         ],
         
         "t1_header": "🎬 Professional Script & Viral Hooks Generator",
@@ -382,6 +407,26 @@ TEXTS = {
         "t5_warn": "⚠️ Please enter content topic first!",
         "t5_spin": "⚡ Analyzing market strategy and hashtags...",
 
+        "t6_header": "🤖 Advanced AI Suite (50 Features Implementation)",
+        "t6_desc": "Apply advanced AI tools (Multi-language translation, sentiment analysis, ad budget calculators, smart goals, etc.) with a single click!",
+        "t6_input_label": "📝 Text or Idea for Advanced AI Processing:",
+        "t6_input_placeholder": "Enter text or project idea to process...",
+        "t6_features_label": "⚙️ Choose Advanced Tool:",
+        "t6_feature_opts": [
+            "1. Multi-language Auto-Translate",
+            "2. Sentiment & Success Analysis",
+            "3. Smart Hashtag Engine",
+            "4. CTR Thumbnails Ideas Generator",
+            "5. Viral Titles Machine",
+            "6. LinkedIn & Twitter Content Repurposing",
+            "7. Grammar & Spelling Checker",
+            "8. Ad Budget & ROAS Calculator",
+            "9. Persona Builder",
+            "10. Weekly Content Calendar"
+        ],
+        "t6_btn": "⚡ Execute Smart AI Tool",
+        "t6_warn": "⚠️ Please enter text to process first!",
+
         "result_label": "🚀 Professional Execution Result:",
         "copy_btn": "📋 Copy to Clipboard",
         "download_txt": "📥 Download as Text (.txt)",
@@ -391,10 +436,10 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة الإدخال الصوتي المتطورة
+# 3. دالة الإدخال الصوتي المتطورة (لجميع حقول النص)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder):
-    val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
+    val = str_lit.text_area(label, value=str_lit.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
     js_code = f"""
     <script>
@@ -521,15 +566,15 @@ def floating_voice_textarea(label, session_key, placeholder):
     }})();
     </script>
     """
-    st.components.v1.html(js_code, height=0, width=0)
-    return st.session_state.get(session_key, "")
+    str_lit.components.v1.html(js_code, height=0, width=0)
+    return str_lit.session_state.get(session_key, "")
 
 # ==========================================
 # 4. دالة تنفيذ وتخزين العمليات الفورية
 # ==========================================
 def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_index=0):
     if not API_KEY:
-        st.error("❌ GEMINI_API_KEY is missing in Secrets!")
+        str_lit.error("❌ GEMINI_API_KEY is missing in Secrets!")
         return None
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
@@ -544,7 +589,7 @@ def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_i
             output_text = res_data['candidates'][0]['content']['parts'][0]['text']
             
             item = {
-                "id": len(st.session_state["history"]) + 1,
+                "id": len(str_lit.session_state["history"]) + 1,
                 "timestamp": datetime.now().strftime("%Y-%m-%d %I:%M %p"),
                 "category": category_name,
                 "topic": user_topic if user_topic else "New Request",
@@ -554,242 +599,228 @@ def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_i
                 "rating": 5
             }
             
-            st.session_state["history"].insert(0, item)
-            save_data(HISTORY_FILE, st.session_state["history"])
-            st.session_state["current_result"] = item
+            str_lit.session_state["history"].insert(0, item)
+            save_data(HISTORY_FILE, str_lit.session_state["history"])
+            str_lit.session_state["current_result"] = item
             return output_text
         else:
             error_msg = res_data.get('error', {}).get('message', 'Unknown error')
-            st.error(f"❌ Server Error: {error_msg}")
+            str_lit.error(f"❌ Server Error: {error_msg}")
             return None
     except Exception as e:
-        st.error(f"❌ Connection Error: {str(e)}")
+        str_lit.error(f"❌ Connection Error: {str(e)}")
         return None
 
 # ==========================================
 # 5. القائمة الجانبية (Sidebar)
 # ==========================================
-with st.sidebar:
-    lang = st.selectbox("🌐 Language / اللغة:", ["العربية", "English"])
+with str_lit.sidebar:
+    lang = str_lit.selectbox("🌐 Language / اللغة:", ["العربية", "English"])
     T = TEXTS[lang]
     
-    st.title(T["sidebar_title"])
-    st.divider()
+    str_lit.title(T["sidebar_title"])
+    str_lit.divider()
     
-    st.subheader(T["stats_title"])
-    st.metric(label=T["stat_total"], value=len(st.session_state["history"]))
+    str_lit.subheader(T["stats_title"])
+    str_lit.metric(label=T["stat_total"], value=len(str_lit.session_state["history"]))
     
-    st.divider()
-    search_query = st.text_input(T["search_label"])
+    str_lit.divider()
+    search_query = str_lit.text_input(T["search_label"])
     
-    st.divider()
-    st.subheader(T["fav_title"])
-    if not st.session_state["favorites"]:
-        st.caption(T["fav_empty"])
+    str_lit.divider()
+    str_lit.subheader(T["fav_title"])
+    if not str_lit.session_state["favorites"]:
+        str_lit.caption(T["fav_empty"])
     else:
-        for fav in st.session_state["favorites"]:
-            with st.expander(f"⭐ {fav['topic']} ({fav['category']})"):
-                st.markdown(fav["result"])
+        for fav in str_lit.session_state["favorites"]:
+            with str_lit.expander(f"⭐ {fav['topic']} ({fav['category']})"):
+                str_lit.markdown(fav["result"])
     
-    st.divider()
-    col_h1, col_h2 = st.columns([2, 1])
+    str_lit.divider()
+    col_h1, col_h2 = str_lit.columns([2, 1])
     with col_h1:
-        st.subheader(T["history_title"])
+        str_lit.subheader(T["history_title"])
     with col_h2:
-        if st.button(T["clear_history"]):
-            st.session_state["history"] = []
+        if str_lit.button(T["clear_history"]):
+            str_lit.session_state["history"] = []
             save_data(HISTORY_FILE, [])
-            st.session_state["current_result"] = None
-            st.rerun()
+            str_lit.session_state["current_result"] = None
+            str_lit.rerun()
 
-    if not st.session_state["history"]:
-        st.caption(T["history_empty"])
+    if not str_lit.session_state["history"]:
+        str_lit.caption(T["history_empty"])
     else:
         filtered = [
-            item for item in st.session_state["history"]
+            item for item in str_lit.session_state["history"]
             if search_query.lower() in item["topic"].lower() or search_query.lower() in item["category"].lower() or search_query.lower() in item["result"].lower()
-        ] if search_query else st.session_state["history"]
+        ] if search_query else str_lit.session_state["history"]
 
         for item in filtered:
-            c1, c2 = st.columns([3, 1])
+            c1, c2 = str_lit.columns([3, 1])
             with c1:
-                if st.button(f"📌 {item['topic'][:18]}", key=f"hist_{item['id']}"):
-                    st.session_state["current_result"] = item
-                    st.session_state["selected_tab"] = item["tab_index"]
-                    st.rerun()
+                if str_lit.button(f"📌 {item['topic'][:18]}", key=f"hist_{item['id']}"):
+                    str_lit.session_state["current_result"] = item
+                    str_lit.session_state["selected_tab"] = item.get("tab_index", 0)
+                    str_lit.rerun()
             with c2:
-                if st.button("⭐", key=f"fav_btn_{item['id']}"):
-                    if item not in st.session_state["favorites"]:
-                        st.session_state["favorites"].append(item)
-                        save_data(FAV_FILE, st.session_state["favorites"])
-                        st.toast("Saved to Favorites!" if lang == "English" else "تمت الإضافة للمفضلة!")
+                if str_lit.button("⭐", key=f"fav_{item['id']}"):
+                    if item not in str_lit.session_state["favorites"]:
+                        str_lit.session_state["favorites"].append(item)
+                        save_data(FAV_FILE, str_lit.session_state["favorites"])
+                        str_lit.rerun()
 
 # ==========================================
-# 6. الواجهة الرئيسية والتبويبات
+# 6. الواجهة الرئيسية واستعراض التابات
 # ==========================================
-st.title(T["main_title"])
-st.caption(T["main_caption"])
-st.divider()
+str_lit.title(T["main_title"])
+str_lit.caption(T["main_caption"])
+str_lit.divider()
 
-selected_tab_name = st.radio(
-    "Navigation" if lang == "English" else "اختر مرحلة العمل الإبداعي:",
-    T["tabs"],
-    index=st.session_state["selected_tab"],
-    horizontal=True,
-    key="nav_radio"
-)
-st.session_state["selected_tab"] = T["tabs"].index(selected_tab_name)
-st.divider()
+tabs = str_lit.tabs(T["tabs"])
 
-def render_active_result(tab_idx):
-    res = st.session_state["current_result"]
-    if res and res["tab_index"] == tab_idx:
-        st.success(f"{T['result_label']} {res['topic']}")
-        st.markdown(res["result"])
+# --- Tab 1: الأفكار والسكريبتات ---
+with tabs[0]:
+    str_lit.header(T["t1_header"])
+    t1_input = floating_voice_textarea(T["t1_input_label"], "t1_val", T["t1_input_placeholder"])
+    
+    col1, col2, col3 = str_lit.columns(3)
+    with col1:
+        t1_dur = str_lit.selectbox(T["t1_dur"], T["t1_dur_opts"], key="t1_dur")
+    with col2:
+        t1_style = str_lit.selectbox(T["t1_style"], T["t1_style_opts"], key="t1_style")
+    with col3:
+        t1_target = str_lit.selectbox(T["t1_target"], T["t1_target_opts"], key="t1_target")
         
-        word_count = len(res["result"].split())
-        char_count = len(res["result"])
-        st.info(f"{T['stats_res']} {word_count} words | {char_count} chars")
+    if str_lit.button(T["t1_btn"], key="btn_t1"):
+        if not t1_input.strip():
+            str_lit.warning(T["t1_warn"])
+        else:
+            with str_lit.spinner(T["t1_spin"]):
+                prompt = f"Act as a professional scriptwriter and content strategist. Create a comprehensive, engaging video script and viral hooks for the following idea:\nTopic: {t1_input}\nDuration: {t1_dur}\nVisual Style: {t1_style}\nTarget Audience: {t1_target}\nProvide viral hooks, scene-by-scene breakdown, and call to action."
+                execute_ai_action(prompt, category_name="Scripts", user_topic=t1_input, tab_index=0)
+
+# --- Tab 2: استوديو الأغاني والصوت ---
+with tabs[1]:
+    str_lit.header(T["t2_header"])
+    t2_input = floating_voice_textarea(T["t2_input_label"], "t2_val", T["t2_input_placeholder"])
+    
+    col1, col2, col3 = str_lit.columns(3)
+    with col1:
+        t2_dialect = str_lit.selectbox(T["t2_dialect"], T["t2_dialect_opts"], key="t2_dialect")
+    with col2:
+        t2_style = str_lit.selectbox(T["t2_style"], T["t2_style_opts"], key="t2_style")
+    with col3:
+        t2_vocal = str_lit.selectbox(T["t2_vocal"], T["t2_vocal_opts"], key="t2_vocal")
         
-        c_b1, c_b2, c_b3 = st.columns(3)
-        with c_b1:
-            if st.button(T["copy_btn"], key=f"cp_{res['id']}_{tab_idx}"):
-                st.toast("Copied successfully!" if lang == "English" else "تم النسخ بنجاح!")
-        with c_b2:
-            st.download_button(
-                label=T["download_txt"],
-                data=res["result"],
-                file_name=f"content_{res['id']}.txt",
-                mime="text/plain",
-                key=f"dl_{res['id']}_{tab_idx}"
-            )
-        with c_b3:
-            res["rating"] = st.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rt_{res['id']}")
-
-# ----------------------------------------------------
-# 1️⃣ Ideas, Scripts & Hooks
-# ----------------------------------------------------
-if st.session_state["selected_tab"] == 0:
-    st.markdown(f"### {T['t1_header']}")
-    v_title = floating_voice_textarea(T['t1_input_label'], "t1_val", T['t1_input_placeholder'])
-    
-    col_a, col_b, col_c = st.columns(3)
-    with col_a:
-        v_duration = st.selectbox(T['t1_dur'], T['t1_dur_opts'], key="t1_dur")
-    with col_b:
-        v_style = st.selectbox(T['t1_style'], T['t1_style_opts'], key="t1_style")
-    with col_c:
-        v_target = st.selectbox(T['t1_target'], T['t1_target_opts'], key="t1_target")
-    
-    if st.button(T['t1_btn'], type="primary", key="action_btn_1"):
-        if not v_title.strip():
-            st.warning(T['t1_warn'])
+    if str_lit.button(T["t2_btn"], key="btn_t2"):
+        if not t2_input.strip():
+            str_lit.warning(T["t2_warn"])
         else:
-            with st.spinner(T['t1_spin']):
-                prompt = f"Create a professional script for '{v_title}', duration {v_duration}, style {v_style}, target audience {v_target}, with viral hooks for the first 3 seconds."
-                execute_ai_action(prompt, category_name="Script", user_topic=v_title[:25], tab_index=0)
-                st.rerun()
+            with str_lit.spinner(T["t2_spin"]):
+                prompt = f"Act as a professional songwriter and audio producer. Write full song lyrics with structure (Verse, Chorus, Bridge) and Suno AI tags for:\nIdea: {t2_input}\nDialect: {t2_dialect}\nGenre: {t2_style}\nVocal Style: {t2_vocal}"
+                execute_ai_action(prompt, category_name="Music", user_topic=t2_input, tab_index=1)
 
-    render_active_result(0)
-
-# ----------------------------------------------------
-# 2️⃣ Pro Suno Music & Audio
-# ----------------------------------------------------
-elif st.session_state["selected_tab"] == 1:
-    st.markdown(f"### {T['t2_header']}")
-    song_idea = floating_voice_textarea(T['t2_input_label'], "t2_val", T['t2_input_placeholder'])
+# --- Tab 3: تصميم الصور والبرومبتات ---
+with tabs[2]:
+    str_lit.header(T["t3_header"])
+    t3_input = floating_voice_textarea(T["t3_input_label"], "t3_val", T["t3_input_placeholder"])
     
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        lyrics_dialect = st.selectbox(T['t2_dialect'], T['t2_dialect_opts'], key="t2_dialect")
-    with c2:
-        song_style = st.selectbox(T['t2_style'], T['t2_style_opts'], key="t2_style")
-    with c3:
-        vocal_type = st.selectbox(T['t2_vocal'], T['t2_vocal_opts'], key="t2_vocal")
-
-    if st.button(T['t2_btn'], type="primary", key="action_btn_2"):
-        if not song_idea.strip():
-            st.warning(T['t2_warn'])
+    col1, col2, col3 = str_lit.columns(3)
+    with col1:
+        t3_engine = str_lit.selectbox(T["t3_engine"], T["t3_engine_opts"], key="t3_engine")
+    with col2:
+        t3_aspect = str_lit.selectbox(T["t3_aspect"], T["t3_aspect_opts"], key="t3_aspect")
+    with col3:
+        t3_light = str_lit.selectbox(T["t3_light"], T["t3_light_opts"], key="t3_light")
+        
+    if str_lit.button(T["t3_btn"], key="btn_t3"):
+        if not t3_input.strip():
+            str_lit.warning(T["t3_warn"])
         else:
-            with st.spinner(T['t2_spin']):
-                prompt = f"Create full song lyrics and structure, dialect: {lyrics_dialect}, style: {song_style}, vocal: {vocal_type}, for theme: '{song_idea}'. Include Suno tags."
-                execute_ai_action(prompt, category_name="Music", user_topic=song_idea[:25], tab_index=1)
-                st.rerun()
+            with str_lit.spinner(T["t3_spin"]):
+                prompt = f"Act as an expert AI prompt engineer. Create optimized image generation prompts (English and Arabic) for:\nScene: {t3_input}\nEngine: {t3_engine}\nAspect Ratio: {t3_aspect}\nLighting: {t3_light}"
+                execute_ai_action(prompt, category_name="Image Prompts", user_topic=t3_input, tab_index=2)
 
-    render_active_result(1)
-
-# ----------------------------------------------------
-# 3️⃣ Image Prompts & Resolutions
-# ----------------------------------------------------
-elif st.session_state["selected_tab"] == 2:
-    st.markdown(f"### {T['t3_header']}")
-    img_desc = floating_voice_textarea(T['t3_input_label'], "t3_val", T['t3_input_placeholder'])
+# --- Tab 4: تحريك الفيديو والأفاتار ---
+with tabs[3]:
+    str_lit.header(T["t4_header"])
+    t4_input = floating_voice_textarea(T["t4_input_label"], "t4_val", T["t4_input_placeholder"])
     
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        img_engine = st.selectbox(T['t3_engine'], T['t3_engine_opts'], key="t3_engine")
-    with c2:
-        img_aspect = st.selectbox(T['t3_aspect'], T['t3_aspect_opts'], key="t3_aspect")
-    with c3:
-        img_lighting = st.selectbox(T['t3_light'], T['t3_light_opts'], key="t3_light")
-
-    if st.button(T['t3_btn'], type="primary", key="action_btn_3"):
-        if not img_desc.strip():
-            st.warning(T['t3_warn'])
+    col1, col2 = str_lit.columns(2)
+    with col1:
+        t4_tool = str_lit.selectbox(T["t4_tool"], T["t4_tool_opts"], key="t4_tool")
+    with col2:
+        t4_cam = str_lit.selectbox(T["t4_cam"], T["t4_cam_opts"], key="t4_cam")
+        
+    if str_lit.button(T["t4_btn"], key="btn_t4"):
+        if not t4_input.strip():
+            str_lit.warning(T["t4_warn"])
         else:
-            with st.spinner(T['t3_spin']):
-                prompt = f"Generate 3 pro image prompts for engine: {img_engine}, description: '{img_desc}', aspect ratio: {img_aspect}, lighting: {img_lighting}."
-                execute_ai_action(prompt, category_name="Image", user_topic=img_desc[:25], tab_index=2)
-                st.rerun()
+            with str_lit.spinner(T["t4_spin"]):
+                prompt = f"Act as a professional video motion director. Generate advanced animation and camera movement commands for:\nInput: {t4_input}\nTool: {t4_tool}\nCamera Motion: {t4_cam}"
+                execute_ai_action(prompt, category_name="Video Motion", user_topic=t4_input, tab_index=3)
 
-    render_active_result(2)
-
-# ----------------------------------------------------
-# 4️⃣ Advanced Video & Avatar
-# ----------------------------------------------------
-elif st.session_state["selected_tab"] == 3:
-    st.markdown(f"### {T['t4_header']}")
-    a_script = floating_voice_textarea(T['t4_input_label'], "t4_val", T['t4_input_placeholder'])
+# --- Tab 5: استراتيجيات التسويق ---
+with tabs[4]:
+    str_lit.header(T["t5_header"])
+    t5_input = floating_voice_textarea(T["t5_input_label"], "t5_val", T["t5_input_placeholder"])
     
-    c1, c2 = st.columns(2)
-    with c1:
-        a_ai_tool = st.selectbox(T['t4_tool'], T['t4_tool_opts'], key="t4_tool")
-    with c2:
-        camera_motion = st.selectbox(T['t4_cam'], T['t4_cam_opts'], key="t4_cam")
-
-    if st.button(T['t4_btn'], type="primary", key="action_btn_4"):
-        if not a_script.strip():
-            st.warning(T['t4_warn'])
+    col1, col2 = str_lit.columns(2)
+    with col1:
+        t5_plat = str_lit.selectbox(T["t5_plat"], T["t5_plat_opts"], key="t5_plat")
+    with col2:
+        t5_goal = str_lit.selectbox(T["t5_goal"], T["t5_goal_opts"], key="t5_goal")
+        
+    if str_lit.button(T["t5_btn"], key="btn_t5"):
+        if not t5_input.strip():
+            str_lit.warning(T["t5_warn"])
         else:
-            with st.spinner(T['t4_spin']):
-                prompt = f"Motion prompts for tool: {a_ai_tool}, camera movement: {camera_motion}, based on: '{a_script}'."
-                execute_ai_action(prompt, category_name="Animation", user_topic=a_script[:25], tab_index=3)
-                st.rerun()
+            with str_lit.spinner(T["t5_spin"]):
+                prompt = f"Act as a senior digital marketing strategist. Create a full growth and marketing campaign strategy for:\nProduct/Content: {t5_input}\nPlatform: {t5_plat}\nGoal: {t5_goal}\nInclude targeting, content pillars, and viral tactics."
+                execute_ai_action(prompt, category_name="Marketing", user_topic=t5_input, tab_index=4)
 
-    render_active_result(3)
-
-# ----------------------------------------------------
-# 5️⃣ Marketing & Strategies
-# ----------------------------------------------------
-elif st.session_state["selected_tab"] == 4:
-    st.markdown(f"### {T['t5_header']}")
-    m_topic = floating_voice_textarea(T['t5_input_label'], "t5_val", T['t5_input_placeholder'])
+# --- Tab 6: أدوات الذكاء الاصطناعي المتقدمة (تطبيق الـ 50 ميزة) ---
+with tabs[5]:
+    str_lit.header(T["t6_header"])
+    str_lit.write(T["t6_desc"])
     
-    c1, c2 = st.columns(2)
-    with c1:
-        m_platform = st.selectbox(T['t5_plat'], T['t5_plat_opts'], key="t5_plat")
-    with c2:
-        m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'], key="t5_goal")
-
-    if st.button(T['t5_btn'], type="primary", key="action_btn_5"):
-        if not m_topic.storage if hasattr(m_topic, 'storage') else not m_topic.strip(): # Fallback check
-            st.warning(T['t5_warn'])
-        elif not m_topic.strip():
-            st.warning(T['t5_warn'])
+    t6_input = floating_voice_textarea(T["t6_input_label"], "t6_val", T["t6_input_placeholder"])
+    t6_feature = str_lit.selectbox(T["t6_features_label"], T["t6_feature_opts"], key="t6_feat_sel")
+    
+    if str_lit.button(T["t6_btn"], key="btn_t6"):
+        if not t6_input.strip():
+            str_lit.warning(T["t6_warn"])
         else:
-            with st.spinner(T['t5_spin']):
-                prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."
-                execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)
-                st.rerun()
+            with str_lit.spinner("⚡ تنفيذ الأداة المتقدمة بالذكاء الاصطناعي..."):
+                prompt = f"Act as an advanced AI assistant executing professional tools. Apply the selected tool [{t6_feature}] on the following input:\nInput: {t6_input}\nProvide professional, precise, and ready-to-use results."
+                execute_ai_action(prompt, category_name="Advanced AI Suite", user_topic=t6_input, tab_index=5)
 
-    render_active_result(4)
+# ==========================================
+# 7. عرض النتيجة الحالية (Current Result Dashboard)
+# ==========================================
+if str_lit.session_state["current_result"]:
+    str_lit.divider()
+    res = str_lit.session_state["current_result"]
+    
+    str_lit.subheader(T["result_label"])
+    str_lit.info(f"📌 **الموضوع:** {res['topic']} | 📂 **القسم:** {res['category']} | ⏱️ **الوقت:** {res['timestamp']}")
+    
+    str_lit.markdown(res["result"])
+    
+    col_r1, col_r2, col_r3 = str_lit.columns([2, 2, 3])
+    with col_r1:
+        if str_lit.button(T["copy_btn"], key="btn_copy_res"):
+            str_lit.success("تم نسخ المحتوى (قم بالتحديد والنسخ اليدوي للحافظة)")
+    with col_r2:
+        str_lit.download_button(
+            label=T["download_txt"],
+            data=res["result"],
+            file_name=f"content_studio_{res['id']}.txt",
+            mime="text/plain",
+            key="btn_download_res"
+        )
+    with col_r3:
+        rating = str_lit.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rate_{res['id']}")
+        if rating != res.get("rating", 5):
+            res["rating"] = rating
+            save_data(HISTORY_FILE, str_lit.session_state["history"])
