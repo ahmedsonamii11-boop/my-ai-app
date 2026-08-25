@@ -731,12 +731,12 @@ elif st.session_state["selected_tab"] == 4:
         m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'])
 
     if st.button(T['t5_btn'], type="primary", key="action_btn_5"):
-        `if not m_topic.strip():`
-            `st.warning(T['t5_warn'])`
-        `else:`
-            `with st.spinner(T['t5_spin']):`
-                `prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."`
-                `execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)`
-                `st.rerun()`
+        if not m_topic.strip():
+            st.warning(T['t5_warn'])
+        else:
+            with st.spinner(T['t5_spin']):
+                prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."
+                execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)
+                st.rerun()
 
-    `render_active_result(4)`
+    render_active_result(4)
