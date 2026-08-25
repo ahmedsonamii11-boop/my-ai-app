@@ -532,7 +532,7 @@ def execute_ai_action(prompt_text, category_name="General", user_topic="", tab_i
         st.error("❌ GEMINI_API_KEY is missing in Secrets!")
         return None
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key={API_KEY}"
     headers = {'Content-Type': 'application/json'}
     payload = {"contents": [{"parts": [{"text": prompt_text}]}]}
 
@@ -618,150 +618,178 @@ with st.sidebar:
                     st.session_state["selected_tab"] = item["tab_index"]
                     st.rerun()
             with c2:
-                is_fav = any(f["topic"] == item["topic"] and f["result"] == item["result"] for f in st.session_state["favorites"])
-                if st.button("⭐" if not is_fav else "❌", key=f"fav_btn_{item['id']}"):
-                    if not is_fav:
+                if st.button("⭐", key=f"fav_btn_{item['id']}"):
+                    if item not in st.session_state["favorites"]:
                         st.session_state["favorites"].append(item)
-                    else:
-                        st.session_state["favorites"] = [f for f in st.session_state["favorites"] if not (f["topic"] == item["topic"] and f["result"] == item["result"])]
-                    save_data(FAV_FILE, st.session_state["favorites"])
-                    st.rerun()
+                        save_data(FAV_FILE, st.session_state["favorites"])
+                        st.toast("Saved to Favorites!" if lang == "English" else "تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 6. الواجهة الرئيسية والتنقل بين التابات
+# 6. الواجهة الرئيسية والتبويبات
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
+st.divider()
 
-tabs = st.tabs(T["tabs"])
+selected_tab_name = st.radio(
+    "Navigation" if lang == "English" else "اختر مرحلة العمل الإبداعي:",
+    T["tabs"],
+    index=st.session_state["selected_tab"],
+    horizontal=True,
+    key="nav_radio"
+)
+st.session_state["selected_tab"] = T["tabs"].index(selected_tab_name)
+st.divider()
 
-# Tab 1: الأفكار والسكريبتات
-with tabs[0]:
-    st.header(T["t1_header"])
-    t1_val = floating_voice_textarea(T["t1_input_label"], "t1_val", T["t1_input_placeholder"])
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        t1_dur = st.selectbox(T["t1_dur"], T["t1_dur_opts"], key="t1_dur")
-    with col2:
-        t1_style = st.selectbox(T["t1_style"], T["t1_style_opts"], key="t1_style")
-    with col3:
-        t1_target = st.selectbox(T["t1_target"], T["t1_target_opts"], key="t1_target")
-        
-    if st.button(T["t1_btn"], key="btn_t1"):
-        if not t1_val.strip():
-            st.warning(T["t1_warn"])
-        else:
-            with st.spinner(T["t1_spin"]):
-                prompt = f"Act as a professional viral scriptwriter. Create a detailed video script and hooks for: {t1_val}. Duration: {t1_dur}, Style: {t1_style}, Target Audience: {t1_target}. Provide structured sections including hooks, body, and call to action."
-                execute_ai_action(prompt, category_name="Scripts & Ideas", user_topic=t1_val[:30], tab_index=0)
-                st.rerun()
-
-# Tab 2: استوديو الأغاني والصوت
-with tabs[1]:
-    st.header(T["t2_header"])
-    t2_val = floating_voice_textarea(T["t2_input_label"], "t2_val", T["t2_input_placeholder"])
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        t2_dialect = st.selectbox(T["t2_dialect"], T["t2_dialect_opts"], key="t2_dialect")
-    with col2:
-        t2_style = st.selectbox(T["t2_style"], T["t2_style_opts"], key="t2_style")
-    with col3:
-        t2_vocal = st.selectbox(T["t2_vocal"], T["t2_vocal_opts"], key="t2_vocal")
-        
-    if st.button(T["t2_btn"], key="btn_t2"):
-        if not t2_val.strip():
-            st.warning(T["t2_warn"])
-        else:
-            with st.spinner(T["t2_spin"]):
-                prompt = f"Act as an expert music producer and lyricist. Create professional song lyrics and music tags for: {t2_val}. Dialect/Culture: {t2_dialect}, Genre: {t2_style}, Vocal Style: {t2_vocal}. Include structured verses, chorus, bridge, and recommended Suno AI style tags."
-                execute_ai_action(prompt, category_name="Music & Audio", user_topic=t2_val[:30], tab_index=1)
-                st.rerun()
-
-# Tab 3: تصميم الصور والبرومبتات
-with tabs[2]:
-    st.header(T["t3_header"])
-    t3_val = floating_voice_textarea(T["t3_input_label"], "t3_val", T["t3_input_placeholder"])
-    
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        t3_engine = st.selectbox(T["t3_engine"], T["t3_engine_opts"], key="t3_engine")
-    with col2:
-        t3_aspect = st.selectbox(T["t3_aspect"], T["t3_aspect_opts"], key="t3_aspect")
-    with col3:
-        t3_light = st.selectbox(T["t3_light"], T["t3_light_opts"], key="t3_light")
-        
-    if st.button(T["t3_btn"], key="btn_t3"):
-        if not t3_val.strip():
-            st.warning(T["t3_warn"])
-        else:
-            with st.spinner(T["t3_spin"]):
-                prompt = f"Act as an expert AI prompt engineer. Create highly detailed image generation prompts for: {t3_val}. Engine: {t3_engine}, Aspect Ratio/Platform: {t3_aspect}, Lighting: {t3_light}. Provide English and Arabic translations along with parameters."
-                execute_ai_action(prompt, category_name="Image Prompts", user_topic=t3_val[:30], tab_index=2)
-                st.rerun()
-
-# Tab 4: تحريك الفيديو والأفاتار
-with tabs[3]:
-    st.header(T["t4_header"])
-    t4_val = floating_voice_textarea(T["t4_input_label"], "t4_val", T["t4_input_placeholder"])
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        t4_tool = st.selectbox(T["t4_tool"], T["t4_tool_opts"], key="t4_tool")
-    with col2:
-        t4_cam = st.selectbox(T["t4_cam"], T["t4_cam_opts"], key="t4_cam")
-        
-    if st.button(T["t4_btn"], key="btn_t4"):
-        if not t4_val.strip():
-            st.warning(T["t4_warn"])
-        else:
-            with st.spinner(T["t4_spin"]):
-                prompt = f"Act as an advanced AI video production director. Create generation prompts and motion choreography for: {t4_val}. Target Tool: {t4_tool}, Camera Movement: {t4_cam}."
-                execute_ai_action(prompt, category_name="Video Motion", user_topic=t4_val[:30], tab_index=3)
-                st.rerun()
-
-# Tab 5: استراتيجيات التسويق
-with tabs[4]:
-    st.header(T["t5_header"])
-    t5_val = floating_voice_textarea(T["t5_input_label"], "t5_val", T["t5_input_placeholder"])
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        t5_plat = st.selectbox(T["t5_plat"], T["t5_plat_opts"], key="t5_plat")
-    with col2:
-        t5_goal = st.selectbox(T["t5_goal"], T["t5_goal_opts"], key="t5_goal")
-        
-    if st.button(T["t5_btn"], key="btn_t5"):
-        if not t5_val.strip():
-            st.warning(T["t5_warn"])
-        else:
-            with st.spinner(T["t5_spin"]):
-                prompt = f"Act as a professional marketing strategist. Build a comprehensive growth marketing plan for: {t5_val}. Platform: {t5_plat}, Campaign Goal: {t5_goal}. Include content angles, engagement tactics, hashtag strategy, and KPIs."
-                execute_ai_action(prompt, category_name="Marketing Strategy", user_topic=t5_val[:30], tab_index=4)
-                st.rerun()
-
-# ==========================================
-# 7. عرض النتائج الحالية (Output Console)
-# ==========================================
-if st.session_state["current_result"]:
-    st.divider()
+def render_active_result(tab_idx):
     res = st.session_state["current_result"]
-    st.subheader(f"{T['result_label']} ({res['category']} - {res['topic']})")
+    if res and res["tab_index"] == tab_idx:
+        st.success(f"{T['result_label']} {res['topic']}")
+        st.markdown(res["result"])
+        
+        word_count = len(res["result"].split())
+        char_count = len(res["result"])
+        st.info(f"{T['stats_res']} {word_count} words | {char_count} chars")
+        
+        c_b1, c_b2, c_b3 = st.columns(3)
+        with c_b1:
+            if st.button(T["copy_btn"], key=f"cp_{res['id']}_{tab_idx}"):
+                st.toast("Copied successfully!" if lang == "English" else "تم النسخ بنجاح!")
+        with c_b2:
+            st.download_button(
+                label=T["download_txt"],
+                data=res["result"],
+                file_name=f"content_{res['id']}.txt",
+                mime="text/plain",
+                key=f"dl_{res['id']}_{tab_idx}"
+            )
+        with c_b3:
+            res["rating"] = st.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rt_{res['id']}")
+
+# ----------------------------------------------------
+# 1️⃣ Ideas, Scripts & Hooks
+# ----------------------------------------------------
+if st.session_state["selected_tab"] == 0:
+    st.markdown(f"### {T['t1_header']}")
+    v_title = floating_voice_textarea(T['t1_input_label'], "t1_val", T['t1_input_placeholder'])
     
-    st.markdown(res["result"])
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        v_duration = st.selectbox(T['t1_dur'], T['t1_dur_opts'], key="t1_dur")
+    with col_b:
+        v_style = st.selectbox(T['t1_style'], T['t1_style_opts'], key="t1_style")
+    with col_c:
+        v_target = st.selectbox(T['t1_target'], T['t1_target_opts'], key="t1_target")
     
-    col_out1, col_out2, col_out3 = st.columns([1, 1, 2])
-    with col_out1:
-        st.download_button(
-            label=T["download_txt"],
-            data=res["result"],
-            file_name=f"content_studio_{res['id']}.txt",
-            mime="text/plain"
-        )
-    with col_out2:
-        if st.button("⭐ حفظ في المفضلة", key="save_current_fav"):
-            if not any(f["id"] == res["id"] for f in st.session_state["favorites"]):
-                st.session_state["favorites"].append(res)
-                save_data(FAV_FILE, st.session_state["favorites"])
-                st.success("تم الحفظ في المفضلة بنجاح!")
+    if st.button(T['t1_btn'], type="primary", key="action_btn_1"):
+        if not v_title.strip():
+            st.warning(T['t1_warn'])
+        else:
+            with st.spinner(T['t1_spin']):
+                prompt = f"Create a professional script for '{v_title}', duration {v_duration}, style {v_style}, target audience {v_target}, with viral hooks for the first 3 seconds."
+                execute_ai_action(prompt, category_name="Script", user_topic=v_title[:25], tab_index=0)
+                st.rerun()
+
+    render_active_result(0)
+
+# ----------------------------------------------------
+# 2️⃣ Pro Suno Music & Audio
+# ----------------------------------------------------
+elif st.session_state["selected_tab"] == 1:
+    st.markdown(f"### {T['t2_header']}")
+    song_idea = floating_voice_textarea(T['t2_input_label'], "t2_val", T['t2_input_placeholder'])
+    
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        lyrics_dialect = st.selectbox(T['t2_dialect'], T['t2_dialect_opts'], key="t2_dialect")
+    with c2:
+        song_style = st.selectbox(T['t2_style'], T['t2_style_opts'], key="t2_style")
+    with c3:
+        vocal_type = st.selectbox(T['t2_vocal'], T['t2_vocal_opts'], key="t2_vocal")
+
+    if st.button(T['t2_btn'], type="primary", key="action_btn_2"):
+        if not song_idea.strip():
+            st.warning(T['t2_warn'])
+        else:
+            with st.spinner(T['t2_spin']):
+                prompt = f"Create full song lyrics and structure, dialect: {lyrics_dialect}, style: {song_style}, vocal: {vocal_type}, for theme: '{song_idea}'. Include Suno tags."
+                execute_ai_action(prompt, category_name="Music", user_topic=song_idea[:25], tab_index=1)
+                st.rerun()
+
+    render_active_result(1)
+
+# ----------------------------------------------------
+# 3️⃣ Image Prompts & Resolutions
+# ----------------------------------------------------
+elif st.session_state["selected_tab"] == 2:
+    st.markdown(f"### {T['t3_header']}")
+    img_desc = floating_voice_textarea(T['t3_input_label'], "t3_val", T['t3_input_placeholder'])
+    
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        img_engine = st.selectbox(T['t3_engine'], T['t3_engine_opts'], key="t3_engine")
+    with c2:
+        img_aspect = st.selectbox(T['t3_aspect'], T['t3_aspect_opts'], key="t3_aspect")
+    with c3:
+        img_lighting = st.selectbox(T['t3_light'], T['t3_light_opts'], key="t3_light")
+
+    if st.button(T['t3_btn'], type="primary", key="action_btn_3"):
+        if not img_desc.strip():
+            st.warning(T['t3_warn'])
+        else:
+            with st.spinner(T['t3_spin']):
+                prompt = f"Generate 3 pro image prompts for engine: {img_engine}, description: '{img_desc}', aspect ratio: {img_aspect}, lighting: {img_lighting}."
+                execute_ai_action(prompt, category_name="Image", user_topic=img_desc[:25], tab_index=2)
+                st.rerun()
+
+    render_active_result(2)
+
+# ----------------------------------------------------
+# 4️⃣ Advanced Video & Avatar
+# ----------------------------------------------------
+elif st.session_state["selected_tab"] == 3:
+    st.markdown(f"### {T['t4_header']}")
+    a_script = floating_voice_textarea(T['t4_input_label'], "t4_val", T['t4_input_placeholder'])
+    
+    c1, c2 = st.columns(2)
+    with c1:
+        a_ai_tool = st.selectbox(T['t4_tool'], T['t4_tool_opts'], key="t4_tool")
+    with c2:
+        camera_motion = st.selectbox(T['t4_cam'], T['t4_cam_opts'], key="t4_cam")
+
+    if st.button(T['t4_btn'], type="primary", key="action_btn_4"):
+        if not a_script.strip():
+            st.warning(T['t4_warn'])
+        else:
+            with st.spinner(T['t4_spin']):
+                prompt = f"Motion prompts for tool: {a_ai_tool}, camera movement: {camera_motion}, based on: '{a_script}'."
+                execute_ai_action(prompt, category_name="Animation", user_topic=a_script[:25], tab_index=3)
+                st.rerun()
+
+    render_active_result(3)
+
+# ----------------------------------------------------
+# 5️⃣ Marketing & Strategies
+# ----------------------------------------------------
+elif st.session_state["selected_tab"] == 4:
+    st.markdown(f"### {T['t5_header']}")
+    m_topic = floating_voice_textarea(T['t5_input_label'], "t5_val", T['t5_input_placeholder'])
+    
+    c1, c2 = st.columns(2)
+    with c1:
+        m_platform = st.selectbox(T['t5_plat'], T['t5_plat_opts'], key="t5_plat")
+    with c2:
+        m_goal = st.selectbox(T['t5_goal'], T['t5_goal_opts'], key="t5_goal")
+
+    if st.button(T['t5_btn'], type="primary", key="action_btn_5"):
+        if not m_topic.storage if hasattr(m_topic, 'storage') else not m_topic.strip(): # Fallback check
+            st.warning(T['t5_warn'])
+        elif not m_topic.strip():
+            st.warning(T['t5_warn'])
+        else:
+            with st.spinner(T['t5_spin']):
+                prompt = f"Marketing strategy, content plan and viral hashtags for '{m_topic}' on platform '{m_platform}' with goal '{m_goal}'."
+                execute_ai_action(prompt, category_name="Marketing", user_topic=m_topic[:25], tab_index=4)
+                st.rerun()
+
+    render_active_result(4)
