@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم المتجاوب (Responsive)
+# 1. إعدادات الصفحة والتصميم المتجاوب
 # ==========================================
 st.set_page_config(
     page_title="استوديو المحتوى الذكي الشامل - Pro Max",
@@ -14,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# كود CSS لتنسيق الواجهة ومظهر احترافي متجاوب
 st.markdown("""
     <style>
     .stApp {
@@ -26,11 +25,12 @@ st.markdown("""
         .stButton button { width: 100% !important; }
         [data-testid="column"] { width: 100% !important; flex: 100% !important; min-width: 100% !important; }
     }
-    .voice-hint {
-        font-size: 0.85rem;
-        color: #ef4444;
-        font-weight: 600;
-        margin-bottom: 5px;
+    .mic-box {
+        background-color: #1e293b;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px dashed #ef4444;
+        margin-bottom: 10px;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -38,7 +38,7 @@ st.markdown("""
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
 # ==========================================
-# نظام الحفظ الدائم (Persistent Storage - JSON)
+# نظام الحفظ الدائم
 # ==========================================
 HISTORY_FILE = "content_studio_history_pro.json"
 FAV_FILE = "content_studio_favorites_pro.json"
@@ -71,8 +71,14 @@ if "selected_tab" not in st.session_state:
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
+# تهيئة المفاتيح الخاصة بالخانات الرئيسية في الـ session_state
+input_keys = ["t1_field", "t2_field", "t3_field", "t4_field", "t5_field"]
+for k in input_keys:
+    if k not in st.session_state:
+        st.session_state[k] = ""
+
 # ==========================================
-# 2. القاموس الثنائي الشامل (عربي / English)
+# 2. القاموس الشامل (عربي / English)
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -87,7 +93,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية المتكاملة مع إمكانية الإدخال الصوتي المباشر للأفكار والتريندات",
+        "main_caption": "المنظومة الاحترافية المتكاملة مع الإدخال الصوتي المباشر في خانات الأفكار والموضوعات",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -98,7 +104,7 @@ TEXTS = {
         ],
         
         "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو:",
+        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية:",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
         "t1_style": "🎨 النمط البصري المتقدم:",
         "t1_hook": "🎯 تفعيل صانع الخطافات (أول 3 ثوانٍ):",
@@ -127,7 +133,7 @@ TEXTS = {
         "t3_spin": "...جارٍ هندسة الأوامر البصرية",
 
         "t4_title": "🗣️ محرك الفيديو، الأفاتار، وتحويل الصور لحركة",
-        "t4_script": "📜 النص الإلقائي أو أوامر الحركة:",
+        "t4_script": "📜 النص الإلقائي أو أوامر الحركة الأساسية:",
         "t4_voice": "🎙️ نبرة الصوت وتكنيك الأداء:",
         "t4_tool": "🤖 أداة التحريك والأفاتار المستهدفة:",
         "t4_btn": "⚡ توليد برومبتات التحريك",
@@ -159,7 +165,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with voice input support for ideas and trends",
+        "main_caption": "Professional system with direct voice input inside core topic boxes",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -221,49 +227,69 @@ TEXTS = {
     }
 }
 
-# دالة الجافاسكريبت للمايك المباشر (مصححة وخالية من أخطاء الأقواس)
-def render_inline_mic_helper(input_id_name):
-    html_code = """
-        <div style="margin-bottom: 8px;">
-            <span class="voice-hint">🎙️ بدل الكتابة، اضغط للحديث الصوتي:</span><br>
-            <button onclick="recordVoice_""" + input_id_name + """()" style="background-color:#ef4444; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer; font-size:0.85rem; font-weight:bold;">
+# ==========================================
+# 3. دالة زرار المايك المتطور (للكتابة المباشرة في الخانة)
+# ==========================================
+def render_voice_mic_widget(target_session_key):
+    widget_id = f"mic_{target_session_key}"
+    st.markdown(f"""
+        <div class="mic-box">
+            <span style="font-size: 0.85rem; color: #f87171; font-weight: bold;">🎙️ الإدخال الصوتي الذكي (مثل جيمناي):</span><br>
+            <button onclick="startListening_{widget_id}()" id="btn_{widget_id}" style="background-color:#ef4444; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.85rem; font-weight:bold; margin-top:4px;">
                 🔴 اضغط وتحدث بصوتك
             </button>
-            <span id="status_""" + input_id_name + """" style="font-size:0.8rem; color:#555; margin-left:8px;"></span>
+            <span id="status_{widget_id}" style="font-size:0.8rem; color:#94a3b8; margin-left:10px;">متوقف</span>
         </div>
         <script>
-        function recordVoice_""" + input_id_name + """() {
-            if (window.hasOwnProperty('webkitSpeechRecognition')) {
-                var recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.interimResults = false;
-                recognition.lang = "ar-EG";
-                recognition.start();
+        function startListening_{widget_id}() {{
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
+                alert("متصفحك لا يدعم التعرف على الصوت، يرجى استخدام Google Chrome.");
+                return;
+            }}
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            const statusEl = document.getElementById('status_{widget_id}');
+            statusEl.innerText = "جاري الاستماع... تحدث الآن 🎙️";
+            
+            recognition.onresult = function(event) {{
+                const speechResult = event.results[0][0].transcript;
+                statusEl.innerText = "تم بنجاح: " + speechResult;
                 
-                document.getElementById('status_""" + input_id_name + """').innerText = "جاري الاستماع... تتحدث الآن 🎙️";
-                
-                recognition.onresult = function(e) {
-                    var text = e.results[0][0].transcript;
-                    document.getElementById('status_""" + input_id_name + """').innerText = "تم التقاط الصوت بنجاح! ✅";
-                    navigator.clipboard.writeText(text);
-                    alert("تم نسخ كلامك الصوتي: (" + text + ")\\nالآن اضغط لصق (Paste) في خانة الكتابة أدناه.");
-                    recognition.stop();
-                };
-                
-                recognition.onerror = function(e) {
-                    document.getElementById('status_""" + input_id_name + """').innerText = "حدث خطأ في التسجيل.";
-                    recognition.stop();
-                }
-            } else {
-                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
-            }
-        }
+                // البحث عن خانة الإدخال في الصفحة وتعبئتها أوتوماتيك
+                const inputs = window.parent.document.querySelectorAll('input[type="text"], textarea');
+                for (let input of inputs) {{
+                    if (input.value !== undefined) {{
+                        // نضع النص في الخانة النشطة حالياً
+                        input.value = speechResult;
+                        input.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                        input.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                        break;
+                    }}
+                }}
+            }};
+            
+            recognition.onerror = function(event) {{
+                statusEl.innerText = "حدث خطأ في التسجيل، حاول مرة أخرى.";
+            }};
+            
+            recognition.onend = function() {{
+                if (statusEl.innerText.includes("جاري الاستماع")) {{
+                    statusEl.innerText = "انتهى التسجيل.";
+                }}
+            }};
+            
+            recognition.start();
+        }}
         </script>
-    """
-    st.markdown(html_code, unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
 
 # ==========================================
-# 3. دالة الاتصال الذكي بالـ API
+# 4. دالة الاتصال بالـ API
 # ==========================================
 def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -306,7 +332,7 @@ def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab
         return None
 
 # ==========================================
-# 4. القائمة الجانبية المتجاوبة
+# 5. القائمة الجانبية
 # ==========================================
 with st.sidebar:
     lang = st.radio("🌐 اللغة / Language:", ["العربية", "English"])
@@ -370,7 +396,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 5. الواجهة الرئيسية والتنقل بين الأقسام
+# 6. الواجهة الرئيسية والأقسام
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
@@ -413,12 +439,12 @@ def render_result_section(tab_idx):
             res["rating"] = st.slider(T["rating_label"], 1, 5, res.get("rating", 5), key=f"rate_{res['id']}")
 
 # ----------------------------------------------------
-# 1️⃣ الفكرة والسكريبت والخطافات
+# 1️⃣ فكرة وسكريبت والخطافات
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    render_inline_mic_helper("tab1_input")
+    render_voice_mic_widget("t1_field")
     v_title = st.text_input(T["t1_input"], key="t1_field")
     
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
@@ -444,7 +470,7 @@ elif st.session_state["selected_tab"] == 1:
     
     col1, col2 = st.columns(2)
     with col1:
-        render_inline_mic_helper("tab2_input")
+        render_voice_mic_widget("t2_field")
         song_idea = st.text_area(T["t2_idea"], height=100, key="t2_field")
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
         lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
@@ -467,12 +493,12 @@ elif st.session_state["selected_tab"] == 1:
     render_result_section(1)
 
 # ----------------------------------------------------
-# 3️⃣ مهندس الصور
+# 3️⃣ مهندس الصور الاحترافي
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    render_inline_mic_helper("tab3_input")
+    render_voice_mic_widget("t3_field")
     img_desc = st.text_input(T["t3_desc"], key="t3_field")
     
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
@@ -490,12 +516,12 @@ elif st.session_state["selected_tab"] == 2:
     render_result_section(2)
 
 # ----------------------------------------------------
-# 4️⃣ تحريك الفيديو
+# 4️⃣ تحريك الفيديو والأفاتار
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    render_inline_mic_helper("tab4_input")
+    render_voice_mic_widget("t4_field")
     a_script = st.text_area(T["t4_script"], height=100, key="t4_field")
     
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
@@ -513,12 +539,12 @@ elif st.session_state["selected_tab"] == 3:
     render_result_section(3)
 
 # ----------------------------------------------------
-# 5️⃣ التسويق والتريند
+# 5️⃣ التسويق والتريندات
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    render_inline_mic_helper("tab5_input")
+    render_voice_mic_widget("t5_field")
     m_topic = st.text_input(T["t5_topic"], key="t5_field")
     
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
