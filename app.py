@@ -8,7 +8,7 @@ from datetime import datetime
 # 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
-    page_title="استوديو المحتوى الذكي الشامل - Interactive Voice Pro",
+    page_title="استوديو المحتوى الذكي - Floating Mic Pro",
     page_icon="🎙️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -19,8 +19,8 @@ API_KEY = st.secrets.get("GEMINI_API_KEY")
 # ==========================================
 # نظام الحفظ الدائم
 # ==========================================
-HISTORY_FILE = "content_studio_voice_history.json"
-FAV_FILE = "content_studio_voice_favorites.json"
+HISTORY_FILE = "content_studio_float_history.json"
+FAV_FILE = "content_studio_float_favorites.json"
 
 def load_data(file_path):
     if os.path.exists(file_path):
@@ -50,7 +50,6 @@ if "selected_tab" not in st.session_state:
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
-# التأكد من وجود مفاتيح النصوص في الـ session state
 for k in ["t1_val", "t2_val", "t3_val", "t4_val", "t5_val"]:
     if k not in st.session_state:
         st.session_state[k] = ""
@@ -69,8 +68,8 @@ TEXTS = {
         "clear_history": "🗑️ مسح السجل بالكامل",
         "stats_title": "📊 لوحة الإحصائيات",
         "stat_total": "إجمالي الأعمال المُنجزة:",
-        "main_title": "🎙️ استوديو المحتوى الذكي (Voice & Action Pro)",
-        "main_caption": "المنظومة الاحترافية المزودة بنظام الإدخال الصوتي التفاعلي والترددات الحية",
+        "main_title": "🎙️ استوديو المحتوى الذكي (Floating Voice Pro)",
+        "main_caption": "المنظومة الاحترافية المزودة بزر المايك والترددات المدمجة داخل خانة النص",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -81,7 +80,7 @@ TEXTS = {
         ],
         
         "t1_title": "🎬 صانع الفكرة، السكريبت التفصيلي، والـ Hook Generator",
-        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية (تحدث بالمايك أو اكتب):",
+        "t1_input": "📽️ عنوان أو فكرة الفيديو الأساسية (استخدم مايك اليمين للتحدث):",
         "t1_dur": "⏱️ مدة الفيديو التقديرية:",
         "t1_style": "🎨 النمط البصري:",
         "t1_btn": "🔥 تنفيذ وتوليد السكريبت والخطافات",
@@ -133,8 +132,8 @@ TEXTS = {
         "clear_history": "🗑️ Clear History",
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Executions:",
-        "main_title": "🎙️ Smart Content Studio (Voice & Action Pro)",
-        "main_caption": "Professional system with interactive voice input and live audio waveforms",
+        "main_title": "🎙️ Smart Content Studio (Floating Voice Pro)",
+        "main_caption": "Professional system with built-in mic and waveforms inside the text box",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -145,7 +144,7 @@ TEXTS = {
         ],
         
         "t1_title": "🎬 Idea Generator, Script, & Viral Hooks",
-        "t1_input": "📽️ Video Title or Core Idea (Use Voice or Type):",
+        "t1_input": "📽️ Video Title or Core Idea (Use right mic to speak):",
         "t1_dur": "⏱️ Estimated Duration:",
         "t1_style": "🎨 Visual Style:",
         "t1_btn": "🔥 Execute Script & Hooks",
@@ -190,123 +189,113 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. مكون شريط الصوت والترددات المتطور والمربوط بخانة النص
+# 3. دالة خانة النص المدمجة مع المايك العائم
 # ==========================================
-def voice_input_widget(label, session_key, placeholder="اكتب فكرتك أو اضغط المايك للتحدث..."):
-    # خانة النص الأساسية
+def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك اليمين..."):
+    # خانة النص العادية من Streamlit
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
-    # شريط التحكم الصوتي (المايك، الترددات، وزر الإيقاف والتثبيت) تحت الخانة مباشرة
-    st.markdown(f"""
-    <div style="display: flex; align-items: center; justify-content: space-between; background: #1e1f22; padding: 10px 16px; border-radius: 0 0 12px 12px; margin-top: -16px; border: 1px solid #444746; border-top: none; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <button type="button" id="start_mic_{session_key}" onclick="toggleMic_{session_key}()" style="background: rgba(138, 180, 248, 0.15); border: 1px solid #8ab4f8; color: #8ab4f8; padding: 6px 14px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.85rem; transition: 0.3s;">
-                🎙️ <span id="mic_status_{session_key}">بدء التحدث (Voice)</span>
-            </button>
-            
-            <button type="button" id="stop_mic_{session_key}" onclick="stopMic_{session_key}()" style="background: rgba(234, 67, 53, 0.15); border: 1px solid #ea4335; color: #ea4335; padding: 6px 14px; border-radius: 20px; cursor: pointer; display: none; align-items: center; gap: 6px; font-weight: 600; font-size: 0.85rem;">
-                ⏹️ إيقاف وتثبيت النص
-            </button>
-            
-            <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 18px;">
-                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.6s infinite ease-in-out;"></div>
-                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.6s infinite ease-in-out 0.15s;"></div>
-                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.6s infinite ease-in-out 0.3s;"></div>
-                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.6s infinite ease-in-out 0.45s;"></div>
-            </div>
-        </div>
-        <span style="color: #9aa0a6; font-size: 0.75rem; font-family: monospace;">Voice Recognition Active</span>
-    </div>
-
-    <style>
-    @keyframes waveAnim {{
-        0%, 100% {{ height: 4px; }}
-        50% {{ height: 18px; }}
-    }}
-    </style>
-
+    # حقن كود جافاسكريبت و CSS لتثبيت زر المايك والترددات في الزاوية اليمنى السفلى داخل حقل النص مباشرة
+    components_code = f"""
     <script>
-    let recognition_{session_key} = null;
-    let isRecording_{session_key} = false;
-
-    function toggleMic_{session_key}() {{
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-            alert("عذراً، متصفحك لا يدعم التعرف على الصوت. يرجى استخدام Google Chrome.");
-            return;
-        }}
-
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition_{session_key} = new SpeechRecognition();
-        recognition_{session_key}.lang = 'ar-EG';
-        recognition_{session_key}.interimResults = true;
-        recognition_{session_key}.continuous = true;
-
-        const startBtn = document.getElementById('start_mic_{session_key}');
-        const stopBtn = document.getElementById('stop_mic_{session_key}');
-        const waveBox = document.getElementById('waves_{session_key}');
-        const micStatus = document.getElementById('mic_status_{session_key}');
+    (function() {{
+        const doc = window.parent.document;
+        const textAreas = doc.querySelectorAll('textarea');
         
-        // البحث عن صندوق النص (Textarea) المرتبط بهذا الحقل
-        const container = startBtn.closest('.element-container') || document;
-        const targetTextArea = container.querySelector('textarea') || document.querySelector('textarea');
+        textAreas.forEach((ta) => {{
+            if (ta.getAttribute('aria-label') === `{label}` || ta.placeholder === `{placeholder}`) {{
+                const wrapper = ta.closest('.stTextArea') || ta.parentElement;
+                
+                if (wrapper && !wrapper.querySelector('.floating-mic-container_{session_key}')) {{
+                    // إنشاء الحاوية العائمة في اليمين تحت
+                    const micDiv = doc.createElement('div');
+                    micDiv.className = 'floating-mic-container_{session_key}';
+                    micDiv.style.cssText = "position: absolute; bottom: 12px; right: 12px; display: flex; align-items: center; gap: 8px; z-index: 999;";
+                    
+                    micDiv.innerHTML = `
+                        <div id="waves_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 10px;">
+                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out;"></div>
+                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.15s;"></div>
+                            <div style="width: 3px; background: #ea4335; border-radius: 2px; animation: waveA 0.6s infinite ease-in-out 0.3s;"></div>
+                        </div>
+                        <button type="button" id="mic_btn_{session_key}" title="تحدث بالصوت" style="background: #2b2d31; border: 1px solid #5f6368; color: #8ab4f8; width: 34px; height: 34px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: 0.2s;">
+                            🎙️
+                        </button>
+                    `;
+                    
+                    // إضافة أسلوب الحركة للترددات
+                    if (!doc.getElementById('wave-style-global')) {{
+                        const style = doc.createElement('style');
+                        style.id = 'wave-style-global';
+                        style.innerHTML = '@keyframes waveA {{ 0%, 100% {{ height: 4px; }} 50% {{ height: 16px; }} }}';
+                        doc.head.appendChild(style);
+                    }}
 
-        recognition_{session_key}.onstart = function() {{
-            isRecording_{session_key} = true;
-            startBtn.style.display = 'none';
-            stopBtn.style.display = 'flex';
-            waveBox.style.display = 'flex';
-        }};
+                    wrapper.style.position = 'relative';
+                    wrapper.appendChild(micDiv);
 
-        recognition_{session_key}.onresult = function(event) {{
-            let interimTranscript = '';
-            let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {{
-                if (event.results[i].isFinal) {{
-                    finalTranscript += event.results[i][0].transcript;
-                }} else {{
-                    interimTranscript += event.results[i][0].transcript;
+                    let recognition = null;
+                    let isRec = false;
+                    const btn = micDiv.querySelector('#mic_btn_{session_key}');
+                    const waves = micDiv.querySelector('#waves_{session_key}');
+
+                    btn.onclick = function() {{
+                        const SpeechRecognition = window.parent.SpeechRecognition || window.parent.webkitSpeechRecognition;
+                        if (!SpeechRecognition) {{
+                            alert("متصفحك لا يدعم التعرف الصوتي. يرجى استخدام Google Chrome.");
+                            return;
+                        }}
+
+                        if (!isRec) {{
+                            recognition = new SpeechRecognition();
+                            recognition.lang = 'ar-EG';
+                            recognition.interimResults = true;
+                            recognition.continuous = true;
+
+                            recognition.onstart = function() {{
+                                isRec = true;
+                                btn.style.background = '#ea4335';
+                                btn.style.color = '#fff';
+                                btn.style.borderColor = '#ff8580';
+                                btn.style.transform = 'scale(1.1)';
+                                waves.style.display = 'flex';
+                            }};
+
+                            recognition.onresult = function(e) {{
+                                let transcript = '';
+                                for (let i = e.resultIndex; i < e.results.length; ++i) {{
+                                    transcript += e.results[i][0].transcript;
+                                }}
+                                ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
+                                ta.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                                ta.dispatchEvent(new Event('change', {{ bubbles: true }}));
+                            }};
+
+                            recognition.onerror = function() {{ stopRec(); }};
+                            recognition.onend = function() {{ stopRec(); }};
+
+                            try {{ recognition.start(); }} catch(err) {{ console.log(err); }}
+                        }} else {{
+                            if (recognition) recognition.stop();
+                            stopRec();
+                        }}
+                    }};
+
+                    function stopRec() {{
+                        isRec = false;
+                        btn.style.background = '#2b2d31';
+                        btn.style.color = '#8ab4f8';
+                        btn.style.borderColor = '#5f6368';
+                        btn.style.transform = 'scale(1.0)';
+                        waves.style.display = 'none';
+                    }}
                 }}
-            }}
-            if (targetTextArea) {{
-                let currentText = targetTextArea.value ? targetTextArea.value + ' ' : '';
-                targetTextArea.value = currentText + (finalTranscript || interimTranscript);
-                // إرسال حدث التحديث لبايثون
-                targetTextArea.dispatchEvent(new Event('input', {{ bubbles: true }}));
-                targetTextArea.dispatchEvent(new Event('change', {{ bubbles: true }}));
-            }}
-        }};
-
-        recognition_{session_key}.onerror = function(event) {{
-            console.error("Speech recognition error", event.error);
-            stopMic_{session_key}();
-        }};
-
-        recognition_{session_key}.onend = function() {{
-            stopMic_{session_key}();
-        }};
-
-        try {{
-            recognition_{session_key}.start();
-        }} catch(e) {{
-            console.error(e);
-        }}
-    }}
-
-    function stopMic_{session_key}() {{
-        if (recognition_{session_key}) {{
-            recognition_{session_key}.stop();
-        }}
-        const startBtn = document.getElementById('start_mic_{session_key}');
-        const stopBtn = document.getElementById('stop_mic_{session_key}');
-        const waveBox = document.getElementById('waves_{session_key}');
-        
-        if (startBtn) startBtn.style.display = 'flex';
-        if (stopBtn) stopBtn.style.display = 'none';
-        if (waveBox) waveBox.style.display = 'none';
-    }}
+            }
+        }});
+    }})();
     </script>
-    """, unsafe_allow_html=True)
-    
+    """
+    st.components.v1.html(components_code, height=0, width=0)
     return val
 
 # ==========================================
@@ -457,8 +446,8 @@ def render_active_result(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    # استخدام المكون الصوتي المتطور تحت خانة النص
-    v_title = voice_input_widget(T['t1_input'], "t1_val", "اكتب فكرتك أو اضغط على 'بدء التحدث'...")
+    # استدعاء خانة النص مع المايك العائم على اليمين تحت
+    v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك اليمين للتحدث...")
     
     col_a, col_b = st.columns(2)
     with col_a:
@@ -483,7 +472,7 @@ if st.session_state["selected_tab"] == 0:
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
     
-    song_idea = voice_input_widget(T['t2_idea'], "t2_val", "اكتب أو تحدث بفكرة الأغنية...")
+    song_idea = floating_voice_textarea(T['t2_idea'], "t2_val", "اكتب فكرة الأغنية أو تحدث بالمايك...")
     
     c1, c2 = st.columns(2)
     with c1:
@@ -508,7 +497,7 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    img_desc = voice_input_widget(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل صوتياً أو كتابةً...")
+    img_desc = floating_voice_textarea(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل كتابةً أو بالمايك...")
     
     c1, c2 = st.columns(2)
     with c1:
@@ -533,7 +522,7 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    a_script = voice_input_widget(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك...")
+    a_script = floating_voice_textarea(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك العائم...")
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar"])
     
     if st.button(T["t4_btn"], type="primary", key="action_btn_4"):
@@ -553,7 +542,7 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    m_topic = voice_input_widget(T['t5_topic'], "t5_val", "اكتب أو تحدث بموضوع الحملة التسويقية...")
+    m_topic = floating_voice_textarea(T['t5_topic'], "t5_val", "اكتب أو تحدث بموضوع الحملة التسويقية...")
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "LinkedIn"])
     
     if st.button(T["t5_btn"], type="primary", key="action_btn_5"):
