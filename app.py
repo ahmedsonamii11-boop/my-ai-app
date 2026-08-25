@@ -189,7 +189,7 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop المخصص
+# 3. دالة خانة النص المدمجة مع المايك وزر الـ Stop (مصصححة تماماً)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك لتسجيل ممتد..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
@@ -249,7 +249,7 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         recognition = new SpeechRecognition();
                         recognition.lang = 'ar-EG';
                         recognition.interimResults = true;
-                        recognition.continuous = true; // تفعيل التسجيل الممتد بدون توقف تلقائي
+                        recognition.continuous = true;
 
                         recognition.onstart = function() {
                             isRec = true;
@@ -283,7 +283,6 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
 
                         recognition.onerror = function() { stopRecordingProcess(); };
                         recognition.onend = function() {
-                            // لو وقف لأي سبب غير مقصود وهو لسه مفعل نعمله إعادة تشغيل لضمان استمراره
                             if (isRec) {
                                 try { recognition.start(); } catch(err) {}
                             }
@@ -304,7 +303,6 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         stopBtn.style.display = 'none';
                         waves.style.display = 'none';
 
-                        // إرسال الأحداث النهائية لضمان قراءة بايثون للنص
                         ta.dispatchEvent(new Event('input', { bubbles: true }));
                         ta.dispatchEvent(new Event('change', { bubbles: true }));
                         ta.blur();
@@ -327,7 +325,7 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
         });
     })();
     </script>
-    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key, session_key)
+    """ % (label, placeholder, session_key, session_key, session_key, session_key, session_key, session_key, session_key, session_key, session_key)
 
     st.components.v1.html(js_code, height=0, width=0)
     return st.session_state.get(session_key, "")
