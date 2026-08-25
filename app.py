@@ -14,6 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# كود CSS لتنسيق الحقول وإضافة شكل احترافي للمايك المدمج
 st.markdown("""
     <style>
     .stApp {
@@ -25,12 +26,38 @@ st.markdown("""
         .stButton button { width: 100% !important; }
         [data-testid="column"] { width: 100% !important; flex: 100% !important; min-width: 100% !important; }
     }
-    .mic-box {
-        background-color: #1e293b;
-        padding: 10px;
-        border-radius: 8px;
-        border: 1px dashed #ef4444;
-        margin-bottom: 10px;
+    .inline-mic-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 5px;
+    }
+    .mic-wave-btn {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 4px 6px rgba(239, 68, 68, 0.3);
+        transition: all 0.3s ease;
+    }
+    .mic-wave-btn:hover {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #dc2626, #b91c1c);
+    }
+    .listening-pulse {
+        animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -71,12 +98,6 @@ if "selected_tab" not in st.session_state:
 if "current_result" not in st.session_state:
     st.session_state["current_result"] = None
 
-# تهيئة المفاتيح الخاصة بالخانات الرئيسية في الـ session_state
-input_keys = ["t1_field", "t2_field", "t3_field", "t4_field", "t5_field"]
-for k in input_keys:
-    if k not in st.session_state:
-        st.session_state[k] = ""
-
 # ==========================================
 # 2. القاموس الشامل (عربي / English)
 # ==========================================
@@ -93,7 +114,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية المتكاملة مع الإدخال الصوتي المباشر في خانات الأفكار والموضوعات",
+        "main_caption": "المنظومة الاحترافية المتكاملة مع الإدخال الصوتي التفاعلي المباشر داخل الحقول",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -165,7 +186,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with direct voice input inside core topic boxes",
+        "main_caption": "Professional system with interactive voice input directly inside fields",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -204,7 +225,7 @@ TEXTS = {
         "t3_warn": "⚠️ Please enter image description!",
         "t3_spin": "...Engineering visual prompts",
 
-        "t4_title": "🗣️ Video Engine & Avatar Animation",
+        "t4_title": "Video Engine & Avatar Animation",
         "t4_script": "📜 Voiceover Text or Motion Commands:",
         "t4_voice": "🎙️ Voice Tone:",
         "t4_tool": "🤖 Target Animation Tool:",
@@ -228,65 +249,90 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة زرار المايك المتطور (للكتابة المباشرة في الخانة)
+# 3. دالة زرار التفاعل الصوتي الذكي (تتصل مباشرة بالحقل)
 # ==========================================
-def render_voice_mic_widget(target_session_key):
-    widget_id = f"mic_{target_session_key}"
-    st.markdown(f"""
-        <div class="mic-box">
-            <span style="font-size: 0.85rem; color: #f87171; font-weight: bold;">🎙️ الإدخال الصوتي الذكي (مثل جيمناي):</span><br>
-            <button onclick="startListening_{widget_id}()" id="btn_{widget_id}" style="background-color:#ef4444; color:white; border:none; padding:6px 14px; border-radius:6px; cursor:pointer; font-size:0.85rem; font-weight:bold; margin-top:4px;">
-                🔴 اضغط وتحدث بصوتك
+def render_interactive_mic(unique_id):
+    html_code = f"""
+        <div class="inline-mic-container">
+            <button type="button" class="mic-wave-btn" id="mic_btn_{unique_id}" onclick="toggleVoice_{unique_id}()">
+                <span>🎙️</span> <span id="mic_text_{unique_id}">تحدث بصوتك</span>
             </button>
-            <span id="status_{widget_id}" style="font-size:0.8rem; color:#94a3b8; margin-left:10px;">متوقف</span>
+            <span id="mic_status_{unique_id}" style="font-size: 0.8rem; color: #94a3b8;">اضغط للتحدث والكتابة الآلية</span>
         </div>
+        
         <script>
-        function startListening_{widget_id}() {{
+        function toggleVoice_{unique_id}() {{
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-                alert("متصفحك لا يدعم التعرف على الصوت، يرجى استخدام Google Chrome.");
+                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
                 return;
             }}
             
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             const recognition = new SpeechRecognition();
             recognition.lang = 'ar-EG';
-            recognition.interimResults = false;
+            recognition.interimResults = true;
             recognition.maxAlternatives = 1;
             
-            const statusEl = document.getElementById('status_{widget_id}');
-            statusEl.innerText = "جاري الاستماع... تحدث الآن 🎙️";
+            const btn = document.getElementById('mic_btn_{unique_id}');
+            const status = document.getElementById('mic_status_{unique_id}');
+            const btnText = document.getElementById('mic_text_{unique_id}');
+            
+            recognition.onstart = function() {{
+                btn.classList.add('listening-pulse');
+                btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+                btnText.innerText = "جاري الاستماع...";
+                status.innerText = "تحدث الآن بوضوح 🎙️...";
+            }};
             
             recognition.onresult = function(event) {{
-                const speechResult = event.results[0][0].transcript;
-                statusEl.innerText = "تم بنجاح: " + speechResult;
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {{
+                    transcript += event.results[i][0].transcript;
+                }}
                 
-                // البحث عن خانة الإدخال في الصفحة وتعبئتها أوتوماتيك
+                // البحث العكسي الدقيق عن أقرب خانة إدخال نصية في نفس الشاشة لتعبئتها فوريًا
                 const inputs = window.parent.document.querySelectorAll('input[type="text"], textarea');
                 for (let input of inputs) {{
-                    if (input.value !== undefined) {{
-                        // نضع النص في الخانة النشطة حالياً
-                        input.value = speechResult;
+                    // نختار أول حقل نشط أو مناسب
+                    if (input) {{
+                        nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLInputElement.prototype, "value").set;
+                        if (!nativeInputValueSetter) {{
+                            nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
+                        }}
+                        if (nativeInputValueSetter) {{
+                            nativeInputValueSetter.call(input, transcript);
+                        }} else {{
+                            input.value = transcript;
+                        }}
                         input.dispatchEvent(new Event('input', {{ bubbles: true }}));
                         input.dispatchEvent(new Event('change', {{ bubbles: true }}));
                         break;
                     }}
                 }}
+                status.innerText = "تمت الكتابة: " + transcript;
             }};
             
             recognition.onerror = function(event) {{
-                statusEl.innerText = "حدث خطأ في التسجيل، حاول مرة أخرى.";
+                status.innerText = "حدث خطأ في التسجيل، حاول مجدداً.";
+                resetBtn_{unique_id}();
             }};
             
             recognition.onend = function() {{
-                if (statusEl.innerText.includes("جاري الاستماع")) {{
-                    statusEl.innerText = "انتهى التسجيل.";
-                }}
+                resetBtn_{unique_id}();
+                status.innerText = "تم الانتهاء بنجاح ✅";
             }};
+            
+            function resetBtn_{unique_id}() {{
+                btn.classList.remove('listening-pulse');
+                btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+                btnText.innerText = "تحدث بصوتك";
+            }}
             
             recognition.start();
         }}
         </script>
-    """, unsafe_allow_html=True)
+    """
+    st.markdown(html_code, unsafe_allow_html=True)
 
 # ==========================================
 # 4. دالة الاتصال بالـ API
@@ -444,7 +490,7 @@ def render_result_section(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    render_voice_mic_widget("t1_field")
+    render_interactive_mic("tab1")
     v_title = st.text_input(T["t1_input"], key="t1_field")
     
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
@@ -470,7 +516,7 @@ elif st.session_state["selected_tab"] == 1:
     
     col1, col2 = st.columns(2)
     with col1:
-        render_voice_mic_widget("t2_field")
+        render_interactive_mic("tab2")
         song_idea = st.text_area(T["t2_idea"], height=100, key="t2_field")
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
         lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
@@ -498,7 +544,7 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    render_voice_mic_widget("t3_field")
+    render_interactive_mic("tab3")
     img_desc = st.text_input(T["t3_desc"], key="t3_field")
     
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
@@ -521,7 +567,7 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    render_voice_mic_widget("t4_field")
+    render_interactive_mic("tab4")
     a_script = st.text_area(T["t4_script"], height=100, key="t4_field")
     
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
@@ -544,7 +590,7 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    render_voice_mic_widget("t5_field")
+    render_interactive_mic("tab5")
     m_topic = st.text_input(T["t5_topic"], key="t5_field")
     
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
