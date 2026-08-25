@@ -189,12 +189,11 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة خانة النص المدمجة مع المايك العائم
+# 3. دالة خانة النص المدمجة مع المايك (مع ربط بايثون الفوري)
 # ==========================================
 def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك أو اضغط مايك اليمين..."):
     val = st.text_area(label, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
     
-    # استخدام f-string آمنة تماماً وخالية من أي تداخل في الأقواس
     js_code = """
     <script>
     (function() {
@@ -246,8 +245,8 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                         if (!isRec) {
                             recognition = new SpeechRecognition();
                             recognition.lang = 'ar-EG';
-                            recognition.interimResults = true;
-                            recognition.continuous = true;
+                            recognition.interimResults = false;  // منع تكرار الكلمات وجعلها تقرا الجملة كاملة بدقة
+                            recognition.continuous = false;     // إيقاف التسجيل التلقائي بعد انتهاء الجملة لمنع الـ Loop
 
                             recognition.onstart = function() {
                                 isRec = true;
@@ -259,13 +258,17 @@ def floating_voice_textarea(label, session_key, placeholder="اكتب فكرتك
                             };
 
                             recognition.onresult = function(e) {
-                                let transcript = '';
-                                for (let i = e.resultIndex; i < e.results.length; ++i) {
-                                    transcript += e.results[i][0].transcript;
-                                }
+                                let transcript = e.results[0][0].transcript;
                                 ta.value = (ta.value ? ta.value + ' ' : '') + transcript;
+                                
+                                // إرسال الأحداث لتحديث بايثون وسตรีملت فوراً
                                 ta.dispatchEvent(new Event('input', { bubbles: true }));
                                 ta.dispatchEvent(new Event('change', { bubbles: true }));
+                                
+                                // إجبار React على مزامنة القيمة مع Streamlit State
+                                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.parent.HTMLTextAreaElement.prototype, "value").set;
+                                nativeInputValueSetter.call(ta, ta.value);
+                                ta.dispatchEvent(new Event('input', { bubbles: true }));
                             };
 
                             recognition.onerror = function() { stopRec(); };
@@ -443,7 +446,6 @@ def render_active_result(tab_idx):
 # ----------------------------------------------------
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
-    
     v_title = floating_voice_textarea(T['t1_input'], "t1_val", "اكتب أو اضغط مايك اليمين للتحدث...")
     
     col_a, col_b = st.columns(2)
@@ -468,7 +470,6 @@ if st.session_state["selected_tab"] == 0:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 1:
     st.markdown(f"### {T['t2_title']}")
-    
     song_idea = floating_voice_textarea(T['t2_idea'], "t2_val", "اكتب فكرة الأغنية أو تحدث بالمايك...")
     
     c1, c2 = st.columns(2)
@@ -493,7 +494,6 @@ elif st.session_state["selected_tab"] == 1:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
-    
     img_desc = floating_voice_textarea(T['t3_desc'], "t3_val", "صف صورتك بالتفصيل كتابةً أو بالمايك...")
     
     c1, c2 = st.columns(2)
@@ -518,7 +518,6 @@ elif st.session_state["selected_tab"] == 2:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
-    
     a_script = floating_voice_textarea(T['t4_script'], "t4_val", "أدخل النص أو أملِهِ بالمايك العائم...")
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar"])
     
@@ -538,7 +537,6 @@ elif st.session_state["selected_tab"] == 3:
 # ----------------------------------------------------
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
-    
     m_topic = floating_voice_textarea(T['t5_topic'], "t5_val", "اكتب أو تحدث بموضوع الحملة التسويقية...")
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "LinkedIn"])
     
