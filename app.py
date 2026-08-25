@@ -205,84 +205,100 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. مكون إدخال جيميني المباشر (Gemini Native Box)
+# 3. صندوق إدخال جيميني المباشر (مع دعم المايك المؤكد)
 # ==========================================
-def gemini_input_field(label_text, session_key, placeholder="اكتب فكرتك هنا أو اضغط على المايك وتحدث..."):
-    # دالة تعتمد على حقل نصي قياسي من Streamlit مضاف إليه كود JavaScript خفيف يضع زر المايك جواه مباشرة
-    val = st.text_area(label_text, value=st.session_state.get(session_key, ""), key=session_key, height=120, placeholder=placeholder)
+def gemini_input_field(label_text, session_key, placeholder="اكتب فكرتك هنا أو اضغط على زر المايك للتحدث..."):
+    # استخدام Streamlit input عادي لضمان مزامنة الحالة 100%
+    val = st.text_area(label_text, value=st.session_state.get(session_key, ""), key=session_key, height=130, placeholder=placeholder)
     
-    # حقن تصميم وزر المايك داخل الصندوق مباشرة بطريقة تضمن عمل زر التوليد في بايثون بكفاءة 100%
+    # تصميم شريط تحكم المايك المطابق لـ جيميني مع السكربت المباشر للربط بـ DOM
     st.markdown(f"""
-    <div style="display: flex; align-items: center; justify-content: space-between; background: #1e1f22; padding: 8px 14px; border-radius: 0 0 12px 12px; margin-top: -15px; border: 1px solid #444746; border-top: none;">
-        <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" id="mic_btn_{session_key}" onclick="toggleVoice_{session_key}()" style="background: rgba(138, 180, 248, 0.15); border: none; color: #8ab4f8; padding: 6px 14px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.9rem; transition: 0.2s;">
-                🎤 <span>تحدث بصوتك (Voice)</span>
+    <div style="display: flex; align-items: center; justify-content: space-between; background: #1e1f22; padding: 10px 16px; border-radius: 0 0 12px 12px; margin-top: -15px; border: 1px solid #444746; border-top: none; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <button type="button" id="mic_btn_{session_key}" onclick="startListening_{session_key}()" style="background: rgba(138, 180, 248, 0.15); border: 1px solid #8ab4f8; color: #8ab4f8; padding: 6px 16px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 0.9rem; transition: 0.3s;">
+                🎤 <span id="mic_text_{session_key}">تحدث بصوتك (Voice)</span>
             </button>
-            <div id="wave_{session_key}" style="display: none; align-items: center; gap: 3px; height: 16px;">
-                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out;"></div>
-                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out 0.2s;"></div>
-                <div style="width: 3px; background: #ea4335; animation: waveAnim 1s infinite ease-in-out 0.4s;"></div>
+            <div id="wave_{session_key}" style="display: none; align-items: center; gap: 3px; height: 18px;">
+                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.8s infinite ease-in-out;"></div>
+                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.8s infinite ease-in-out 0.2s;"></div>
+                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.8s infinite ease-in-out 0.4s;"></div>
+                <div style="width: 4px; background: #ea4335; border-radius: 2px; animation: waveAnim 0.8s infinite ease-in-out 0.6s;"></div>
             </div>
         </div>
-        <span style="color: #9aa0a6; font-size: 0.8rem;">Gemini Voice Engine v2.5</span>
+        <span style="color: #9aa0a6; font-size: 0.8rem; font-family: monospace;">Gemini Voice Engine v3.0</span>
     </div>
     
     <style>
     @keyframes waveAnim {{
         0%, 100% {{ height: 4px; }}
-        50% {{ height: 16px; }}
+        50% {{ height: 18px; }}
     }}
     </style>
 
     <script>
-    function toggleVoice_{session_key}() {{
+    function startListening_{session_key}() {{
         if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-            alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
+            alert("عذراً، متصفحك لا يدعم الإدخال الصوتي. يرجى استخدام متصفح Google Chrome.");
             return;
         }}
         
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new SpeechRecognition();
         recognition.lang = 'ar-EG';
-        recognition.interimResults = false;
+        recognition.interimResults = true;
         recognition.continuous = false;
         
         const micBtn = document.getElementById('mic_btn_{session_key}');
+        const micText = document.getElementById('mic_text_{session_key}');
         const waveBox = document.getElementById('wave_{session_key}');
-        const targetTextArea = document.querySelector('textarea[aria-label*="{label_text}"]');
+        
+        // البحث عن الـ textarea الخاص بهذا الحقل بدقة عبر الحاوية الأب
+        const container = micBtn.closest('.element-container') || document;
+        const targetTextArea = container.querySelector('textarea') || document.querySelector('textarea');
         
         recognition.onstart = function() {{
             micBtn.style.background = 'rgba(234, 67, 53, 0.2)';
+            micBtn.style.borderColor = '#ea4335';
             micBtn.style.color = '#ea4335';
-            micBtn.innerHTML = '🔴 <span>جاري الاستماع...</span>';
+            micText.innerText = 'جاري الاستماع...';
             waveBox.style.display = 'flex';
         }};
         
         recognition.onresult = function(event) {{
-            const speechToText = event.results[0][0].transcript;
+            let transcript = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {{
+                transcript += event.results[i][0].transcript;
+            }}
             if (targetTextArea) {{
-                let existing = targetTextArea.value;
-                targetTextArea.value = existing ? existing + ' ' + speechToText : speechToText;
+                targetTextArea.value = transcript;
+                // إرسال حدث تغيير لضمان قراءة بايثون للقيمة الجديدة فوراً
                 targetTextArea.dispatchEvent(new Event('input', {{ bubbles: true }}));
+                targetTextArea.dispatchEvent(new Event('change', {{ bubbles: true }}));
             }}
         }};
         
-        recognition.onerror = function() {{
-            resetMic_{session_key}();
+        recognition.onerror = function(event) {{
+            console.error("Speech recognition error", event.error);
+            resetUI_{session_key}();
         }};
         
         recognition.onend = function() {{
-            resetMic_{session_key}();
+            resetUI_{session_key}();
         }};
         
-        function resetMic_{session_key}() {{
+        function resetUI_{session_key}() {{
             micBtn.style.background = 'rgba(138, 180, 248, 0.15)';
+            micBtn.style.borderColor = '#8ab4f8';
             micBtn.style.color = '#8ab4f8';
-            micBtn.innerHTML = '🎤 <span>تحدث بصوتك (Voice)</span>';
+            micText.innerText = 'تحدث بصوتك (Voice)';
             waveBox.style.display = 'none';
         }}
         
-        recognition.start();
+        try {{
+            recognition.start();
+        }} catch(e) {{
+            console.error(e);
+        }}
     }}
     </script>
     """, unsafe_allow_html=True)
@@ -290,7 +306,7 @@ def gemini_input_field(label_text, session_key, placeholder="اكتب فكرتك
     return val
 
 # ==========================================
-# 4. دالة الـ API
+# 4. دالة الاتصال بـ API
 # ==========================================
 def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -397,7 +413,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 6. الواجهة الرئيسية
+# 6. الواجهة الرئيسية والتنقل بين التبويبات
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
