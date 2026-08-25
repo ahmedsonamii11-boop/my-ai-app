@@ -3,9 +3,10 @@ import requests
 import json
 import os
 from datetime import datetime
+import streamlit.components.v1 as components
 
 # ==========================================
-# 1. إعدادات الصفحة والتصميم (شبه شريط جيمناي)
+# 1. إعدادات الصفحة
 # ==========================================
 st.set_page_config(
     page_title="استوديو المحتوى الذكي الشامل - Pro Max",
@@ -13,72 +14,6 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
-
-# كود CSS لتصميم شريط الإدخال المدمج بالظبط زي شات جيمناي
-st.markdown("""
-    <style>
-    .stApp {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    @media only screen and (max-width: 768px) {
-        h1 { font-size: 1.5rem !important; }
-        h3 { font-size: 1.2rem !important; }
-        .stButton button { width: 100% !important; }
-    }
-    
-    /* تصميم حاوية شريط الإدخال المدمج (تشبه جيمناي) */
-    .gemini-chat-bar {
-        display: flex;
-        align-items: center;
-        background-color: #1e1f22;
-        border: 1px solid #444746;
-        border-radius: 30px;
-        padding: 8px 16px;
-        gap: 12px;
-        margin-top: 10px;
-        margin-bottom: 15px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        transition: border-color 0.3s;
-    }
-    .gemini-chat-bar:focus-within {
-        border-color: #8ab4f8;
-    }
-    .gemini-input {
-        background: transparent;
-        border: none;
-        color: #e3e3e3;
-        width: 100%;
-        outline: none;
-        font-size: 1.05rem;
-    }
-    .gemini-icon-btn {
-        background: transparent;
-        border: none;
-        color: #c4c7c5;
-        cursor: pointer;
-        font-size: 1.2rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 5px;
-        border-radius: 50%;
-        transition: background 0.2s, color 0.2s;
-    }
-    .gemini-icon-btn:hover {
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
-    }
-    .mic-active {
-        color: #ea4335 !important;
-        animation: gemini-pulse 1.2s infinite;
-    }
-    @keyframes gemini-pulse {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: 0.7; }
-        100% { transform: scale(1); opacity: 1; }
-    }
-    </style>
-""", unsafe_allow_html=True)
 
 API_KEY = st.secrets.get("GEMINI_API_KEY")
 
@@ -121,7 +56,7 @@ for key in ["t1_input_val", "t2_input_val", "t3_input_val", "t4_input_val", "t5_
         st.session_state[key] = ""
 
 # ==========================================
-# 2. القاموس الشامل (عربي / English)
+# 2. القاموس (عربي / English)
 # ==========================================
 TEXTS = {
     "العربية": {
@@ -136,7 +71,7 @@ TEXTS = {
         "stats_title": "📊 لوحة إحصائيات الأداء الحية",
         "stat_total": "إجمالي الأعمال المُنجزة:",
         "main_title": "🎬 استوديو المحتوى الذكي الشامل (Pro Max)",
-        "main_caption": "المنظومة الاحترافية مع شريط إدخال صوتي تفاعلي تماماً مثل جيمناي",
+        "main_caption": "المنظومة الاحترافية مع شريط الإدخال الصوتي المدمج",
         
         "tabs": [
             "1️⃣ 💡 فكرة وسكريبت والخطافات",
@@ -208,7 +143,7 @@ TEXTS = {
         "stats_title": "📊 Live Metrics",
         "stat_total": "Total Completed Works:",
         "main_title": "🎬 All-in-One Smart Content Studio (Pro Max)",
-        "main_caption": "Professional system with Gemini-style interactive chat voice bar",
+        "main_caption": "Professional system with Gemini-style voice input bar",
         
         "tabs": [
             "1️⃣ 💡 Idea, Script & Hooks",
@@ -271,105 +206,165 @@ TEXTS = {
 }
 
 # ==========================================
-# 3. دالة شريط المحادثة المشابه لجيمناي (Gemini Chat Bar)
+# 3. مكون شريط جيمناي الصوتي (Component صحيح)
 # ==========================================
-def gemini_style_chat_input(label_text, session_key, placeholder="اسأل جيمناي أو تحدث بصوتك..."):
+def gemini_voice_bar(label_text, session_key, placeholder="اسأل أو تحدث بصوتك..."):
     st.markdown(f"<label style='font-weight:600; color:#e2e8f0; font-size:0.95rem; margin-bottom: 5px; display:block;'>{label_text}</label>", unsafe_allow_html=True)
     
-    uid = session_key
     current_val = st.session_state.get(session_key, "")
     
-    bar_html = f"""
-    <div class="gemini-chat-bar" id="gemini_bar_{uid}">
-        <!-- زر المايك تماماً مثل جيمناي -->
-        <button type="button" class="gemini-icon-btn" id="mic_btn_{uid}" title="تحدث بصوتك" onclick="startGeminiVoice_{uid}()">
-            🎤
-        </button>
-        
-        <!-- خانة الإدخال النصية -->
-        <input type="text" class="gemini-input" id="gemini_input_{uid}" value="{current_val}" placeholder="{placeholder}" 
-               oninput="syncVal_{uid}(this.value)" />
-        
-        <!-- زر الإرسال (السهم) -->
-        <button type="button" class="gemini-icon-btn" style="color: #8ab4f8;" title="إرسال" onclick="triggerSubmit_{uid}()">
-            ➔
-        </button>
-    </div>
-
-    <script>
-    function syncVal_{uid}(val) {{
-        const hiddenInput = window.parent.document.querySelector('input[aria-label*="sync_{session_key}"]');
-        if (hiddenInput) {{
-            hiddenInput.value = val;
-            hiddenInput.dispatchEvent(new Event('input', {{ bubbles: true }}));
-            hiddenInput.dispatchEvent(new Event('change', {{ bubbles: true }}));
-        }}
-    }}
-
-    function startGeminiVoice_{uid}() {{
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
-            alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام متصفح Google Chrome والسماح بالمايك.");
-            return;
-        }}
-        
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ar-EG';
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 1;
-        
-        const micBtn = document.getElementById('mic_btn_{uid}');
-        const textInput = document.getElementById('gemini_input_{uid}');
-        
-        recognition.onstart = function() {{
-            micBtn.classList.add('mic-active');
-            textInput.placeholder = "جارٍ الاستماع... تحدث الآن 🎙️";
-        }};
-        
-        recognition.onresult = function(event) {{
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {{
-                transcript += event.results[i][0].transcript;
+    html_code = f"""
+    <!DOCTYPE html>
+    <html lang="ar" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <style>
+            body {{
+                margin: 0;
+                background-color: transparent;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }}
-            textInput.value = transcript;
-            syncVal_{uid}(transcript);
-        }};
-        
-        recognition.onerror = function(event) {{
-            micBtn.classList.remove('mic-active');
-            textInput.placeholder = "{placeholder}";
-        }};
-        
-        recognition.onend = function() {{
-            micBtn.classList.remove('mic-active');
-            textInput.placeholder = "{placeholder}";
-        }};
-        
-        recognition.start();
-    }}
+            .gemini-bar {{
+                display: flex;
+                align-items: center;
+                background-color: #1e1f22;
+                border: 1px solid #444746;
+                border-radius: 30px;
+                padding: 8px 16px;
+                gap: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                transition: border-color 0.3s;
+            }}
+            .gemini-bar:focus-within {{
+                border-color: #8ab4f8;
+            }}
+            .gemini-input {{
+                background: transparent;
+                border: none;
+                color: #e3e3e3;
+                width: 100%;
+                outline: none;
+                font-size: 1rem;
+            }}
+            .icon-btn {{
+                background: transparent;
+                border: none;
+                color: #c4c7c5;
+                cursor: pointer;
+                font-size: 1.2rem;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 5px;
+                border-radius: 50%;
+                transition: background 0.2s, color 0.2s;
+            }}
+            .icon-btn:hover {{
+                background: rgba(255, 255, 255, 0.1);
+                color: #ffffff;
+            }}
+            .mic-active {{
+                color: #ea4335 !important;
+                animation: pulse 1.2s infinite;
+            }}
+            @keyframes pulse {{
+                0% {{ transform: scale(1); opacity: 1; }}
+                50% {{ transform: scale(1.2); opacity: 0.7; }}
+                100% {{ transform: scale(1); opacity: 1; }}
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="gemini-bar">
+            <!-- زر المايك -->
+            <button type="button" class="icon-btn" id="micBtn" title="تحدث بصوتك" onclick="toggleVoice()">
+                🎤
+            </button>
+            
+            <!-- خانة الكتابة -->
+            <input type="text" class="gemini-input" id="textInput" value="{current_val}" placeholder="{placeholder}" oninput="sendVal(this.value)" />
+            
+            <!-- زر الإرسال -->
+            <button type="button" class="icon-btn" style="color: #8ab4f8;" title="إرسال" onclick="triggerAction()">
+                ➔
+            </button>
+        </div>
 
-    function triggerSubmit_{uid}() {{
-        // محاكاة الضغط على زر التوليد في Streamlit تلقائياً
-        const buttons = window.parent.document.querySelectorAll('button');
-        for (let b of buttons) {{
-            if (b.innerText.includes('توليد') || b.innerText.includes('Generate') || b.innerText.includes('✨') || b.innerText.includes('🎬')) {{
-                b.click();
-                break;
+        <script>
+        function sendVal(val) {{
+            // إرسال القيمة للسيرفر المخفي
+            const hiddenBox = window.parent.document.querySelector('input[data-baseweb="input"][aria-label*="{session_key}"]') || 
+                              window.parent.document.getElementById('hidden_{session_key}');
+            if (hiddenBox) {{
+                hiddenBox.value = val;
+                hiddenBox.dispatchEvent(new Event('input', {{ bubbles: true }}));
             }}
         }}
-    }}
-    </script>
+
+        function toggleVoice() {{
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {{
+                alert("متصفحك لا يدعم الإدخال الصوتي، يرجى استخدام Google Chrome.");
+                return;
+            }}
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            recognition.lang = 'ar-EG';
+            recognition.interimResults = true;
+            
+            const micBtn = document.getElementById('micBtn');
+            const textInput = document.getElementById('textInput');
+            
+            recognition.onstart = function() {{
+                micBtn.classList.add('mic-active');
+                textInput.placeholder = "جاري الاستماع... تحدث الآن 🎙️";
+            }};
+            
+            recognition.onresult = function(event) {{
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {{
+                    transcript += event.results[i][0].transcript;
+                }}
+                textInput.value = transcript;
+                sendVal(transcript);
+            }};
+            
+            recognition.onerror = function() {{
+                micBtn.classList.remove('mic-active');
+                textInput.placeholder = "{placeholder}";
+            }};
+            
+            recognition.onend = function() {{
+                micBtn.classList.remove('mic-active');
+                textInput.placeholder = "{placeholder}";
+            }};
+            
+            recognition.start();
+        }}
+
+        function triggerAction() {{
+            const buttons = window.parent.document.querySelectorAll('button');
+            for (let b of buttons) {{
+                if (b.innerText.includes('توليد') || b.innerText.includes('Generate') || b.innerText.includes('✨') || b.innerText.includes('🎬')) {{
+                    b.click();
+                    break;
+                }}
+            }}
+        }}
+        </script>
+    </body>
+    </html>
     """
-    st.markdown(bar_html, unsafe_allow_html=True)
+    components.html(html_code, height=75)
     
-    # حقل مخفی لمزامنة القيمة مع بايثون
-    hidden_val = st.text_input("", value=current_val, key=f"sync_{session_key}", label_visibility="collapsed")
+    # حقل خلفي للمزامنة
+    hidden_val = st.text_input("", value=current_val, key=f"hidden_{session_key}", label_visibility="collapsed")
     if hidden_val != current_val:
         st.session_state[session_key] = hidden_val
     return st.session_state[session_key]
 
 # ==========================================
-# 4. دالة الاتصال بالـ API
+# 4. دالة الـ API
 # ==========================================
 def generate_ai_response(prompt_text, category_name="عام", user_topic="", tab_index=0):
     if not API_KEY:
@@ -476,7 +471,7 @@ with st.sidebar:
                         st.toast("تمت الإضافة للمفضلة!")
 
 # ==========================================
-# 6. الواجهة الرئيسية والأقسام
+# 6. الواجهة الرئيسية
 # ==========================================
 st.title(T["main_title"])
 st.caption(T["main_caption"])
@@ -524,7 +519,7 @@ def render_result_section(tab_idx):
 if st.session_state["selected_tab"] == 0:
     st.markdown(f"### {T['t1_title']}")
     
-    v_title = gemini_style_chat_input(T['t1_input'], "t1_input_val", "اكتب فكرة الفيديو أو اضغط المايك...")
+    v_title = gemini_voice_bar(T['t1_input'], "t1_input_val", "اكتب أو اضغط المايك للتحدث...")
     
     v_duration = st.select_slider(T["t1_dur"], options=["15 ثانية", "30 ثانية", "60 ثانية", "3 دقائق", "بودكاست"])
     v_style = st.selectbox(T["t1_style"], ["سينمائي واقعي", "3D Animation", "Dark Fantasy", "Cyberpunk", "وثائقي"])
@@ -549,7 +544,7 @@ elif st.session_state["selected_tab"] == 1:
     
     col1, col2 = st.columns(2)
     with col1:
-        song_idea = gemini_style_chat_input(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو تحدث بالمايك...")
+        song_idea = gemini_voice_bar(T['t2_idea'], "t2_input_val", "اكتب فكرة الأغنية أو اضغط المايك...")
         song_structure = st.multiselect(T["t2_struct"], ["[Intro]", "[Verse 1]", "[Chorus]", "[Verse 2]", "[Outro]"], default=["[Intro]", "[Verse 1]", "[Chorus]", "[Outro]"])
         lyrics_dialect = st.selectbox(T["t2_dialect"], ["عامية مصرية", "فصحى سينمائية", "خليجي", "شامي"])
         
@@ -576,7 +571,7 @@ elif st.session_state["selected_tab"] == 1:
 elif st.session_state["selected_tab"] == 2:
     st.markdown(f"### {T['t3_title']}")
     
-    img_desc = gemini_style_chat_input(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم المايك...")
+    img_desc = gemini_voice_bar(T['t3_desc'], "t3_input_val", "صف صورتك بالتفصيل أو استخدم المايك...")
     
     img_engine = st.selectbox(T["t3_engine"], ["Midjourney v6", "Flux.1", "Leonardo AI", "DALL-E 3"])
     img_aspect = st.selectbox(T["t3_aspect"], ["16:9 عريض", "9:16 موبايل", "1:1 مربع", "4:5 إنستجرام"])
@@ -598,7 +593,7 @@ elif st.session_state["selected_tab"] == 2:
 elif st.session_state["selected_tab"] == 3:
     st.markdown(f"### {T['t4_title']}")
     
-    a_script = gemini_style_chat_input(T['t4_script'], "t4_input_val", "اكتب النص أو تحدث بالمايك...")
+    a_script = gemini_voice_bar(T['t4_script'], "t4_input_val", "اكتب النص أو استخدم المايك...")
     
     a_voice = st.selectbox(T["t4_voice"], ["صوت وثائقي فخم", "سريع وحماسي", "ودود وإخباري", "درامي مؤثر"])
     a_ai_tool = st.selectbox(T["t4_tool"], ["Runway Gen-3", "Luma Dream Machine", "HeyGen Avatar", "Pika Labs"])
@@ -620,7 +615,7 @@ elif st.session_state["selected_tab"] == 3:
 elif st.session_state["selected_tab"] == 4:
     st.markdown(f"### {T['t5_title']}")
     
-    m_topic = gemini_style_chat_input(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
+    m_topic = gemini_voice_bar(T['t5_topic'], "t5_input_val", "اكتب موضوع المحتوى أو استخدم المايك...")
     
     m_platform = st.selectbox(T["t5_platform"], ["TikTok", "Instagram Reels", "YouTube Shorts", "Facebook", "LinkedIn"])
     m_goal = st.selectbox(T["t5_goal"], ["التفاعل وبناء الجمهور", "المبيعات والتحويل", "نشر الوعي بالعلامة التجارية"])
